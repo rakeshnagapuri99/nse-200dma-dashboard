@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
-import time
 import warnings
 import pandas as pd
 import yfinance as yf
@@ -10,11 +9,8 @@ OUTPUT_DIR = Path("output")
 CSV_FILE = OUTPUT_DIR / "NSE_200DMA_Recovery_Scanner.csv"
 XLSX_FILE = OUTPUT_DIR / "NSE_200DMA_Recovery_Scanner.xlsx"
 
-# Fetch fundamentals for candidates in the scanner.
-# 100 keeps API usage reasonable while covering the dashboard universe.
-MAX_STOCKS = 100
-
-PAUSE_SECONDS = 1.0
+# Only enrich the stocks actually displayed/needed.
+TOP_N = 20
 
 
 def safe_number(value):
@@ -34,10 +30,6 @@ def safe_number(value):
 
 
 def get_fundamentals(symbol):
-
-    ticker_symbol = f"{symbol}.NS"
-
-    print(f"  Fundamentals: {symbol}")
 
     result = {
         "pe_ratio": None,
@@ -65,7 +57,7 @@ def get_fundamentals(symbol):
 
     try:
 
-        ticker = yf.Ticker(ticker_symbol)
+        ticker = yf.Ticker(f"{symbol}.NS")
 
         info = ticker.info
 
@@ -90,8 +82,6 @@ def get_fundamentals(symbol):
         )
 
         if dividend is not None:
-
-            # Yahoo may return decimal form.
             result["dividend_yield"] = dividend * 100
 
         result["market_cap"] = safe_number(
@@ -123,7 +113,6 @@ def get_fundamentals(symbol):
         if net_margin is not None:
             result["net_profit_margin"] = net_margin * 100
 
-        # Yahoo occasionally provides this field.
         roce = safe_number(
             info.get("returnOnCapitalEmployed")
         )
@@ -131,7 +120,7 @@ def get_fundamentals(symbol):
         if roce is not None:
 
             if abs(roce) <= 1:
-                roce = roce * 100
+                roce *= 100
 
             result["roce"] = roce
 
@@ -182,7 +171,6 @@ def get_fundamentals(symbol):
         score = 0
         factors = 0
 
-        # P/E
         pe = result["pe_ratio"]
 
         if pe is not None and pe > 0:
@@ -196,7 +184,6 @@ def get_fundamentals(symbol):
             elif pe <= 50:
                 score += 4
 
-        # ROE
         roe = result["roe"]
 
         if roe is not None:
@@ -210,7 +197,6 @@ def get_fundamentals(symbol):
             elif roe >= 10:
                 score += 5
 
-        # ROCE
         roce = result["roce"]
 
         if roce is not None:
@@ -224,7 +210,6 @@ def get_fundamentals(symbol):
             elif roce >= 10:
                 score += 5
 
-        # Debt / Equity
         de = result["debt_to_equity"]
 
         if de is not None:
@@ -238,7 +223,6 @@ def get_fundamentals(symbol):
             elif de <= 2:
                 score += 4
 
-        # Current Ratio
         current = result["current_ratio"]
 
         if current is not None:
@@ -252,7 +236,6 @@ def get_fundamentals(symbol):
             elif current >= 1:
                 score += 5
 
-        # Profit margin
         margin = result["net_profit_margin"]
 
         if margin is not None:
@@ -266,7 +249,6 @@ def get_fundamentals(symbol):
             elif margin > 0:
                 score += 4
 
-        # Revenue growth
         growth = result["revenue_growth"]
 
         if growth is not None:
@@ -280,7 +262,6 @@ def get_fundamentals(symbol):
             elif growth > 0:
                 score += 4
 
-        # EPS growth
         eps_growth = result["eps_growth"]
 
         if eps_growth is not None:
@@ -294,69 +275,90 @@ def get_fundamentals(symbol):
             elif eps_growth > 0:
                 score += 4
 
-        # Convert to 100.
         if factors > 0:
 
             result["fundamental_score"] = round(
                 (score / (factors * 10)) * 100
             )
 
-        return result
+        print(
+            f"✓ {symbol}: "
+            f"Fundamental Score = "
+            f"{result['fundamental_score']}"
+        )
 
     except Exception as e:
 
-        print(f"    ! Could not fetch fundamentals for {symbol}: {e}")
+        print(
+            f"⚠ {symbol}: fundamentals unavailable - {e}"
+        )
 
-        return result
+    return result
 
 
 def main():
 
-    print("\n======================================")
-    print(" NSE 200 DMA FUNDAMENTAL ENRICHMENT")
-    print("======================================\n")
+    print("")
+    print("======================================")
+    print(" FAST FUNDAMENTAL ENRICHMENT")
+    print("======================================")
+    print("")
 
     if not CSV_FILE.exists():
 
         raise FileNotFoundError(
-            f"{CSV_FILE} does not exist. "
-            "Run scanner_nse500.py first."
+            f"{CSV_FILE} does not exist."
         )
 
     df = pd.read_csv(CSV_FILE)
 
     if df.empty:
 
-        print("No candidates found.")
+        print("No scanner results.")
         return
 
-    # Only enrich the first MAX_STOCKS.
-    # The scanner already sorts candidates by technical score.
-    target_count = min(MAX_STOCKS, len(df))
+    # ---------------------------------
+    # IMPORTANT:
+    # Scanner output is already ranked.
+    # We only need the first 20.
+    # ---------------------------------
+
+    df = df.reset_index(drop=True)
+
+    target_count = min(
+        TOP_N,
+        len(df)
+    )
 
     print(
         f"Fetching fundamentals for "
-        f"{target_count} candidates...\n"
+        f"TOP {target_count} stocks only..."
     )
 
     fundamental_columns = [
+
         "pe_ratio",
         "pb_ratio",
         "eps",
         "dividend_yield",
         "market_cap",
+
         "roe",
         "roce",
         "operating_margin",
         "net_profit_margin",
+
         "debt_to_equity",
         "current_ratio",
         "quick_ratio",
         "interest_coverage",
+
         "revenue_growth",
         "eps_growth",
         "profit_growth",
+
         "fundamental_score",
+
     ]
 
     for column in fundamental_columns:
@@ -365,19 +367,31 @@ def main():
 
             df[column] = None
 
+    # ---------------------------------
+    # Fetch only Top 20
+    # ---------------------------------
+
     for index in range(target_count):
 
-        symbol = str(df.loc[index, "symbol"]).strip()
+        symbol = str(
+            df.loc[index, "symbol"]
+        ).strip()
 
-        fundamentals = get_fundamentals(symbol)
+        fundamentals = get_fundamentals(
+            symbol
+        )
 
         for column, value in fundamentals.items():
 
-            df.loc[index, column] = value
+            df.loc[
+                index,
+                column
+            ] = value
 
-        time.sleep(PAUSE_SECONDS)
+    # ---------------------------------
+    # Save
+    # ---------------------------------
 
-    # Save updated files.
     df.to_csv(
         CSV_FILE,
         index=False
@@ -388,21 +402,28 @@ def main():
         index=False
     )
 
-    print("\n======================================")
+    print("")
+    print("======================================")
     print(" FUNDAMENTALS UPDATED")
     print("======================================")
-
-    print(f"\nUpdated CSV:")
-    print(CSV_FILE)
-
-    print(f"\nUpdated Excel:")
-    print(XLSX_FILE)
-
-    print("\nDone.")
+    print("")
+    print(
+        f"Stocks enriched: {target_count}"
+    )
+    print(
+        f"CSV: {CSV_FILE}"
+    )
+    print(
+        f"Excel: {XLSX_FILE}"
+    )
+    print("")
+    print("Done.")
 
 
 if __name__ == "__main__":
 
-    warnings.filterwarnings("ignore")
+    warnings.filterwarnings(
+        "ignore"
+    )
 
     main()
