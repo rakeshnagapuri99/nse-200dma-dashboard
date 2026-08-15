@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -8,17 +9,46 @@
 
 <style>
 
+/* =========================================================
+   PROFESSIONAL FINANCE DASHBOARD THEME
+   ========================================================= */
+
 :root{
-  --bg:#f5f7fb;
-  --card:#fff;
+  --bg:#f3f6fb;
+  --card:#ffffff;
+  --card-soft:#f8fafc;
+
   --text:#172033;
-  --muted:#6b7280;
-  --line:#e5e7eb;
-  --green:#16834b;
-  --red:#c63d3d;
-  --amber:#b7791f;
+  --muted:#64748b;
+  --line:#e2e8f0;
+
+  --navy:#102a43;
   --blue:#2563eb;
+  --blue-light:#eff6ff;
+
+  --green:#15803d;
+  --green-light:#dcfce7;
+
+  --red:#dc2626;
+  --red-light:#fee2e2;
+
+  --amber:#d97706;
+  --amber-light:#fef3c7;
+
+  --purple:#7c3aed;
+  --purple-light:#f3e8ff;
+
+  --cyan:#0891b2;
+  --cyan-light:#cffafe;
+
+  --shadow:0 6px 20px rgba(15,23,42,.07);
+  --shadow-hover:0 10px 30px rgba(15,23,42,.12);
 }
+
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
 
 *{
   box-sizing:border-box;
@@ -26,323 +56,618 @@
 
 body{
   margin:0;
-  background:var(--bg);
+
+  background:
+    radial-gradient(
+      circle at top right,
+      #e8f1ff 0,
+      transparent 30%
+    ),
+    var(--bg);
+
   color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
 }
 
 .wrap{
-  max-width:1400px;
+  max-width:1450px;
   margin:auto;
-  padding:24px;
+  padding:28px;
 }
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .head{
   display:flex;
   justify-content:space-between;
+  align-items:center;
+
   gap:20px;
-  align-items:flex-end;
-  margin-bottom:20px;
+
+  margin-bottom:22px;
+
+  padding:22px 24px;
+
+  border-radius:18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0f2742,
+      #163e63 55%,
+      #1d4ed8
+    );
+
+  color:white;
+
+  box-shadow:
+    0 12px 35px rgba(15,39,66,.20);
 }
 
 .title h1{
   margin:0;
-  font-size:28px;
+
+  font-size:30px;
+  font-weight:850;
+
+  letter-spacing:-.5px;
 }
 
 .title p{
-  margin:6px 0 0;
-  color:var(--muted);
+  margin:7px 0 0;
+
+  color:#dbeafe;
+
+  font-size:13px;
+}
+
+.updated-by{
+  margin-top:6px;
+
+  font-size:12px;
+
+  color:#bfdbfe;
+
+  font-weight:600;
 }
 
 .badge{
-  background:#eef4ff;
-  color:#2457c5;
-  padding:8px 12px;
+  background:rgba(255,255,255,.12);
+
+  border:1px solid rgba(255,255,255,.20);
+
+  color:white;
+
+  padding:10px 14px;
+
   border-radius:999px;
-  font-size:13px;
-  font-weight:700;
+
+  font-size:12px;
+
+  font-weight:800;
+
+  white-space:nowrap;
+
+  backdrop-filter:blur(10px);
 }
+
+
+/* =========================================================
+   KPI CARDS
+   ========================================================= */
 
 .kpis{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+
+  grid-template-columns:
+    repeat(5,1fr);
+
   gap:14px;
-  margin-bottom:18px;
+
+  margin-bottom:20px;
 }
 
 .card{
   background:var(--card);
+
   border:1px solid var(--line);
-  border-radius:14px;
-  padding:17px;
-  box-shadow:0 3px 12px #17203308;
+
+  border-radius:16px;
+
+  padding:18px;
+
+  box-shadow:var(--shadow);
+}
+
+.kpi{
+  position:relative;
+  overflow:hidden;
+
+  transition:
+    transform .18s,
+    box-shadow .18s;
+}
+
+.kpi:hover{
+  transform:translateY(-2px);
+
+  box-shadow:var(--shadow-hover);
+}
+
+.kpi::before{
+  content:"";
+
+  position:absolute;
+
+  left:0;
+  top:0;
+
+  width:5px;
+  height:100%;
+
+  background:var(--blue);
+}
+
+.kpi:nth-child(2)::before{
+  background:var(--green);
+}
+
+.kpi:nth-child(3)::before{
+  background:var(--amber);
+}
+
+.kpi:nth-child(4)::before{
+  background:var(--purple);
+}
+
+.kpi:nth-child(5)::before{
+  background:var(--cyan);
 }
 
 .kpi .label{
   color:var(--muted);
-  font-size:13px;
+
+  font-size:12px;
+
+  font-weight:700;
+
+  text-transform:uppercase;
+
+  letter-spacing:.4px;
 }
 
 .kpi .value{
-  font-size:25px;
-  font-weight:800;
-  margin-top:6px;
+  font-size:28px;
+
+  font-weight:900;
+
+  margin-top:7px;
+
+  color:var(--navy);
 }
 
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.error{
+  color:var(--red);
+
+  background:var(--red-light);
+
+  border:1px solid #fecaca;
+
+  padding:13px;
+
+  border-radius:12px;
+
+  display:none;
+
+  margin-bottom:16px;
+
+  font-weight:600;
+}
+
+
+/* =========================================================
+   TOP VISUAL SECTION
+   ========================================================= */
+
 .grid{
-  display:grid;
-  grid-template-columns:1.25fr 1fr;
-  gap:16px;
-  margin-bottom:18px;
+  display:block;
+
+  margin-bottom:20px;
 }
 
 .section-title{
   font-size:16px;
-  font-weight:800;
-  margin-bottom:12px;
+
+  font-weight:850;
+
+  margin-bottom:14px;
+
+  color:var(--navy);
 }
+
+
+/* =========================================================
+   BAR VISUAL
+   ========================================================= */
 
 .bars{
   display:flex;
+
   flex-direction:column;
-  gap:9px;
+
+  gap:10px;
 }
 
 .barrow{
   display:grid;
-  grid-template-columns:115px 1fr 70px;
-  gap:8px;
+
+  grid-template-columns:
+    120px
+    1fr
+    80px;
+
+  gap:10px;
+
   align-items:center;
+
   font-size:12px;
+}
+
+.barrow b{
+  color:#334155;
 }
 
 .barbg{
   height:14px;
-  background:#edf0f5;
-  border-radius:10px;
+
+  background:#eef2f7;
+
+  border-radius:20px;
+
   position:relative;
+
   overflow:hidden;
 }
 
 .bar{
   height:100%;
-  border-radius:10px;
-  background:#4f7cff;
+
+  border-radius:20px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2563eb,
+      #60a5fa
+    );
 }
 
 .bar.neg{
-  background:#d86a6a;
+  background:
+    linear-gradient(
+      90deg,
+      #ef4444,
+      #f87171
+    );
 }
 
-.bar.zero{
-  position:absolute;
-  left:50%;
-  top:0;
-  width:1px;
-  height:100%;
-  background:#555;
-}
 
-.scatter{
-  position:relative;
-  height:270px;
-  border-left:1px solid #bbb;
-  border-bottom:1px solid #bbb;
-  background:linear-gradient(#ffffff,#fafbfe);
-}
-
-.dot{
-  position:absolute;
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  transform:translate(-50%,50%);
-  background:#2563eb;
-  border:2px solid white;
-  box-shadow:0 1px 5px #0003;
-}
-
-.axis{
-  font-size:11px;
-  color:var(--muted);
-  display:flex;
-  justify-content:space-between;
-  margin-top:7px;
-}
-
-.legend{
-  font-size:11px;
-  color:var(--muted);
-  margin-top:6px;
-}
+/* =========================================================
+   CONTROLS
+   ========================================================= */
 
 .controls{
   display:flex;
+
   flex-wrap:wrap;
+
   gap:9px;
+
   align-items:center;
-  margin-bottom:12px;
+
+  margin-bottom:15px;
 }
 
 .controls input,
 .controls select{
-  border:1px solid var(--line);
-  border-radius:9px;
-  padding:9px 11px;
-  background:#fff;
+  border:1px solid #d7dee8;
+
+  border-radius:10px;
+
+  padding:10px 12px;
+
+  background:white;
+
   color:var(--text);
+
+  font-size:13px;
+
+  outline:none;
+
+  transition:
+    border .15s,
+    box-shadow .15s;
+}
+
+.controls input:focus,
+.controls select:focus{
+  border-color:var(--blue);
+
+  box-shadow:
+    0 0 0 3px rgba(37,99,235,.10);
 }
 
 .controls input{
-  min-width:220px;
+  min-width:240px;
 }
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
 
 .tablewrap{
   overflow:auto;
+
+  border:1px solid var(--line);
+
+  border-radius:13px;
 }
 
 .table{
   width:100%;
-  border-collapse:collapse;
+
+  border-collapse:separate;
+
+  border-spacing:0;
+
   font-size:13px;
 }
 
 .table th{
   position:sticky;
+
   top:0;
-  background:#f8fafc;
+
+  z-index:2;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8fafc,
+      #eef2f7
+    );
+
+  color:#334155;
+
   text-align:left;
-  padding:11px;
-  border-bottom:1px solid var(--line);
+
+  padding:12px;
+
+  border-bottom:1px solid #dbe2ea;
+
   white-space:nowrap;
+
+  font-size:11px;
+
+  text-transform:uppercase;
+
+  letter-spacing:.35px;
 }
 
 .table td{
-  padding:11px;
-  border-bottom:1px solid var(--line);
+  padding:12px;
+
+  border-bottom:1px solid #edf1f5;
+
   white-space:nowrap;
 }
 
 .table tbody tr{
   cursor:pointer;
-  transition:background .15s;
+
+  transition:
+    background .15s,
+    transform .10s;
 }
 
 .table tbody tr:hover{
-  background:#eef6ff;
+  background:#eff6ff;
+}
+
+.table tbody tr:last-child td{
+  border-bottom:0;
 }
 
 .stock{
-  font-weight:800;
+  font-weight:850;
+
+  color:#0f2742;
 }
 
 .pos{
   color:var(--green);
-  font-weight:700;
+
+  font-weight:750;
 }
 
 .neg{
   color:var(--red);
-  font-weight:700;
+
+  font-weight:750;
 }
+
+
+/* =========================================================
+   SETUP PILLS
+   ========================================================= */
 
 .pill{
   display:inline-block;
-  padding:5px 8px;
+
+  padding:6px 10px;
+
   border-radius:999px;
-  font-size:11px;
-  font-weight:800;
+
+  font-size:10px;
+
+  font-weight:850;
+
+  letter-spacing:.25px;
+
+  white-space:nowrap;
 }
 
 .strong{
-  background:#e7f7ed;
-  color:#137642;
+  background:var(--green-light);
+
+  color:var(--green);
+
+  border:1px solid #bbf7d0;
 }
 
 .watch{
-  background:#fff5dc;
-  color:#9a6714;
+  background:var(--amber-light);
+
+  color:#92400e;
+
+  border:1px solid #fde68a;
 }
 
 .near{
-  background:#eef1f5;
-  color:#596273;
+  background:var(--purple-light);
+
+  color:#6d28d9;
+
+  border:1px solid #ddd6fe;
 }
+
+
+/* =========================================================
+   NOTES
+   ========================================================= */
 
 .note{
   color:var(--muted);
-  font-size:12px;
+
+  font-size:11px;
+
   margin-top:12px;
-}
 
-.error{
-  color:var(--red);
-  background:#fff0f0;
-  border:1px solid #ffd0d0;
-  padding:12px;
-  border-radius:10px;
-  display:none;
+  line-height:1.6;
 }
 
 
-/* ================================
-   STOCK DETAIL POPUP
-   ================================ */
+/* =========================================================
+   STOCK DETAIL MODAL
+   ========================================================= */
 
 .modal{
   display:none;
+
   position:fixed;
+
   inset:0;
-  background:rgba(15,23,42,.60);
+
+  background:
+    rgba(15,23,42,.72);
+
   z-index:9999;
+
   padding:25px;
+
   overflow:auto;
+
+  backdrop-filter:blur(5px);
 }
 
 .modal.show{
   display:flex;
+
   align-items:center;
+
   justify-content:center;
 }
 
 .modal-card{
-  width:min(950px,100%);
-  max-height:92vh;
+  width:min(1000px,100%);
+
+  max-height:93vh;
+
   overflow:auto;
-  background:#fff;
-  border-radius:20px;
-  padding:26px;
-  box-shadow:0 25px 80px rgba(0,0,0,.30);
+
+  background:white;
+
+  border-radius:22px;
+
+  padding:28px;
+
+  box-shadow:
+    0 30px 100px rgba(0,0,0,.35);
 }
 
 .modal-head{
   display:flex;
+
   justify-content:space-between;
+
   align-items:flex-start;
+
   gap:15px;
-  margin-bottom:22px;
+
+  margin-bottom:24px;
+
+  padding-bottom:18px;
+
+  border-bottom:1px solid var(--line);
 }
 
 .modal-title{
-  font-size:27px;
-  font-weight:800;
+  font-size:28px;
+
+  font-weight:900;
+
+  color:var(--navy);
 }
 
 .modal-subtitle{
   color:var(--muted);
+
   margin-top:5px;
-  font-size:13px;
+
+  font-size:12px;
 }
 
 .close-btn{
   border:0;
+
   background:#f1f5f9;
+
   width:40px;
+
   height:40px;
+
   border-radius:50%;
+
   font-size:24px;
+
   cursor:pointer;
+
   color:#334155;
 }
 
@@ -350,94 +675,233 @@ body{
   background:#e2e8f0;
 }
 
+
+/* =========================================================
+   DETAIL SECTION
+   ========================================================= */
+
 .detail-section{
   margin-top:22px;
 }
 
 .detail-section h3{
-  margin:0 0 12px;
+  margin:0 0 13px;
+
   font-size:16px;
-  font-weight:800;
+
+  font-weight:850;
+
+  color:var(--navy);
 }
 
 .detail-grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+
+  grid-template-columns:
+    repeat(3,1fr);
+
   gap:12px;
 }
 
 .detail-box{
   border:1px solid var(--line);
+
   border-radius:13px;
+
   padding:15px;
-  background:#fafcff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #f8fbff
+    );
+
+  transition:
+    transform .15s,
+    box-shadow .15s;
+}
+
+.detail-box:hover{
+  transform:translateY(-1px);
+
+  box-shadow:
+    0 5px 15px rgba(15,23,42,.07);
 }
 
 .detail-label{
   color:var(--muted);
-  font-size:12px;
+
+  font-size:11px;
+
+  font-weight:650;
 }
 
 .detail-value{
   font-size:19px;
-  font-weight:800;
+
+  font-weight:850;
+
   margin-top:6px;
+
+  color:#172033;
 }
 
-.fundamental-placeholder{
-  border:1px dashed #cbd5e1;
+
+/* =========================================================
+   FUNDAMENTALS
+   ========================================================= */
+
+.fundamental-summary{
+  display:grid;
+
+  grid-template-columns:
+    repeat(4,1fr);
+
+  gap:12px;
+
+  margin-bottom:15px;
+}
+
+.fundamental-score{
+  border:1px solid var(--line);
+
   border-radius:13px;
-  padding:20px;
+
+  padding:15px;
+
   background:#f8fafc;
 }
 
-.fundamental-placeholder strong{
-  display:block;
-  font-size:16px;
-  margin-bottom:8px;
+.fundamental-score .score-label{
+  color:var(--muted);
+
+  font-size:11px;
+
+  font-weight:700;
+
+  text-transform:uppercase;
 }
 
-.fundamental-placeholder span{
+.fundamental-score .score-value{
+  font-size:25px;
+
+  font-weight:900;
+
+  margin-top:5px;
+}
+
+.fundamental-score .score-note{
   color:var(--muted);
-  font-size:13px;
-  line-height:1.7;
+
+  font-size:10px;
+
+  margin-top:4px;
+}
+
+.fundamental-group{
+  margin-top:15px;
+}
+
+.fundamental-group-title{
+  font-size:12px;
+
+  font-weight:850;
+
+  margin-bottom:8px;
+
+  color:#334155;
+
+  text-transform:uppercase;
+
+  letter-spacing:.3px;
+}
+
+.fundamental-grid{
+  display:grid;
+
+  grid-template-columns:
+    repeat(4,1fr);
+
+  gap:10px;
+}
+
+.fundamental-box{
+  border:1px solid var(--line);
+
+  border-radius:11px;
+
+  padding:12px;
+
+  background:#fff;
+}
+
+.fundamental-box .detail-label{
+  font-size:10px;
+}
+
+.fundamental-box .detail-value{
+  font-size:16px;
+
+  margin-top:5px;
+}
+
+.score-good{
+  color:var(--green);
+}
+
+.score-mid{
+  color:var(--amber);
+}
+
+.score-low{
+  color:var(--red);
 }
 
 .click-hint{
-  font-size:11px;
+  font-size:10px;
+
   color:var(--muted);
-  margin-top:14px;
+
+  margin-top:15px;
+
+  line-height:1.6;
 }
 
 
-/* ================================
+/* =========================================================
    RESPONSIVE
-   ================================ */
+   ========================================================= */
 
-@media(max-width:1000px){
+@media(max-width:1100px){
 
   .kpis{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .grid{
-    grid-template-columns:1fr;
+    grid-template-columns:
+      repeat(3,1fr);
   }
 
 }
 
-@media(max-width:700px){
+@media(max-width:800px){
+
+  .kpis{
+    grid-template-columns:
+      repeat(2,1fr);
+  }
 
   .detail-grid{
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:
+      repeat(2,1fr);
   }
 
-  .modal{
-    padding:12px;
+  .fundamental-summary{
+    grid-template-columns:
+      repeat(2,1fr);
   }
 
-  .modal-card{
-    padding:18px;
+  .fundamental-grid{
+    grid-template-columns:
+      repeat(2,1fr);
   }
 
 }
@@ -445,19 +909,27 @@ body{
 @media(max-width:600px){
 
   .wrap{
-    padding:14px;
+    padding:12px;
   }
 
   .head{
-    align-items:flex-start;
     flex-direction:column;
-  }
 
-  .kpis{
-    grid-template-columns:1fr 1fr;
+    align-items:flex-start;
+
+    padding:18px;
   }
 
   .title h1{
+    font-size:22px;
+  }
+
+  .kpis{
+    grid-template-columns:
+      repeat(2,1fr);
+  }
+
+  .kpi .value{
     font-size:23px;
   }
 
@@ -465,538 +937,867 @@ body{
     grid-template-columns:1fr;
   }
 
+  .fundamental-summary,
+  .fundamental-grid{
+    grid-template-columns:1fr;
+  }
+
+  .modal{
+    padding:10px;
+  }
+
+  .modal-card{
+    padding:18px;
+  }
+
+  .controls input{
+    min-width:100%;
+
+    width:100%;
+  }
+
 }
 
 
-.fundamental-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
-.fundamental-score{border:1px solid var(--line);border-radius:13px;padding:15px;background:#f8fafc}
-.fundamental-score .score-label{color:var(--muted);font-size:12px}
-.fundamental-score .score-value{font-size:24px;font-weight:900;margin-top:5px}
-.fundamental-score .score-note{color:var(--muted);font-size:11px;margin-top:4px}
-.fundamental-group{margin-top:14px}
-.fundamental-group-title{font-size:13px;font-weight:800;margin-bottom:8px;color:#334155}
-.fundamental-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.fundamental-box{border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff}
-.fundamental-box .detail-label{font-size:11px}
-.fundamental-box .detail-value{font-size:16px;margin-top:5px}
-.score-good{color:var(--green)} .score-mid{color:var(--amber)} .score-low{color:var(--red)}
-@media(max-width:700px){.fundamental-summary{grid-template-columns:1fr 1fr}.fundamental-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:500px){.fundamental-summary,.fundamental-grid{grid-template-columns:1fr}}
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar{
+  width:8px;
+  height:8px;
+}
+
+::-webkit-scrollbar-track{
+  background:#eef2f7;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#cbd5e1;
+
+  border-radius:10px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background:#94a3b8;
+}
 
 </style>
+
 </head>
 
 
 <body>
 
+
 <div class="wrap">
 
-  <!-- HEADER -->
 
-  <div class="head">
+<!-- =======================================================
+     HEADER
+     ======================================================= -->
 
-    <div class="title">
+<div class="head">
 
-      <h1>NSE 200 DMA Recovery Scanner</h1>
+  <div class="title">
 
-      <p>
-        Top stocks approaching or retesting their 200-day moving average
-      </p>
+    <h1>
+      NSE 200 DMA Recovery Scanner
+    </h1>
 
-    </div>
+    <p>
+      Technical screening dashboard for stocks approaching,
+      retesting or recovering around their 200-day moving average.
+    </p>
 
-    <div class="badge" id="updated">
-      Loading data…
-    </div>
-
-  </div>
-
-
-  <!-- ERROR -->
-
-  <div id="error" class="error"></div>
-
-
-  <!-- KPI CARDS -->
-
-  <div class="kpis">
-
-    <div class="card kpi">
-      <div class="label">Stocks in report</div>
-      <div class="value" id="total">—</div>
-    </div>
-
-    <div class="card kpi">
-      <div class="label">Strong Retest</div>
-      <div class="value" id="strong">—</div>
-    </div>
-
-    <div class="card kpi">
-      <div class="label">Recovery Watch</div>
-      <div class="value" id="watch">—</div>
-    </div>
-
-    <div class="card kpi">
-      <div class="label">Near 200 DMA</div>
-      <div class="value" id="near">—</div>
-    </div>
-
-    <div class="card kpi">
-      <div class="label">Avg distance</div>
-      <div class="value" id="avg">—</div>
+    <div class="updated-by">
+      Updated by Rakesh Nagapuri
     </div>
 
   </div>
 
 
-  <!-- VISUALS -->
+  <div class="badge" id="updated">
+    Loading data…
+  </div>
 
-  <div class="grid">
+</div>
 
-    <div class="card">
 
-      <div class="section-title">
-        Top 20 — distance from 200 DMA
-      </div>
 
-      <div class="bars" id="bars"></div>
+<!-- ERROR -->
 
-      <div class="note">
-        Negative = below 200 DMA · Positive = above 200 DMA
-      </div>
+<div
+  id="error"
+  class="error"
+></div>
 
+
+
+<!-- =======================================================
+     KPI CARDS
+     ======================================================= -->
+
+<div class="kpis">
+
+
+  <div class="card kpi">
+
+    <div class="label">
+      Stocks in report
     </div>
 
-
-    <div class="card">
-
-      <div class="section-title">
-        Recovery strength
-      </div>
-
-      <div class="scatter" id="scatter"></div>
-
-      <div class="axis">
-        <span>Low recovery</span>
-        <span>High recovery →</span>
-      </div>
-
-      <div class="legend">
-        X = recovery from breakdown low · Y = closeness to 200 DMA
-      </div>
-
+    <div
+      class="value"
+      id="total"
+    >
+      —
     </div>
 
   </div>
 
 
-  <!-- TABLE -->
 
-  <div class="card">
+  <div class="card kpi">
 
-    <div class="section-title">
-      Top 20 candidates
+    <div class="label">
+      Strong Retest
     </div>
 
-    <div class="controls">
-
-      <input
-        id="search"
-        placeholder="Search stock…"
-      >
-
-      <select id="setup">
-
-        <option value="">
-          All setups
-        </option>
-
-        <option>
-          STRONG RETEST
-        </option>
-
-        <option>
-          RECOVERY WATCH
-        </option>
-
-        <option>
-          NEAR 200DMA
-        </option>
-
-      </select>
-
-
-      <select id="side">
-
-        <option value="">
-          Above & below
-        </option>
-
-        <option value="above">
-          Above 200 DMA
-        </option>
-
-        <option value="below">
-          Below 200 DMA
-        </option>
-
-      </select>
-
-
-      <select id="sort">
-
-        <option value="near">
-          Nearest 200 DMA
-        </option>
-
-        <option value="score">
-          Highest score
-        </option>
-
-        <option value="recovery">
-          Highest recovery
-        </option>
-
-        <option value="rsi">
-          Highest RSI
-        </option>
-
-      </select>
-
+    <div
+      class="value"
+      id="strong"
+    >
+      —
     </div>
 
+  </div>
 
-    <div class="tablewrap">
 
-      <table class="table">
 
-        <thead>
+  <div class="card kpi">
 
-          <tr>
-
-            <th>Rank</th>
-            <th>Stock</th>
-            <th>CMP</th>
-            <th>200 DMA</th>
-            <th>Gap %</th>
-            <th>50 DMA</th>
-            <th>RSI</th>
-            <th>Vol</th>
-            <th>Recovery %</th>
-            <th>Score</th>
-            <th>Setup</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody id="tbody"></tbody>
-
-      </table>
-
+    <div class="label">
+      Recovery Watch
     </div>
 
-
-    <div class="note">
-      Click any stock row to open detailed analysis.
+    <div
+      class="value"
+      id="watch"
+    >
+      —
     </div>
 
-    <div class="note">
-      Research/screening tool only. Verify live price and technical levels in your broker terminal before acting.
+  </div>
+
+
+
+  <div class="card kpi">
+
+    <div class="label">
+      Near 200 DMA
     </div>
+
+    <div
+      class="value"
+      id="near"
+    >
+      —
+    </div>
+
+  </div>
+
+
+
+  <div class="card kpi">
+
+    <div class="label">
+      Avg distance
+    </div>
+
+    <div
+      class="value"
+      id="avg"
+    >
+      —
+    </div>
+
+  </div>
+
+
+</div>
+
+
+
+<!-- =======================================================
+     TOP 20 DISTANCE VISUAL
+     ======================================================= -->
+
+<div class="card">
+
+  <div class="section-title">
+
+    Top 20 — Distance from 200 DMA
+
+  </div>
+
+
+  <div
+    class="bars"
+    id="bars"
+  ></div>
+
+
+  <div class="note">
+
+    Negative = below 200 DMA ·
+    Positive = above 200 DMA
 
   </div>
 
 </div>
 
 
-<!-- =================================
+
+<!-- =======================================================
+     TABLE
+     ======================================================= -->
+
+<div
+  class="card"
+  style="margin-top:20px;"
+>
+
+
+  <div class="section-title">
+
+    Stock Screening Results
+
+  </div>
+
+
+  <div class="controls">
+
+
+    <input
+      id="search"
+      placeholder="Search stock…"
+    >
+
+
+
+    <select id="setup">
+
+      <option value="">
+        All setups
+      </option>
+
+      <option>
+        STRONG RETEST
+      </option>
+
+      <option>
+        RECOVERY WATCH
+      </option>
+
+      <option>
+        NEAR 200DMA
+      </option>
+
+    </select>
+
+
+
+    <select id="side">
+
+      <option value="">
+        Above & below
+      </option>
+
+      <option value="above">
+        Above 200 DMA
+      </option>
+
+      <option value="below">
+        Below 200 DMA
+      </option>
+
+    </select>
+
+
+
+    <select id="sort">
+
+      <option value="near">
+        Nearest 200 DMA
+      </option>
+
+      <option value="score">
+        Highest score
+      </option>
+
+      <option value="recovery">
+        Highest recovery
+      </option>
+
+      <option value="rsi">
+        Highest RSI
+      </option>
+
+    </select>
+
+
+  </div>
+
+
+
+  <div class="tablewrap">
+
+
+    <table class="table">
+
+
+      <thead>
+
+        <tr>
+
+          <th>Rank</th>
+
+          <th>Stock</th>
+
+          <th>CMP</th>
+
+          <th>200 DMA</th>
+
+          <th>Gap %</th>
+
+          <th>50 DMA</th>
+
+          <th>RSI</th>
+
+          <th>Vol</th>
+
+          <th>Recovery %</th>
+
+          <th>Score</th>
+
+          <th>Setup</th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody id="tbody"></tbody>
+
+
+    </table>
+
+
+  </div>
+
+
+
+  <div class="note">
+
+    Click any stock row to open detailed analysis.
+
+  </div>
+
+
+  <div class="note">
+
+    Research/screening tool only.
+    Verify live price and technical levels
+    in your broker terminal before acting.
+
+  </div>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- =======================================================
      STOCK DETAIL MODAL
-     ================================= -->
+     ======================================================= -->
 
-<div class="modal" id="stockModal">
-
-  <div class="modal-card">
-
-
-    <!-- MODAL HEADER -->
-
-    <div class="modal-head">
-
-      <div>
-
-        <div
-          class="modal-title"
-          id="modalStock"
-        >
-          Stock Analysis
-        </div>
-
-        <div
-          class="modal-subtitle"
-          id="modalSetup"
-        >
-        </div>
-
-      </div>
+<div
+  class="modal"
+  id="stockModal"
+>
 
 
-      <button
-        class="close-btn"
-        onclick="closeStock()"
+<div class="modal-card">
+
+
+  <!-- HEADER -->
+
+  <div class="modal-head">
+
+
+    <div>
+
+
+      <div
+        class="modal-title"
+        id="modalStock"
       >
-        ×
-      </button>
+        Stock Analysis
+      </div>
+
+
+      <div
+        class="modal-subtitle"
+        id="modalSetup"
+      ></div>
+
 
     </div>
 
 
-    <!-- TECHNICAL SECTION -->
-
-    <div class="detail-section">
-
-      <h3>
-        200 DMA Setup
-      </h3>
-
-
-      <div class="detail-grid">
+    <button
+      class="close-btn"
+      onclick="closeStock()"
+    >
+      ×
+    </button>
 
 
-        <div class="detail-box">
+  </div>
 
-          <div class="detail-label">
-            CMP
-          </div>
 
-          <div
-            class="detail-value"
-            id="dClose"
-          >
-            —
-          </div>
 
+  <!-- =====================================================
+       TECHNICAL ANALYSIS
+       ===================================================== -->
+
+  <div class="detail-section">
+
+
+    <h3>
+      200 DMA Setup
+    </h3>
+
+
+    <div class="detail-grid">
+
+
+      <div class="detail-box">
+
+        <div class="detail-label">
+          CMP
         </div>
 
-
-        <div class="detail-box">
-
-          <div class="detail-label">
-            200 DMA
-          </div>
-
-          <div
-            class="detail-value"
-            id="d200"
-          >
-            —
-          </div>
-
+        <div
+          class="detail-value"
+          id="dClose"
+        >
+          —
         </div>
 
+      </div>
 
-        <div class="detail-box">
 
-          <div class="detail-label">
-            Distance from 200 DMA
-          </div>
 
-          <div
-            class="detail-value"
-            id="dGap"
-          >
-            —
-          </div>
+      <div class="detail-box">
 
+        <div class="detail-label">
+          200 DMA
         </div>
 
-
-        <div class="detail-box">
-
-          <div class="detail-label">
-            50 DMA
-          </div>
-
-          <div
-            class="detail-value"
-            id="d50"
-          >
-            —
-          </div>
-
+        <div
+          class="detail-value"
+          id="d200"
+        >
+          —
         </div>
 
+      </div>
 
-        <div class="detail-box">
 
-          <div class="detail-label">
-            RSI
-          </div>
 
-          <div
-            class="detail-value"
-            id="dRsi"
-          >
-            —
-          </div>
+      <div class="detail-box">
 
+        <div class="detail-label">
+          Distance from 200 DMA
         </div>
 
-
-        <div class="detail-box">
-
-          <div class="detail-label">
-            Volume Ratio
-          </div>
-
-          <div
-            class="detail-value"
-            id="dVol"
-          >
-            —
-          </div>
-
+        <div
+          class="detail-value"
+          id="dGap"
+        >
+          —
         </div>
 
+      </div>
 
-        <div class="detail-box">
 
-          <div class="detail-label">
-            Recovery
-          </div>
 
-          <div
-            class="detail-value"
-            id="dRecovery"
-          >
-            —
-          </div>
+      <div class="detail-box">
 
+        <div class="detail-label">
+          50 DMA
         </div>
 
-
-        <div class="detail-box">
-
-          <div class="detail-label">
-            Technical Score
-          </div>
-
-          <div
-            class="detail-value"
-            id="dScore"
-          >
-            —
-          </div>
-
+        <div
+          class="detail-value"
+          id="d50"
+        >
+          —
         </div>
 
+      </div>
 
-        <div class="detail-box">
 
-          <div class="detail-label">
-            Setup
-          </div>
 
-          <div
-            class="detail-value"
-            id="dSetup"
-          >
-            —
-          </div>
+      <div class="detail-box">
 
+        <div class="detail-label">
+          RSI
         </div>
 
+        <div
+          class="detail-value"
+          id="dRsi"
+        >
+          —
+        </div>
+
+      </div>
+
+
+
+      <div class="detail-box">
+
+        <div class="detail-label">
+          Volume Ratio
+        </div>
+
+        <div
+          class="detail-value"
+          id="dVol"
+        >
+          —
+        </div>
+
+      </div>
+
+
+
+      <div class="detail-box">
+
+        <div class="detail-label">
+          Recovery
+        </div>
+
+        <div
+          class="detail-value"
+          id="dRecovery"
+        >
+          —
+        </div>
+
+      </div>
+
+
+
+      <div class="detail-box">
+
+        <div class="detail-label">
+          Technical Score
+        </div>
+
+        <div
+          class="detail-value"
+          id="dScore"
+        >
+          —
+        </div>
+
+      </div>
+
+
+
+      <div class="detail-box">
+
+        <div class="detail-label">
+          Setup
+        </div>
+
+        <div
+          class="detail-value"
+          id="dSetup"
+        >
+          —
+        </div>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =====================================================
+       FUNDAMENTALS
+       ===================================================== -->
+
+  <div class="detail-section">
+
+
+    <h3>
+      Fundamental Analysis
+    </h3>
+
+
+    <div class="fundamental-summary">
+
+
+      <div class="fundamental-score">
+
+        <div class="score-label">
+          Fundamental Score
+        </div>
+
+        <div
+          class="score-value"
+          id="dFundScore"
+        >
+          —
+        </div>
+
+        <div class="score-note">
+          Based on available fundamentals
+        </div>
+
+      </div>
+
+
+
+      <div class="fundamental-score">
+
+        <div class="score-label">
+          Overall Score
+        </div>
+
+        <div
+          class="score-value"
+          id="dOverallScore"
+        >
+          —
+        </div>
+
+        <div class="score-note">
+          60% technical · 40% fundamental
+        </div>
+
+      </div>
+
+
+
+      <div class="fundamental-score">
+
+        <div class="score-label">
+          Market Cap
+        </div>
+
+        <div
+          class="score-value"
+          id="dMarketCap"
+        >
+          —
+        </div>
+
+        <div class="score-note">
+          Latest available data
+        </div>
+
+      </div>
+
+
+
+      <div class="fundamental-score">
+
+        <div class="score-label">
+          EPS
+        </div>
+
+        <div
+          class="score-value"
+          id="dEPS"
+        >
+          —
+        </div>
+
+        <div class="score-note">
+          Trailing EPS
+        </div>
+
+      </div>
+
+
+    </div>
+
+
+
+    <!-- VALUATION -->
+
+    <div class="fundamental-group">
+
+      <div class="fundamental-group-title">
+        Valuation
+      </div>
+
+      <div class="fundamental-grid">
+
+        <div class="fundamental-box">
+          <div class="detail-label">P/E Ratio</div>
+          <div class="detail-value" id="dPE">—</div>
+        </div>
+
+        <div class="fundamental-box">
+          <div class="detail-label">P/B Ratio</div>
+          <div class="detail-value" id="dPB">—</div>
+        </div>
+
+        <div class="fundamental-box">
+          <div class="detail-label">EPS</div>
+          <div class="detail-value" id="dEPS2">—</div>
+        </div>
+
+        <div class="fundamental-box">
+          <div class="detail-label">Dividend Yield</div>
+          <div class="detail-value" id="dDividend">—</div>
+        </div>
 
       </div>
 
     </div>
 
 
-    <!-- FUNDAMENTALS -->
 
-    <div class="detail-section">
+    <!-- PROFITABILITY -->
 
-      <h3>
-        Fundamental Analysis
-      </h3>
+    <div class="fundamental-group">
 
+      <div class="fundamental-group-title">
+        Profitability
+      </div>
 
-      <div class="fundamental-summary">
+      <div class="fundamental-grid">
 
-        <div class="fundamental-score">
-          <div class="score-label">Fundamental Score</div>
-          <div class="score-value" id="dFundScore">—</div>
-          <div class="score-note">Based on available fundamentals</div>
+        <div class="fundamental-box">
+          <div class="detail-label">ROE</div>
+          <div class="detail-value" id="dROE">—</div>
         </div>
 
-        <div class="fundamental-score">
-          <div class="score-label">Overall Score</div>
-          <div class="score-value" id="dOverallScore">—</div>
-          <div class="score-note">60% technical · 40% fundamental</div>
+        <div class="fundamental-box">
+          <div class="detail-label">ROCE</div>
+          <div class="detail-value" id="dROCE">—</div>
         </div>
 
-        <div class="fundamental-score">
-          <div class="score-label">Market Cap</div>
-          <div class="score-value" id="dMarketCap">—</div>
-          <div class="score-note">Latest available data</div>
+        <div class="fundamental-box">
+          <div class="detail-label">Operating Margin</div>
+          <div class="detail-value" id="dOperatingMargin">—</div>
         </div>
 
-        <div class="fundamental-score">
-          <div class="score-label">EPS</div>
-          <div class="score-value" id="dEPS">—</div>
-          <div class="score-note">Trailing EPS</div>
+        <div class="fundamental-box">
+          <div class="detail-label">Net Profit Margin</div>
+          <div class="detail-value" id="dNetMargin">—</div>
         </div>
 
       </div>
 
-      <div class="fundamental-group">
-        <div class="fundamental-group-title">Valuation</div>
-        <div class="fundamental-grid">
-          <div class="fundamental-box"><div class="detail-label">P/E Ratio</div><div class="detail-value" id="dPE">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">P/B Ratio</div><div class="detail-value" id="dPB">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">EPS</div><div class="detail-value" id="dEPS2">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">Dividend Yield</div><div class="detail-value" id="dDividend">—</div></div>
-        </div>
+    </div>
+
+
+
+    <!-- FINANCIAL HEALTH -->
+
+    <div class="fundamental-group">
+
+      <div class="fundamental-group-title">
+        Financial Health
       </div>
 
-      <div class="fundamental-group">
-        <div class="fundamental-group-title">Profitability</div>
-        <div class="fundamental-grid">
-          <div class="fundamental-box"><div class="detail-label">ROE</div><div class="detail-value" id="dROE">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">ROCE</div><div class="detail-value" id="dROCE">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">Operating Margin</div><div class="detail-value" id="dOperatingMargin">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">Net Profit Margin</div><div class="detail-value" id="dNetMargin">—</div></div>
+      <div class="fundamental-grid">
+
+        <div class="fundamental-box">
+          <div class="detail-label">Debt / Equity</div>
+          <div class="detail-value" id="dDebtEquity">—</div>
         </div>
+
+        <div class="fundamental-box">
+          <div class="detail-label">Current Ratio</div>
+          <div class="detail-value" id="dCurrentRatio">—</div>
+        </div>
+
+        <div class="fundamental-box">
+          <div class="detail-label">Quick Ratio</div>
+          <div class="detail-value" id="dQuickRatio">—</div>
+        </div>
+
+        <div class="fundamental-box">
+          <div class="detail-label">Interest Coverage</div>
+          <div class="detail-value" id="dInterestCoverage">—</div>
+        </div>
+
       </div>
 
-      <div class="fundamental-group">
-        <div class="fundamental-group-title">Financial Health</div>
-        <div class="fundamental-grid">
-          <div class="fundamental-box"><div class="detail-label">Debt / Equity</div><div class="detail-value" id="dDebtEquity">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">Current Ratio</div><div class="detail-value" id="dCurrentRatio">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">Quick Ratio</div><div class="detail-value" id="dQuickRatio">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">Interest Coverage</div><div class="detail-value" id="dInterestCoverage">—</div></div>
-        </div>
+    </div>
+
+
+
+    <!-- GROWTH -->
+
+    <div class="fundamental-group">
+
+      <div class="fundamental-group-title">
+        Growth
       </div>
 
-      <div class="fundamental-group">
-        <div class="fundamental-group-title">Growth</div>
-        <div class="fundamental-grid">
-          <div class="fundamental-box"><div class="detail-label">Revenue Growth</div><div class="detail-value" id="dRevenueGrowth">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">EPS Growth</div><div class="detail-value" id="dEPSGrowth">—</div></div>
-          <div class="fundamental-box"><div class="detail-label">Profit Growth</div><div class="detail-value" id="dProfitGrowth">—</div></div>
+      <div class="fundamental-grid">
+
+        <div class="fundamental-box">
+          <div class="detail-label">Revenue Growth</div>
+          <div class="detail-value" id="dRevenueGrowth">—</div>
         </div>
+
+        <div class="fundamental-box">
+          <div class="detail-label">EPS Growth</div>
+          <div class="detail-value" id="dEPSGrowth">—</div>
+        </div>
+
+        <div class="fundamental-box">
+          <div class="detail-label">Profit Growth</div>
+          <div class="detail-value" id="dProfitGrowth">—</div>
+        </div>
+
       </div>
 
-      <div class="click-hint">
-        Fundamental data is sourced by the scanner and may be unavailable for some stocks.
-        Verify company filings before making investment decisions.
-      </div>
+    </div>
+
+
+
+    <div class="click-hint">
+
+      Fundamental data is sourced by the scanner and
+      may be unavailable for some stocks.
+      Verify company filings before making investment decisions.
 
     </div>
 
 
   </div>
+
+
+</div>
 
 </div>
 
@@ -1005,9 +1806,9 @@ body{
 <script>
 
 
-/* =================================
+/* =========================================================
    DATA SOURCE
-   ================================= */
+   ========================================================= */
 
 const CSV_PATH =
   "output/NSE_200DMA_Recovery_Scanner.csv";
@@ -1019,9 +1820,9 @@ let top20 = [];
 
 
 
-/* =================================
+/* =========================================================
    CSV PARSER
-   ================================= */
+   ========================================================= */
 
 function parseCSV(text){
 
@@ -1065,15 +1866,29 @@ function parseCSV(text){
 
     }
 
-    else if((c==='\n'||c==='\r')&&!quoted){
+    else if(
+      (c==='\n'||c==='\r')
+      &&
+      !quoted
+    ){
 
-      if(c==='\r'&&n==='\n') i++;
+      if(
+        c==='\r'
+        &&
+        n==='\n'
+      ){
+        i++;
+      }
 
       row.push(field);
 
-      if(row.some(x=>x.trim()!==""))
-
+      if(
+        row.some(
+          x=>x.trim()!==""
+        )
+      ){
         out.push(row);
+      }
 
       row=[];
 
@@ -1090,7 +1905,10 @@ function parseCSV(text){
   }
 
 
-  if(field.length||row.length){
+  if(
+    field.length ||
+    row.length
+  ){
 
     row.push(field);
 
@@ -1099,16 +1917,24 @@ function parseCSV(text){
   }
 
 
-  const headers=
-    out.shift().map(x=>x.trim());
+  const headers =
+    out
+      .shift()
+      .map(
+        x=>x.trim()
+      );
 
 
   return out.map(r=>
 
     Object.fromEntries(
 
-      headers.map((h,i)=>
-        [h,(r[i]??"").trim()]
+      headers.map(
+        (h,i)=>
+        [
+          h,
+          (r[i]??"").trim()
+        ]
       )
 
     )
@@ -1119,23 +1945,25 @@ function parseCSV(text){
 
 
 
-/* =================================
-   NUMBER HELPER
-   ================================= */
+/* =========================================================
+   NUMBER
+   ========================================================= */
 
 function num(v){
 
   const x=parseFloat(v);
 
-  return Number.isFinite(x)?x:0;
+  return Number.isFinite(x)
+    ? x
+    : 0;
 
 }
 
 
 
-/* =================================
-   HTML ESCAPE
-   ================================= */
+/* =========================================================
+   ESCAPE
+   ========================================================= */
 
 function esc(s){
 
@@ -1159,19 +1987,23 @@ function esc(s){
 
 
 
-/* =================================
-   SETUP CSS CLASS
-   ================================= */
+/* =========================================================
+   SETUP CLASS
+   ========================================================= */
 
 function setupClass(s){
 
-  if(s==="STRONG RETEST")
-
+  if(
+    s==="STRONG RETEST"
+  )
     return "strong";
 
-  if(s==="RECOVERY WATCH")
 
+  if(
+    s==="RECOVERY WATCH"
+  )
     return "watch";
+
 
   return "near";
 
@@ -1179,13 +2011,13 @@ function setupClass(s){
 
 
 
-/* =================================
+/* =========================================================
    REFRESH TABLE
-   ================================= */
+   ========================================================= */
 
 function refresh(){
 
-  const search=
+  const search =
     document
       .getElementById("search")
       .value
@@ -1193,49 +2025,135 @@ function refresh(){
       .trim();
 
 
-  const setup=
+  const setup =
     document
       .getElementById("setup")
       .value;
 
 
-  const side=
+  const side =
     document
       .getElementById("side")
       .value;
 
 
-  const sort=
+  const sort =
     document
       .getElementById("sort")
       .value;
 
 
-  let a=rows.filter(r=>{
+  let a =
+    rows.filter(r=>{
 
-    const gap=
-      num(r.distance_to_200dma_pct);
+      const gap =
+        num(
+          r.distance_to_200dma_pct
+        );
+
+
+      return (
+
+        (
+          !search ||
+
+          (
+            r.symbol &&
+            r.symbol
+              .toUpperCase()
+              .includes(search)
+          )
+        )
+
+        &&
+
+        (
+          !setup ||
+          r.setup===setup
+        )
+
+        &&
+
+        (
+          !side ||
+
+          (
+            side==="above"
+              ? gap>=0
+              : gap<0
+          )
+        )
+
+      );
+
+    });
+
+
+
+  /* SORT */
+
+  a.sort((x,y)=>{
+
+    if(
+      sort==="score"
+    ){
+
+      return (
+        num(y.score)
+        -
+        num(x.score)
+      );
+
+    }
+
+
+    if(
+      sort==="recovery"
+    ){
+
+      return (
+
+        num(
+          y.recovery_from_breakdown_low_pct
+        )
+
+        -
+
+        num(
+          x.recovery_from_breakdown_low_pct
+        )
+
+      );
+
+    }
+
+
+    if(
+      sort==="rsi"
+    ){
+
+      return (
+        num(y.rsi_14)
+        -
+        num(x.rsi_14)
+      );
+
+    }
 
 
     return (
 
-      (!search ||
-        r.symbol
-          .toUpperCase()
-          .includes(search))
+      Math.abs(
+        num(
+          x.distance_to_200dma_pct
+        )
+      )
 
-      &&
+      -
 
-      (!setup ||
-        r.setup===setup)
-
-      &&
-
-      (!side ||
-        (
-          side==="above"
-          ? gap>=0
-          : gap<0
+      Math.abs(
+        num(
+          y.distance_to_200dma_pct
         )
       )
 
@@ -1244,55 +2162,26 @@ function refresh(){
   });
 
 
-  /* SORT */
 
-  a.sort((x,y)=>{
-
-    if(sort==="score")
-
-      return num(y.score)-num(x.score);
+  const show =
+    a.slice(0,20);
 
 
-    if(sort==="recovery")
 
-      return num(
-        y.recovery_from_breakdown_low_pct
-      )
-      -
-      num(
-        x.recovery_from_breakdown_low_pct
-      );
+  /* =====================================================
+     TABLE
+     ===================================================== */
 
-
-    if(sort==="rsi")
-
-      return num(y.rsi_14)-num(x.rsi_14);
-
-
-    return Math.abs(
-      num(x.distance_to_200dma_pct)
-    )
-    -
-    Math.abs(
-      num(y.distance_to_200dma_pct)
-    );
-
-  });
-
-
-  const show=a.slice(0,20);
-
-
-  /* =================================
-     BUILD TABLE
-     ================================= */
-
-  document.getElementById("tbody").innerHTML=
+  document.getElementById(
+    "tbody"
+  ).innerHTML =
 
     show.map((r,i)=>{
 
-      const gap=
-        num(r.distance_to_200dma_pct);
+      const gap =
+        num(
+          r.distance_to_200dma_pct
+        );
 
 
       return `
@@ -1302,7 +2191,7 @@ function refresh(){
         >
 
           <td>
-            ${i+1}
+            <b>${i+1}</b>
           </td>
 
 
@@ -1314,8 +2203,10 @@ function refresh(){
           <td>
             ₹${num(r.close)
               .toLocaleString(
-                'en-IN',
-                {maximumFractionDigits:2}
+                "en-IN",
+                {
+                  maximumFractionDigits:2
+                }
               )}
           </td>
 
@@ -1323,8 +2214,10 @@ function refresh(){
           <td>
             ₹${num(r.dma_200)
               .toLocaleString(
-                'en-IN',
-                {maximumFractionDigits:2}
+                "en-IN",
+                {
+                  maximumFractionDigits:2
+                }
               )}
           </td>
 
@@ -1332,15 +2225,20 @@ function refresh(){
           <td
             class="${gap>=0?'pos':'neg'}"
           >
-            ${gap>=0?'+':''}${gap.toFixed(2)}%
+
+            ${gap>=0?"+":""}
+            ${gap.toFixed(2)}%
+
           </td>
 
 
           <td>
             ₹${num(r.dma_50)
               .toLocaleString(
-                'en-IN',
-                {maximumFractionDigits:2}
+                "en-IN",
+                {
+                  maximumFractionDigits:2
+                }
               )}
           </td>
 
@@ -1374,9 +2272,7 @@ function refresh(){
             <span
               class="pill ${setupClass(r.setup)}"
             >
-
               ${esc(r.setup)}
-
             </span>
 
           </td>
@@ -1392,63 +2288,77 @@ function refresh(){
 
 
 
-/* =================================
+/* =========================================================
    VISUALS
-   ================================= */
+   ========================================================= */
 
 function renderVisuals(){
 
-  top20=[...rows]
+  top20 =
+    [...rows]
 
-    .sort(
+      .sort(
 
-      (a,b)=>
+        (a,b)=>
 
-        Math.abs(
-          num(a.distance_to_200dma_pct)
-        )
+          Math.abs(
+            num(
+              a.distance_to_200dma_pct
+            )
+          )
 
-        -
+          -
 
-        Math.abs(
-          num(b.distance_to_200dma_pct)
-        )
+          Math.abs(
+            num(
+              b.distance_to_200dma_pct
+            )
+          )
 
-    )
+      )
 
-    .slice(0,20);
-
-
-  const max=Math.max(
-
-    3,
-
-    ...top20.map(
-
-      r=>
-
-        Math.abs(
-          num(r.distance_to_200dma_pct)
-        )
-
-    )
-
-  );
+      .slice(0,20);
 
 
-  /* =================================
+
+  const max =
+    Math.max(
+
+      3,
+
+      ...top20.map(
+
+        r=>
+
+          Math.abs(
+            num(
+              r.distance_to_200dma_pct
+            )
+          )
+
+      )
+
+    );
+
+
+
+  /* =====================================================
      BAR CHART
-     ================================= */
+     ===================================================== */
 
-  document.getElementById("bars").innerHTML=
+  document.getElementById(
+    "bars"
+  ).innerHTML =
 
     top20.map(r=>{
 
-      const v=
-        num(r.distance_to_200dma_pct);
+      const v =
+        num(
+          r.distance_to_200dma_pct
+        );
 
 
-      const w=
+      const w =
         Math.min(
           100,
           Math.abs(v)/max*100
@@ -1463,21 +2373,23 @@ function renderVisuals(){
             ${esc(r.symbol)}
           </b>
 
+
           <div class="barbg">
 
             <div
               class="bar ${v<0?'neg':''}"
               style="width:${w}%"
-            >
-            </div>
+            ></div>
 
           </div>
+
 
           <span
             class="${v>=0?'pos':'neg'}"
           >
 
-            ${v>=0?'+':''}${v.toFixed(2)}%
+            ${v>=0?"+":""}
+            ${v.toFixed(2)}%
 
           </span>
 
@@ -1487,210 +2399,206 @@ function renderVisuals(){
 
     }).join("");
 
-
-  /* =================================
-     SCATTER
-     ================================= */
-
-  const sc=
-    document.getElementById("scatter");
-
-
-  sc.innerHTML="";
-
-
-  const maxRec=Math.max(
-
-    10,
-
-    ...top20.map(
-
-      r=>
-
-        num(
-          r.recovery_from_breakdown_low_pct
-        )
-
-    )
-
-  );
-
-
-  top20.forEach(r=>{
-
-    const x=Math.max(
-
-      2,
-
-      Math.min(
-
-        98,
-
-        num(
-          r.recovery_from_breakdown_low_pct
-        )
-        /
-        maxRec
-        *
-        96
-
-      )
-
-    );
-
-
-    const closeness=Math.min(
-
-      100,
-
-      Math.abs(
-        num(r.distance_to_200dma_pct)
-      )
-      /
-      max
-      *
-      100
-
-    );
-
-
-    const y=
-      96-closeness*0.88;
-
-
-    const d=
-      document.createElement("div");
-
-
-    d.className="dot";
-
-
-    d.style.left=
-      x+"%";
-
-
-    d.style.bottom=
-      (100-y)+"%";
-
-
-    d.title=
-
-      `${r.symbol}: recovery ${
-        num(
-          r.recovery_from_breakdown_low_pct
-        ).toFixed(1)
-      }%, gap ${
-        num(
-          r.distance_to_200dma_pct
-        ).toFixed(2)
-      }%`;
-
-
-    sc.appendChild(d);
-
-  });
-
 }
 
 
 
-/* =================================
+/* =========================================================
    FUNDAMENTAL HELPERS
-   ================================= */
+   ========================================================= */
 
 function fundamentalNum(v){
-  const x=parseFloat(v);
-  return Number.isFinite(x) ? x : null;
+
+  const x =
+    parseFloat(v);
+
+  return Number.isFinite(x)
+    ? x
+    : null;
+
 }
 
-function fundamentalText(v, suffix="", decimals=2){
-  const x=fundamentalNum(v);
-  if(x===null) return "N/A";
-  return x.toLocaleString("en-IN", {
-    minimumFractionDigits:decimals,
-    maximumFractionDigits:decimals
-  }) + suffix;
+
+function fundamentalText(
+  v,
+  suffix="",
+  decimals=2
+){
+
+  const x =
+    fundamentalNum(v);
+
+
+  if(x===null)
+    return "N/A";
+
+
+  return x.toLocaleString(
+    "en-IN",
+    {
+      minimumFractionDigits:
+        decimals,
+
+      maximumFractionDigits:
+        decimals
+    }
+  )
+  +
+  suffix;
+
 }
+
 
 function marketCapText(v){
-  const x=fundamentalNum(v);
-  if(x===null) return "N/A";
-  if(x>=1e12) return "₹"+(x/1e12).toFixed(2)+"T";
-  if(x>=1e9) return "₹"+(x/1e9).toFixed(2)+"B";
-  if(x>=1e7) return "₹"+(x/1e7).toFixed(2)+" Cr";
-  return "₹"+x.toLocaleString("en-IN");
+
+  const x =
+    fundamentalNum(v);
+
+
+  if(x===null)
+    return "N/A";
+
+
+  if(x>=1e12)
+    return "₹"+(x/1e12).toFixed(2)+"T";
+
+
+  if(x>=1e9)
+    return "₹"+(x/1e9).toFixed(2)+"B";
+
+
+  if(x>=1e7)
+    return "₹"+(x/1e7).toFixed(2)+" Cr";
+
+
+  return "₹"+
+    x.toLocaleString(
+      "en-IN"
+    );
+
 }
+
 
 function scoreClass(value){
-  const x=fundamentalNum(value);
-  if(x===null) return "";
-  if(x>=75) return "score-good";
-  if(x>=50) return "score-mid";
+
+  const x =
+    fundamentalNum(value);
+
+
+  if(x===null)
+    return "";
+
+
+  if(x>=75)
+    return "score-good";
+
+
+  if(x>=50)
+    return "score-mid";
+
+
   return "score-low";
+
 }
 
-function setFundamentalValue(id,value){
-  const el=document.getElementById(id);
-  el.textContent=value;
-  el.classList.remove("score-good","score-mid","score-low");
+
+function setFundamentalValue(
+  id,
+  value
+){
+
+  const el =
+    document.getElementById(id);
+
+
+  el.textContent =
+    value;
+
+
+  el.classList.remove(
+    "score-good",
+    "score-mid",
+    "score-low"
+  );
+
 }
 
-/* =================================
-   OPEN STOCK POPUP
-   ================================= */
+
+
+/* =========================================================
+   OPEN STOCK
+   ========================================================= */
 
 function openStock(r){
 
+
   document.getElementById(
     "modalStock"
-  ).textContent=
+  ).textContent =
 
-    r.symbol || "Stock Analysis";
+    r.symbol ||
+    "Stock Analysis";
 
 
   document.getElementById(
     "modalSetup"
-  ).textContent=
+  ).textContent =
 
-    (r.setup || "") +
-    (r.date ? " · Data date: " + r.date : "");
+    (r.setup || "")
+
+    +
+
+    (
+      r.date
+      ? " · Data date: "+r.date
+      : ""
+    );
+
 
 
   /* CMP */
 
   document.getElementById(
     "dClose"
-  ).textContent=
+  ).textContent =
 
     "₹"+num(r.close)
       .toLocaleString(
         "en-IN",
-        {maximumFractionDigits:2}
+        {
+          maximumFractionDigits:2
+        }
       );
+
 
 
   /* 200 DMA */
 
   document.getElementById(
     "d200"
-  ).textContent=
+  ).textContent =
 
     "₹"+num(r.dma_200)
       .toLocaleString(
         "en-IN",
-        {maximumFractionDigits:2}
+        {
+          maximumFractionDigits:2
+        }
       );
+
 
 
   /* GAP */
 
-  const gap=
-    num(r.distance_to_200dma_pct);
+  const gap =
+    num(
+      r.distance_to_200dma_pct
+    );
 
 
   document.getElementById(
     "dGap"
-  ).textContent=
+  ).textContent =
 
     (gap>=0?"+":"")
     +
@@ -1699,34 +2607,39 @@ function openStock(r){
     "%";
 
 
+
   /* 50 DMA */
 
   document.getElementById(
     "d50"
-  ).textContent=
+  ).textContent =
 
     "₹"+num(r.dma_50)
       .toLocaleString(
         "en-IN",
-        {maximumFractionDigits:2}
+        {
+          maximumFractionDigits:2
+        }
       );
+
 
 
   /* RSI */
 
   document.getElementById(
     "dRsi"
-  ).textContent=
+  ).textContent =
 
     num(r.rsi_14)
       .toFixed(1);
+
 
 
   /* VOLUME */
 
   document.getElementById(
     "dVol"
-  ).textContent=
+  ).textContent =
 
     num(r.volume_ratio)
       .toFixed(2)
@@ -1734,11 +2647,12 @@ function openStock(r){
     "x";
 
 
+
   /* RECOVERY */
 
   document.getElementById(
     "dRecovery"
-  ).textContent=
+  ).textContent =
 
     num(
       r.recovery_from_breakdown_low_pct
@@ -1747,73 +2661,299 @@ function openStock(r){
     "%";
 
 
+
   /* SCORE */
 
   document.getElementById(
     "dScore"
-  ).textContent=
+  ).textContent =
 
-    r.score || "—";
+    r.score ||
+    "—";
+
 
 
   /* SETUP */
 
   document.getElementById(
     "dSetup"
-  ).textContent=
+  ).textContent =
 
-    r.setup || "—";
+    r.setup ||
+    "—";
 
 
-  /* =================================
-     FUNDAMENTAL ANALYSIS
-     ================================= */
 
-  const fundScore=fundamentalNum(r.fundamental_score);
-  const technicalScore=fundamentalNum(r.score);
+  /* =====================================================
+     FUNDAMENTALS
+     ===================================================== */
+
+  const fundScore =
+    fundamentalNum(
+      r.fundamental_score
+    );
+
+
+  const technicalScore =
+    fundamentalNum(
+      r.score
+    );
+
 
   const overallScore =
-    fundScore===null || technicalScore===null
+
+    fundScore===null ||
+    technicalScore===null
+
       ? null
-      : Math.round(technicalScore*0.60 + fundScore*0.40);
 
-  const fundScoreEl=document.getElementById("dFundScore");
-  fundScoreEl.textContent=fundScore===null?"N/A":fundScore;
-  fundScoreEl.classList.remove("score-good","score-mid","score-low");
-  if(fundScore!==null) fundScoreEl.classList.add(scoreClass(fundScore));
+      :
 
-  const overallEl=document.getElementById("dOverallScore");
-  overallEl.textContent=overallScore===null?"N/A":overallScore;
-  overallEl.classList.remove("score-good","score-mid","score-low");
-  if(overallScore!==null) overallEl.classList.add(scoreClass(overallScore));
+        Math.round(
+          technicalScore*0.60
+          +
+          fundScore*0.40
+        );
 
-  setFundamentalValue("dMarketCap",marketCapText(r.market_cap));
-  setFundamentalValue("dEPS",fundamentalText(r.eps,"",2));
 
-  setFundamentalValue("dPE",fundamentalText(r.pe_ratio,"x",2));
-  setFundamentalValue("dPB",fundamentalText(r.pb_ratio,"x",2));
-  setFundamentalValue("dEPS2",fundamentalText(r.eps,"",2));
-  setFundamentalValue("dDividend",fundamentalText(r.dividend_yield,"%",2));
 
-  setFundamentalValue("dROE",fundamentalText(r.roe,"%",1));
-  setFundamentalValue("dROCE",fundamentalText(r.roce,"%",1));
-  setFundamentalValue("dOperatingMargin",fundamentalText(r.operating_margin,"%",1));
-  setFundamentalValue("dNetMargin",fundamentalText(r.net_profit_margin,"%",1));
+  const fundScoreEl =
+    document.getElementById(
+      "dFundScore"
+    );
 
-  setFundamentalValue("dDebtEquity",fundamentalText(r.debt_to_equity,"x",2));
-  setFundamentalValue("dCurrentRatio",fundamentalText(r.current_ratio,"x",2));
-  setFundamentalValue("dQuickRatio",fundamentalText(r.quick_ratio,"x",2));
-  setFundamentalValue("dInterestCoverage",fundamentalText(r.interest_coverage,"x",2));
 
-  setFundamentalValue("dRevenueGrowth",fundamentalText(r.revenue_growth,"%",1));
-  setFundamentalValue("dEPSGrowth",fundamentalText(r.eps_growth,"%",1));
-  setFundamentalValue("dProfitGrowth",fundamentalText(r.profit_growth,"%",1));
+  fundScoreEl.textContent =
+    fundScore===null
+      ? "N/A"
+      : fundScore;
+
+
+  fundScoreEl.classList.remove(
+    "score-good",
+    "score-mid",
+    "score-low"
+  );
+
+
+  if(
+    fundScore!==null
+  ){
+
+    fundScoreEl.classList.add(
+      scoreClass(fundScore)
+    );
+
+  }
+
+
+
+  const overallEl =
+    document.getElementById(
+      "dOverallScore"
+    );
+
+
+  overallEl.textContent =
+    overallScore===null
+      ? "N/A"
+      : overallScore;
+
+
+  overallEl.classList.remove(
+    "score-good",
+    "score-mid",
+    "score-low"
+  );
+
+
+  if(
+    overallScore!==null
+  ){
+
+    overallEl.classList.add(
+      scoreClass(overallScore)
+    );
+
+  }
+
+
+
+  setFundamentalValue(
+    "dMarketCap",
+    marketCapText(
+      r.market_cap
+    )
+  );
+
+
+  setFundamentalValue(
+    "dEPS",
+    fundamentalText(
+      r.eps,
+      "",
+      2
+    )
+  );
+
+
+  setFundamentalValue(
+    "dPE",
+    fundamentalText(
+      r.pe_ratio,
+      "x",
+      2
+    )
+  );
+
+
+  setFundamentalValue(
+    "dPB",
+    fundamentalText(
+      r.pb_ratio,
+      "x",
+      2
+    )
+  );
+
+
+  setFundamentalValue(
+    "dEPS2",
+    fundamentalText(
+      r.eps,
+      "",
+      2
+    )
+  );
+
+
+  setFundamentalValue(
+    "dDividend",
+    fundamentalText(
+      r.dividend_yield,
+      "%",
+      2
+    )
+  );
+
+
+  setFundamentalValue(
+    "dROE",
+    fundamentalText(
+      r.roe,
+      "%",
+      1
+    )
+  );
+
+
+  setFundamentalValue(
+    "dROCE",
+    fundamentalText(
+      r.roce,
+      "%",
+      1
+    )
+  );
+
+
+  setFundamentalValue(
+    "dOperatingMargin",
+    fundamentalText(
+      r.operating_margin,
+      "%",
+      1
+    )
+  );
+
+
+  setFundamentalValue(
+    "dNetMargin",
+    fundamentalText(
+      r.net_profit_margin,
+      "%",
+      1
+    )
+  );
+
+
+  setFundamentalValue(
+    "dDebtEquity",
+    fundamentalText(
+      r.debt_to_equity,
+      "x",
+      2
+    )
+  );
+
+
+  setFundamentalValue(
+    "dCurrentRatio",
+    fundamentalText(
+      r.current_ratio,
+      "x",
+      2
+    )
+  );
+
+
+  setFundamentalValue(
+    "dQuickRatio",
+    fundamentalText(
+      r.quick_ratio,
+      "x",
+      2
+    )
+  );
+
+
+  setFundamentalValue(
+    "dInterestCoverage",
+    fundamentalText(
+      r.interest_coverage,
+      "x",
+      2
+    )
+  );
+
+
+  setFundamentalValue(
+    "dRevenueGrowth",
+    fundamentalText(
+      r.revenue_growth,
+      "%",
+      1
+    )
+  );
+
+
+  setFundamentalValue(
+    "dEPSGrowth",
+    fundamentalText(
+      r.eps_growth,
+      "%",
+      1
+    )
+  );
+
+
+  setFundamentalValue(
+    "dProfitGrowth",
+    fundamentalText(
+      r.profit_growth,
+      "%",
+      1
+    )
+  );
+
 
 
   /* SHOW MODAL */
 
   document
-    .getElementById("stockModal")
+    .getElementById(
+      "stockModal"
+    )
     .classList
     .add("show");
 
@@ -1821,14 +2961,16 @@ function openStock(r){
 
 
 
-/* =================================
-   CLOSE STOCK POPUP
-   ================================= */
+/* =========================================================
+   CLOSE
+   ========================================================= */
 
 function closeStock(){
 
   document
-    .getElementById("stockModal")
+    .getElementById(
+      "stockModal"
+    )
     .classList
     .remove("show");
 
@@ -1836,17 +2978,21 @@ function closeStock(){
 
 
 
-/* =================================
-   CLICK OUTSIDE TO CLOSE
-   ================================= */
+/* =========================================================
+   CLICK OUTSIDE
+   ========================================================= */
 
 document
-  .getElementById("stockModal")
+  .getElementById(
+    "stockModal"
+  )
   .addEventListener(
     "click",
     function(e){
 
-      if(e.target===this){
+      if(
+        e.target===this
+      ){
 
         closeStock();
 
@@ -1857,15 +3003,17 @@ document
 
 
 
-/* =================================
-   ESC KEY TO CLOSE
-   ================================= */
+/* =========================================================
+   ESC
+   ========================================================= */
 
 document.addEventListener(
   "keydown",
   function(e){
 
-    if(e.key==="Escape"){
+    if(
+      e.key==="Escape"
+    ){
 
       closeStock();
 
@@ -1876,11 +3024,16 @@ document.addEventListener(
 
 
 
-/* =================================
+/* =========================================================
    FILTER EVENTS
-   ================================= */
+   ========================================================= */
 
-["search","setup","side","sort"]
+[
+  "search",
+  "setup",
+  "side",
+  "sort"
+]
 
 .forEach(id=>{
 
@@ -1895,82 +3048,112 @@ document.addEventListener(
 
 
 
-/* =================================
+/* =========================================================
    LOAD CSV
-   ================================= */
+   ========================================================= */
 
 async function load(){
 
   try{
 
-    const res=
-
+    const res =
       await fetch(
-        CSV_PATH+"?v="+Date.now(),
+
+        CSV_PATH+
+        "?v="+
+        Date.now(),
+
         {
           cache:"no-store"
         }
+
       );
 
 
-    if(!res.ok)
+    if(!res.ok){
 
       throw new Error(
+
         "Could not load the latest scanner CSV ("+
         res.status+
         ")."
+
       );
 
+    }
 
-    rows=
+
+    rows =
       parseCSV(
         await res.text()
       );
 
 
-    if(!rows.length)
+    if(!rows.length){
 
       throw new Error(
         "The scanner CSV is empty."
       );
 
+    }
 
-    const dates=
+
+
+    /* ===================================================
+       DATE
+       =================================================== */
+
+    const dates =
 
       rows
-        .map(r=>r.date)
+        .map(
+          r=>r.date
+        )
         .filter(Boolean)
         .sort();
 
 
-    const strong=
+
+    /* ===================================================
+       KPI COUNTS
+       =================================================== */
+
+    const strong =
 
       rows.filter(
-        r=>r.setup==="STRONG RETEST"
+        r=>
+          r.setup===
+          "STRONG RETEST"
       ).length;
 
 
-    const watch=
+    const watch =
 
       rows.filter(
-        r=>r.setup==="RECOVERY WATCH"
+        r=>
+          r.setup===
+          "RECOVERY WATCH"
       ).length;
 
 
-    const near=
+    const near =
 
       rows.filter(
-        r=>r.setup==="NEAR 200DMA"
+        r=>
+          r.setup===
+          "NEAR 200DMA"
       ).length;
 
 
-    const avg=
+
+    const avg =
 
       rows.reduce(
 
         (s,r)=>
 
           s+
+
           Math.abs(
             num(
               r.distance_to_200dma_pct
@@ -1980,51 +3163,70 @@ async function load(){
         0
 
       )
+
       /
+
       rows.length;
 
 
+
+    /* ===================================================
+       UPDATE KPI
+       =================================================== */
+
     document.getElementById(
       "total"
-    ).textContent=
+    ).textContent =
 
       rows.length;
 
 
     document.getElementById(
       "strong"
-    ).textContent=
+    ).textContent =
 
       strong;
 
 
     document.getElementById(
       "watch"
-    ).textContent=
+    ).textContent =
 
       watch;
 
 
     document.getElementById(
       "near"
-    ).textContent=
+    ).textContent =
 
       near;
 
 
     document.getElementById(
       "avg"
-    ).textContent=
+    ).textContent =
 
-      avg.toFixed(2)+"%";
+      avg.toFixed(2)
+      +
+      "%";
 
+
+
+    /* ===================================================
+       UPDATED DATE
+       =================================================== */
 
     document.getElementById(
       "updated"
-    ).textContent=
+    ).textContent =
 
       "Data: "+
-      (dates.at(-1)||"latest");
+      (
+        dates.at(-1)
+        ||
+        "Latest"
+      );
+
 
 
     renderVisuals();
@@ -2038,13 +3240,13 @@ async function load(){
 
     document.getElementById(
       "error"
-    ).style.display="block";
+    ).style.display =
+      "block";
 
 
     document.getElementById(
       "error"
-    ).textContent=
-
+    ).textContent =
       e.message;
 
   }
@@ -2053,13 +3255,14 @@ async function load(){
 
 
 
-/* =================================
+/* =========================================================
    START
-   ================================= */
+   ========================================================= */
 
 load();
 
 </script>
+
 
 </body>
 </html>
