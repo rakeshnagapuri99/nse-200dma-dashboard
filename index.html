@@ -1,19 +1,25 @@
 <!doctype html>
 <html lang="en">
+
 <head>
 
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>NSE 200 DMA Recovery Scanner</title>
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1"
+>
+
+<title>NSE Smart Stock Scanner</title>
 
 <style>
 
 /* =========================================================
-   PROFESSIONAL FINANCE DASHBOARD THEME
+   PROFESSIONAL FINANCE DASHBOARD
    ========================================================= */
 
 :root{
+
   --bg:#f3f6fb;
   --card:#ffffff;
   --card-soft:#f8fafc;
@@ -23,6 +29,8 @@
   --line:#e2e8f0;
 
   --navy:#102a43;
+  --navy2:#163e63;
+
   --blue:#2563eb;
   --blue-light:#eff6ff;
 
@@ -41,8 +49,15 @@
   --cyan:#0891b2;
   --cyan-light:#cffafe;
 
-  --shadow:0 6px 20px rgba(15,23,42,.07);
-  --shadow-hover:0 10px 30px rgba(15,23,42,.12);
+  --orange:#ea580c;
+  --orange-light:#ffedd5;
+
+  --shadow:
+    0 6px 20px rgba(15,23,42,.07);
+
+  --shadow-hover:
+    0 12px 30px rgba(15,23,42,.12);
+
 }
 
 
@@ -54,15 +69,19 @@
   box-sizing:border-box;
 }
 
+
 body{
+
   margin:0;
 
   background:
+
     radial-gradient(
       circle at top right,
       #e8f1ff 0,
       transparent 30%
     ),
+
     var(--bg);
 
   color:var(--text);
@@ -74,12 +93,18 @@ body{
     Roboto,
     Arial,
     sans-serif;
+
 }
 
+
 .wrap{
-  max-width:1450px;
+
+  max-width:1500px;
+
   margin:auto;
+
   padding:28px;
+
 }
 
 
@@ -88,19 +113,23 @@ body{
    ========================================================= */
 
 .head{
+
   display:flex;
+
   justify-content:space-between;
+
   align-items:center;
 
   gap:20px;
 
   margin-bottom:22px;
 
-  padding:22px 24px;
+  padding:24px 26px;
 
-  border-radius:18px;
+  border-radius:20px;
 
   background:
+
     linear-gradient(
       135deg,
       #0f2742,
@@ -112,43 +141,58 @@ body{
 
   box-shadow:
     0 12px 35px rgba(15,39,66,.20);
+
 }
 
+
 .title h1{
+
   margin:0;
 
   font-size:30px;
-  font-weight:850;
 
-  letter-spacing:-.5px;
+  font-weight:900;
+
+  letter-spacing:-.6px;
+
 }
 
+
 .title p{
+
   margin:7px 0 0;
 
   color:#dbeafe;
 
   font-size:13px;
+
 }
 
+
 .updated-by{
-  margin-top:6px;
+
+  margin-top:7px;
 
   font-size:12px;
 
   color:#bfdbfe;
 
-  font-weight:600;
+  font-weight:700;
+
 }
 
-.badge{
-  background:rgba(255,255,255,.12);
 
-  border:1px solid rgba(255,255,255,.20);
+.badge{
+
+  background:
+    rgba(255,255,255,.12);
+
+  border:
+    1px solid rgba(255,255,255,.20);
 
   color:white;
 
-  padding:10px 14px;
+  padding:10px 15px;
 
   border-radius:999px;
 
@@ -159,6 +203,7 @@ body{
   white-space:nowrap;
 
   backdrop-filter:blur(10px);
+
 }
 
 
@@ -167,93 +212,529 @@ body{
    ========================================================= */
 
 .kpis{
+
   display:grid;
 
   grid-template-columns:
-    repeat(5,1fr);
+    repeat(6,1fr);
 
   gap:14px;
 
   margin-bottom:20px;
+
 }
 
+
 .card{
+
   background:var(--card);
 
-  border:1px solid var(--line);
+  border:
+    1px solid var(--line);
 
   border-radius:16px;
 
   padding:18px;
 
   box-shadow:var(--shadow);
+
 }
 
+
 .kpi{
+
   position:relative;
+
   overflow:hidden;
 
   transition:
     transform .18s,
     box-shadow .18s;
+
 }
+
 
 .kpi:hover{
-  transform:translateY(-2px);
 
-  box-shadow:var(--shadow-hover);
+  transform:
+    translateY(-3px);
+
+  box-shadow:
+    var(--shadow-hover);
+
 }
 
+
 .kpi::before{
+
   content:"";
 
   position:absolute;
 
   left:0;
+
   top:0;
 
   width:5px;
+
   height:100%;
 
   background:var(--blue);
+
 }
+
 
 .kpi:nth-child(2)::before{
   background:var(--green);
 }
 
+
 .kpi:nth-child(3)::before{
   background:var(--amber);
 }
+
 
 .kpi:nth-child(4)::before{
   background:var(--purple);
 }
 
+
 .kpi:nth-child(5)::before{
+  background:var(--orange);
+}
+
+
+.kpi:nth-child(6)::before{
   background:var(--cyan);
 }
 
+
 .kpi .label{
+
   color:var(--muted);
 
-  font-size:12px;
+  font-size:11px;
 
-  font-weight:700;
+  font-weight:800;
 
   text-transform:uppercase;
 
   letter-spacing:.4px;
+
 }
 
+
 .kpi .value{
-  font-size:28px;
+
+  font-size:27px;
 
   font-weight:900;
 
   margin-top:7px;
 
   color:var(--navy);
+
+}
+
+
+/* =========================================================
+   OPPORTUNITY BOARD
+   ========================================================= */
+
+.opportunity-grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:16px;
+
+  margin-bottom:20px;
+
+}
+
+
+.opportunity-card{
+
+  border-radius:18px;
+
+  padding:20px;
+
+  color:white;
+
+  position:relative;
+
+  overflow:hidden;
+
+  min-height:150px;
+
+  box-shadow:
+    0 10px 25px rgba(15,23,42,.12);
+
+  transition:
+    transform .18s,
+    box-shadow .18s;
+
+}
+
+
+.opportunity-card:hover{
+
+  transform:
+    translateY(-3px);
+
+  box-shadow:
+    0 15px 35px rgba(15,23,42,.17);
+
+}
+
+
+.opportunity-card::after{
+
+  content:"";
+
+  position:absolute;
+
+  width:130px;
+
+  height:130px;
+
+  right:-35px;
+
+  bottom:-50px;
+
+  border-radius:50%;
+
+  background:
+    rgba(255,255,255,.10);
+
+}
+
+
+.breakout-card{
+
+  background:
+    linear-gradient(
+      135deg,
+      #047857,
+      #16a34a
+    );
+
+}
+
+
+.near-high-card{
+
+  background:
+    linear-gradient(
+      135deg,
+      #c2410c,
+      #f97316
+    );
+
+}
+
+
+.recovery-card{
+
+  background:
+    linear-gradient(
+      135deg,
+      #1d4ed8,
+      #2563eb
+    );
+
+}
+
+
+.opportunity-title{
+
+  font-size:12px;
+
+  font-weight:900;
+
+  text-transform:uppercase;
+
+  letter-spacing:.5px;
+
+  opacity:.9;
+
+}
+
+
+.opportunity-value{
+
+  font-size:38px;
+
+  font-weight:950;
+
+  margin-top:8px;
+
+}
+
+
+.opportunity-sub{
+
+  font-size:11px;
+
+  margin-top:5px;
+
+  opacity:.88;
+
+}
+
+
+/* =========================================================
+   SECTION HEADER
+   ========================================================= */
+
+.section-head{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  gap:12px;
+
+  margin-bottom:14px;
+
+}
+
+
+.section-title{
+
+  font-size:17px;
+
+  font-weight:900;
+
+  color:var(--navy);
+
+}
+
+
+.section-description{
+
+  color:var(--muted);
+
+  font-size:11px;
+
+}
+
+
+/* =========================================================
+   SPECIAL TABLES
+   ========================================================= */
+
+.highlight-table{
+
+  width:100%;
+
+  border-collapse:separate;
+
+  border-spacing:0;
+
+  font-size:13px;
+
+}
+
+
+.highlight-table th{
+
+  background:
+    #f8fafc;
+
+  color:#475569;
+
+  padding:11px;
+
+  text-align:left;
+
+  font-size:10px;
+
+  text-transform:uppercase;
+
+  letter-spacing:.4px;
+
+  border-bottom:
+    1px solid var(--line);
+
+  white-space:nowrap;
+
+}
+
+
+.highlight-table td{
+
+  padding:12px 11px;
+
+  border-bottom:
+    1px solid #edf1f5;
+
+  white-space:nowrap;
+
+}
+
+
+.highlight-table tbody tr{
+
+  cursor:pointer;
+
+  transition:
+    background .15s;
+
+}
+
+
+.highlight-table tbody tr:hover{
+
+  background:#f0fdf4;
+
+}
+
+
+.breakout-row:hover{
+
+  background:#ecfdf5 !important;
+
+}
+
+
+.near-row:hover{
+
+  background:#fff7ed !important;
+
+}
+
+
+.stock{
+
+  font-weight:900;
+
+  color:#0f2742;
+
+}
+
+
+.pos{
+
+  color:var(--green);
+
+  font-weight:800;
+
+}
+
+
+.neg{
+
+  color:var(--red);
+
+  font-weight:800;
+
+}
+
+
+.neutral{
+
+  color:#475569;
+
+  font-weight:700;
+
+}
+
+
+/* =========================================================
+   PILLS
+   ========================================================= */
+
+.pill{
+
+  display:inline-block;
+
+  padding:6px 10px;
+
+  border-radius:999px;
+
+  font-size:10px;
+
+  font-weight:900;
+
+  letter-spacing:.2px;
+
+  white-space:nowrap;
+
+}
+
+
+.pill-breakout{
+
+  background:
+    var(--green-light);
+
+  color:
+    var(--green);
+
+  border:
+    1px solid #bbf7d0;
+
+}
+
+
+.pill-near{
+
+  background:
+    var(--orange-light);
+
+  color:
+    #c2410c;
+
+  border:
+    1px solid #fed7aa;
+
+}
+
+
+.pill-strong{
+
+  background:
+    var(--green-light);
+
+  color:
+    var(--green);
+
+  border:
+    1px solid #bbf7d0;
+
+}
+
+
+.pill-watch{
+
+  background:
+    var(--amber-light);
+
+  color:
+    #92400e;
+
+  border:
+    1px solid #fde68a;
+
+}
+
+
+.pill-normal{
+
+  background:
+    var(--purple-light);
+
+  color:
+    #6d28d9;
+
+  border:
+    1px solid #ddd6fe;
+
 }
 
 
@@ -262,11 +743,14 @@ body{
    ========================================================= */
 
 .error{
+
   color:var(--red);
 
-  background:var(--red-light);
+  background:
+    var(--red-light);
 
-  border:1px solid #fecaca;
+  border:
+    1px solid #fecaca;
 
   padding:13px;
 
@@ -277,93 +761,7 @@ body{
   margin-bottom:16px;
 
   font-weight:600;
-}
 
-
-/* =========================================================
-   TOP VISUAL SECTION
-   ========================================================= */
-
-.grid{
-  display:block;
-
-  margin-bottom:20px;
-}
-
-.section-title{
-  font-size:16px;
-
-  font-weight:850;
-
-  margin-bottom:14px;
-
-  color:var(--navy);
-}
-
-
-/* =========================================================
-   BAR VISUAL
-   ========================================================= */
-
-.bars{
-  display:flex;
-
-  flex-direction:column;
-
-  gap:10px;
-}
-
-.barrow{
-  display:grid;
-
-  grid-template-columns:
-    120px
-    1fr
-    80px;
-
-  gap:10px;
-
-  align-items:center;
-
-  font-size:12px;
-}
-
-.barrow b{
-  color:#334155;
-}
-
-.barbg{
-  height:14px;
-
-  background:#eef2f7;
-
-  border-radius:20px;
-
-  position:relative;
-
-  overflow:hidden;
-}
-
-.bar{
-  height:100%;
-
-  border-radius:20px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #2563eb,
-      #60a5fa
-    );
-}
-
-.bar.neg{
-  background:
-    linear-gradient(
-      90deg,
-      #ef4444,
-      #f87171
-    );
 }
 
 
@@ -372,6 +770,7 @@ body{
    ========================================================= */
 
 .controls{
+
   display:flex;
 
   flex-wrap:wrap;
@@ -381,11 +780,15 @@ body{
   align-items:center;
 
   margin-bottom:15px;
+
 }
+
 
 .controls input,
 .controls select{
-  border:1px solid #d7dee8;
+
+  border:
+    1px solid #d7dee8;
 
   border-radius:10px;
 
@@ -402,18 +805,27 @@ body{
   transition:
     border .15s,
     box-shadow .15s;
+
 }
+
 
 .controls input:focus,
 .controls select:focus{
-  border-color:var(--blue);
+
+  border-color:
+    var(--blue);
 
   box-shadow:
-    0 0 0 3px rgba(37,99,235,.10);
+    0 0 0 3px
+    rgba(37,99,235,.10);
+
 }
 
+
 .controls input{
+
   min-width:240px;
+
 }
 
 
@@ -422,24 +834,33 @@ body{
    ========================================================= */
 
 .tablewrap{
+
   overflow:auto;
 
-  border:1px solid var(--line);
+  border:
+    1px solid var(--line);
 
   border-radius:13px;
+
 }
 
+
 .table{
+
   width:100%;
 
-  border-collapse:separate;
+  border-collapse:
+    separate;
 
   border-spacing:0;
 
   font-size:13px;
+
 }
 
+
 .table th{
+
   position:sticky;
 
   top:0;
@@ -459,125 +880,62 @@ body{
 
   padding:12px;
 
-  border-bottom:1px solid #dbe2ea;
+  border-bottom:
+    1px solid #dbe2ea;
 
   white-space:nowrap;
 
-  font-size:11px;
+  font-size:10px;
 
   text-transform:uppercase;
 
   letter-spacing:.35px;
+
 }
+
 
 .table td{
+
   padding:12px;
 
-  border-bottom:1px solid #edf1f5;
+  border-bottom:
+    1px solid #edf1f5;
 
   white-space:nowrap;
+
 }
 
+
 .table tbody tr{
+
   cursor:pointer;
 
   transition:
-    background .15s,
-    transform .10s;
+    background .15s;
+
 }
+
 
 .table tbody tr:hover{
+
   background:#eff6ff;
+
 }
+
 
 .table tbody tr:last-child td{
+
   border-bottom:0;
-}
 
-.stock{
-  font-weight:850;
-
-  color:#0f2742;
-}
-
-.pos{
-  color:var(--green);
-
-  font-weight:750;
-}
-
-.neg{
-  color:var(--red);
-
-  font-weight:750;
 }
 
 
 /* =========================================================
-   SETUP PILLS
-   ========================================================= */
-
-.pill{
-  display:inline-block;
-
-  padding:6px 10px;
-
-  border-radius:999px;
-
-  font-size:10px;
-
-  font-weight:850;
-
-  letter-spacing:.25px;
-
-  white-space:nowrap;
-}
-
-.strong{
-  background:var(--green-light);
-
-  color:var(--green);
-
-  border:1px solid #bbf7d0;
-}
-
-.watch{
-  background:var(--amber-light);
-
-  color:#92400e;
-
-  border:1px solid #fde68a;
-}
-
-.near{
-  background:var(--purple-light);
-
-  color:#6d28d9;
-
-  border:1px solid #ddd6fe;
-}
-
-
-/* =========================================================
-   NOTES
-   ========================================================= */
-
-.note{
-  color:var(--muted);
-
-  font-size:11px;
-
-  margin-top:12px;
-
-  line-height:1.6;
-}
-
-
-/* =========================================================
-   STOCK DETAIL MODAL
+   MODAL
    ========================================================= */
 
 .modal{
+
   display:none;
 
   position:fixed;
@@ -593,19 +951,26 @@ body{
 
   overflow:auto;
 
-  backdrop-filter:blur(5px);
+  backdrop-filter:
+    blur(5px);
+
 }
 
+
 .modal.show{
+
   display:flex;
 
   align-items:center;
 
   justify-content:center;
+
 }
 
+
 .modal-card{
-  width:min(1000px,100%);
+
+  width:min(1100px,100%);
 
   max-height:93vh;
 
@@ -619,9 +984,12 @@ body{
 
   box-shadow:
     0 30px 100px rgba(0,0,0,.35);
+
 }
 
+
 .modal-head{
+
   display:flex;
 
   justify-content:space-between;
@@ -634,26 +1002,36 @@ body{
 
   padding-bottom:18px;
 
-  border-bottom:1px solid var(--line);
+  border-bottom:
+    1px solid var(--line);
+
 }
 
+
 .modal-title{
+
   font-size:28px;
 
   font-weight:900;
 
   color:var(--navy);
+
 }
 
+
 .modal-subtitle{
+
   color:var(--muted);
 
   margin-top:5px;
 
   font-size:12px;
+
 }
 
+
 .close-btn{
+
   border:0;
 
   background:#f1f5f9;
@@ -669,42 +1047,57 @@ body{
   cursor:pointer;
 
   color:#334155;
+
 }
 
+
 .close-btn:hover{
+
   background:#e2e8f0;
+
 }
 
 
 /* =========================================================
-   DETAIL SECTION
+   DETAIL
    ========================================================= */
 
 .detail-section{
+
   margin-top:22px;
+
 }
 
+
 .detail-section h3{
+
   margin:0 0 13px;
 
   font-size:16px;
 
-  font-weight:850;
+  font-weight:900;
 
   color:var(--navy);
+
 }
 
+
 .detail-grid{
+
   display:grid;
 
   grid-template-columns:
     repeat(3,1fr);
 
   gap:12px;
+
 }
 
+
 .detail-box{
-  border:1px solid var(--line);
+
+  border:
+    1px solid var(--line);
 
   border-radius:13px;
 
@@ -717,27 +1110,22 @@ body{
       #f8fbff
     );
 
-  transition:
-    transform .15s,
-    box-shadow .15s;
 }
 
-.detail-box:hover{
-  transform:translateY(-1px);
-
-  box-shadow:
-    0 5px 15px rgba(15,23,42,.07);
-}
 
 .detail-label{
+
   color:var(--muted);
 
   font-size:11px;
 
   font-weight:650;
+
 }
 
+
 .detail-value{
+
   font-size:19px;
 
   font-weight:850;
@@ -745,6 +1133,82 @@ body{
   margin-top:6px;
 
   color:#172033;
+
+}
+
+
+/* =========================================================
+   PRIOR HIGH DETAIL
+   ========================================================= */
+
+.prior-high-panel{
+
+  border-radius:16px;
+
+  padding:18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ecfdf5,
+      #f0fdf4
+    );
+
+  border:
+    1px solid #bbf7d0;
+
+}
+
+
+.prior-high-grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(4,1fr);
+
+  gap:12px;
+
+}
+
+
+.prior-high-box{
+
+  background:white;
+
+  border:
+    1px solid #d1fae5;
+
+  border-radius:12px;
+
+  padding:13px;
+
+}
+
+
+.prior-high-box .label{
+
+  color:#64748b;
+
+  font-size:10px;
+
+  font-weight:800;
+
+  text-transform:uppercase;
+
+}
+
+
+.prior-high-box .value{
+
+  margin-top:5px;
+
+  font-size:18px;
+
+  font-weight:900;
+
+  color:#065f46;
+
 }
 
 
@@ -753,6 +1217,7 @@ body{
    ========================================================= */
 
 .fundamental-summary{
+
   display:grid;
 
   grid-template-columns:
@@ -761,19 +1226,26 @@ body{
   gap:12px;
 
   margin-bottom:15px;
+
 }
 
+
 .fundamental-score{
-  border:1px solid var(--line);
+
+  border:
+    1px solid var(--line);
 
   border-radius:13px;
 
   padding:15px;
 
   background:#f8fafc;
+
 }
 
+
 .fundamental-score .score-label{
+
   color:var(--muted);
 
   font-size:11px;
@@ -781,29 +1253,41 @@ body{
   font-weight:700;
 
   text-transform:uppercase;
+
 }
 
+
 .fundamental-score .score-value{
+
   font-size:25px;
 
   font-weight:900;
 
   margin-top:5px;
+
 }
 
+
 .fundamental-score .score-note{
+
   color:var(--muted);
 
   font-size:10px;
 
   margin-top:4px;
+
 }
+
 
 .fundamental-group{
+
   margin-top:15px;
+
 }
 
+
 .fundamental-group-title{
+
   font-size:12px;
 
   font-weight:850;
@@ -815,50 +1299,69 @@ body{
   text-transform:uppercase;
 
   letter-spacing:.3px;
+
 }
 
+
 .fundamental-grid{
+
   display:grid;
 
   grid-template-columns:
     repeat(4,1fr);
 
   gap:10px;
+
 }
 
+
 .fundamental-box{
-  border:1px solid var(--line);
+
+  border:
+    1px solid var(--line);
 
   border-radius:11px;
 
   padding:12px;
 
   background:#fff;
+
 }
+
 
 .fundamental-box .detail-label{
+
   font-size:10px;
+
 }
 
+
 .fundamental-box .detail-value{
+
   font-size:16px;
 
   margin-top:5px;
+
 }
+
 
 .score-good{
   color:var(--green);
 }
 
+
 .score-mid{
   color:var(--amber);
 }
+
 
 .score-low{
   color:var(--red);
 }
 
+
 .click-hint{
+
   font-size:10px;
 
   color:var(--muted);
@@ -866,6 +1369,7 @@ body{
   margin-top:15px;
 
   line-height:1.6;
+
 }
 
 
@@ -873,87 +1377,134 @@ body{
    RESPONSIVE
    ========================================================= */
 
-@media(max-width:1100px){
+@media(max-width:1200px){
 
   .kpis{
+
     grid-template-columns:
       repeat(3,1fr);
+
+  }
+
+  .opportunity-grid{
+
+    grid-template-columns:
+      1fr;
+
+  }
+
+  .prior-high-grid{
+
+    grid-template-columns:
+      repeat(2,1fr);
+
   }
 
 }
+
 
 @media(max-width:800px){
 
   .kpis{
+
     grid-template-columns:
       repeat(2,1fr);
+
   }
 
   .detail-grid{
+
     grid-template-columns:
       repeat(2,1fr);
+
   }
 
   .fundamental-summary{
+
     grid-template-columns:
       repeat(2,1fr);
+
   }
 
   .fundamental-grid{
+
     grid-template-columns:
       repeat(2,1fr);
+
   }
 
 }
 
+
 @media(max-width:600px){
 
   .wrap{
+
     padding:12px;
+
   }
 
   .head{
+
     flex-direction:column;
 
     align-items:flex-start;
 
     padding:18px;
+
   }
 
   .title h1{
+
     font-size:22px;
+
   }
 
   .kpis{
+
     grid-template-columns:
       repeat(2,1fr);
+
   }
 
   .kpi .value{
+
     font-size:23px;
+
   }
 
   .detail-grid{
+
     grid-template-columns:1fr;
+
   }
 
   .fundamental-summary,
-  .fundamental-grid{
+  .fundamental-grid,
+  .prior-high-grid{
+
     grid-template-columns:1fr;
+
   }
 
   .modal{
+
     padding:10px;
+
   }
 
   .modal-card{
+
     padding:18px;
+
   }
 
   .controls input{
+
     min-width:100%;
 
     width:100%;
+
   }
 
 }
@@ -964,22 +1515,34 @@ body{
    ========================================================= */
 
 ::-webkit-scrollbar{
+
   width:8px;
+
   height:8px;
+
 }
+
 
 ::-webkit-scrollbar-track{
+
   background:#eef2f7;
+
 }
 
+
 ::-webkit-scrollbar-thumb{
+
   background:#cbd5e1;
 
   border-radius:10px;
+
 }
 
+
 ::-webkit-scrollbar-thumb:hover{
+
   background:#94a3b8;
+
 }
 
 </style>
@@ -1002,12 +1565,12 @@ body{
   <div class="title">
 
     <h1>
-      NSE 200 DMA Recovery Scanner
+      NSE Smart Stock Scanner
     </h1>
 
     <p>
-      Technical screening dashboard for stocks approaching,
-      retesting or recovering around their 200-day moving average.
+      200 DMA recovery · Prior high breakout ·
+      Momentum · Fundamental analysis
     </p>
 
     <div class="updated-by">
@@ -1017,7 +1580,10 @@ body{
   </div>
 
 
-  <div class="badge" id="updated">
+  <div
+    class="badge"
+    id="updated"
+  >
     Loading data…
   </div>
 
@@ -1112,12 +1678,29 @@ body{
   <div class="card kpi">
 
     <div class="label">
-      Avg distance
+      Prior High Breakouts
     </div>
 
     <div
       class="value"
-      id="avg"
+      id="breakoutCount"
+    >
+      —
+    </div>
+
+  </div>
+
+
+
+  <div class="card kpi">
+
+    <div class="label">
+      Near Prior High
+    </div>
+
+    <div
+      class="value"
+      id="nearHighCount"
     >
       —
     </div>
@@ -1130,37 +1713,243 @@ body{
 
 
 <!-- =======================================================
-     TOP 20 DISTANCE VISUAL
+     OPPORTUNITY BOARD
      ======================================================= -->
 
-<div class="card">
-
-  <div class="section-title">
-
-    Top 20 — Distance from 200 DMA
-
-  </div>
+<div class="opportunity-grid">
 
 
   <div
-    class="bars"
-    id="bars"
-  ></div>
+    class="opportunity-card breakout-card"
+  >
 
+    <div class="opportunity-title">
+      🚀 Prior High Breakouts
+    </div>
 
-  <div class="note">
+    <div
+      class="opportunity-value"
+      id="breakoutBoardCount"
+    >
+      —
+    </div>
 
-    Negative = below 200 DMA ·
-    Positive = above 200 DMA
+    <div class="opportunity-sub">
+      Current price above prior high
+      and above 200 DMA
+    </div>
 
   </div>
+
+
+
+  <div
+    class="opportunity-card near-high-card"
+  >
+
+    <div class="opportunity-title">
+      🔥 Near Prior High
+    </div>
+
+    <div
+      class="opportunity-value"
+      id="nearHighBoardCount"
+    >
+      —
+    </div>
+
+    <div class="opportunity-sub">
+      Within 5% of prior high
+      and above 200 DMA
+    </div>
+
+  </div>
+
+
+
+  <div
+    class="opportunity-card recovery-card"
+  >
+
+    <div class="opportunity-title">
+      📈 200 DMA Recovery
+    </div>
+
+    <div
+      class="opportunity-value"
+      id="recoveryBoardCount"
+    >
+      —
+    </div>
+
+    <div class="opportunity-sub">
+      Stocks currently identified
+      around the 200 DMA
+    </div>
+
+  </div>
+
 
 </div>
 
 
 
 <!-- =======================================================
-     TABLE
+     PRIOR HIGH BREAKOUTS
+     ======================================================= -->
+
+<div
+  class="card"
+  style="margin-bottom:20px;"
+>
+
+
+  <div class="section-head">
+
+    <div>
+
+      <div class="section-title">
+        🚀 Prior High Breakouts
+      </div>
+
+      <div class="section-description">
+        Stocks that have crossed their previous high
+        after a 200 DMA correction
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="tablewrap">
+
+    <table class="highlight-table">
+
+      <thead>
+
+        <tr>
+
+          <th>Stock</th>
+
+          <th>CMP</th>
+
+          <th>Prior High</th>
+
+          <th>Above High</th>
+
+          <th>200 DMA</th>
+
+          <th>RSI</th>
+
+          <th>Volume</th>
+
+          <th>Score</th>
+
+          <th>Setup</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody
+        id="breakoutBody"
+      ></tbody>
+
+    </table>
+
+  </div>
+
+
+  <div
+    class="note"
+    id="breakoutNote"
+  ></div>
+
+
+</div>
+
+
+
+<!-- =======================================================
+     NEAR PRIOR HIGH
+     ======================================================= -->
+
+<div
+  class="card"
+  style="margin-bottom:20px;"
+>
+
+
+  <div class="section-head">
+
+    <div>
+
+      <div class="section-title">
+        🔥 Near Prior High
+      </div>
+
+      <div class="section-description">
+        Stocks within 5% of their previous high
+        and above 200 DMA
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="tablewrap">
+
+    <table class="highlight-table">
+
+      <thead>
+
+        <tr>
+
+          <th>Stock</th>
+
+          <th>CMP</th>
+
+          <th>Prior High</th>
+
+          <th>Gap to High</th>
+
+          <th>200 DMA</th>
+
+          <th>RSI</th>
+
+          <th>Volume</th>
+
+          <th>Score</th>
+
+          <th>Setup</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody
+        id="nearHighBody"
+      ></tbody>
+
+    </table>
+
+  </div>
+
+
+  <div
+    class="note"
+    id="nearHighNote"
+  ></div>
+
+
+</div>
+
+
+
+<!-- =======================================================
+     MAIN STOCK TABLE
      ======================================================= -->
 
 <div
@@ -1171,7 +1960,7 @@ body{
 
   <div class="section-title">
 
-    Stock Screening Results
+    Complete Stock Screening Results
 
   </div>
 
@@ -1193,6 +1982,18 @@ body{
       </option>
 
       <option>
+        PRIOR HIGH BREAKOUT
+      </option>
+
+      <option>
+        NEAR PRIOR HIGH
+      </option>
+
+      <option>
+        BOTH
+      </option>
+
+      <option>
         STRONG RETEST
       </option>
 
@@ -1204,6 +2005,10 @@ body{
         NEAR 200DMA
       </option>
 
+      <option>
+        HIGH LEVEL
+      </option>
+
     </select>
 
 
@@ -1211,7 +2016,7 @@ body{
     <select id="side">
 
       <option value="">
-        Above & below
+        Above & below 200 DMA
       </option>
 
       <option value="above">
@@ -1233,7 +2038,11 @@ body{
       </option>
 
       <option value="score">
-        Highest score
+        Highest recovery score
+      </option>
+
+      <option value="prior">
+        Strongest prior-high setup
       </option>
 
       <option value="recovery">
@@ -1271,6 +2080,10 @@ body{
 
           <th>Gap %</th>
 
+          <th>Prior High</th>
+
+          <th>Gap to High</th>
+
           <th>50 DMA</th>
 
           <th>RSI</th>
@@ -1288,14 +2101,15 @@ body{
       </thead>
 
 
-      <tbody id="tbody"></tbody>
+      <tbody
+        id="tbody"
+      ></tbody>
 
 
     </table>
 
 
   </div>
-
 
 
   <div class="note">
@@ -1334,13 +2148,10 @@ body{
 <div class="modal-card">
 
 
-  <!-- HEADER -->
-
   <div class="modal-head">
 
 
     <div>
-
 
       <div
         class="modal-title"
@@ -1354,7 +2165,6 @@ body{
         class="modal-subtitle"
         id="modalSetup"
       ></div>
-
 
     </div>
 
@@ -1372,6 +2182,122 @@ body{
 
 
   <!-- =====================================================
+       PRIOR HIGH
+       ===================================================== -->
+
+  <div
+    class="detail-section"
+    id="priorHighDetail"
+  >
+
+    <h3>
+      🚀 Prior High Analysis
+    </h3>
+
+
+    <div class="prior-high-panel">
+
+
+      <div class="prior-high-grid">
+
+
+        <div class="prior-high-box">
+
+          <div class="label">
+            Prior High
+          </div>
+
+          <div
+            class="value"
+            id="dPriorHigh"
+          >
+            —
+          </div>
+
+        </div>
+
+
+
+        <div class="prior-high-box">
+
+          <div class="label">
+            Prior High Date
+          </div>
+
+          <div
+            class="value"
+            id="dPriorHighDate"
+          >
+            —
+          </div>
+
+        </div>
+
+
+
+        <div class="prior-high-box">
+
+          <div class="label">
+            Distance From High
+          </div>
+
+          <div
+            class="value"
+            id="dPriorHighGap"
+          >
+            —
+          </div>
+
+        </div>
+
+
+
+        <div class="prior-high-box">
+
+          <div class="label">
+            Prior High Score
+          </div>
+
+          <div
+            class="value"
+            id="dPriorHighScore"
+          >
+            —
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <div
+        style="margin-top:15px;"
+      >
+
+        <span
+          class="pill pill-breakout"
+          id="dPriorHighSetup"
+        >
+          —
+        </span>
+
+      </div>
+
+
+      <div
+        class="note"
+        id="dPriorHighReasons"
+      ></div>
+
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =====================================================
        TECHNICAL ANALYSIS
        ===================================================== -->
 
@@ -1379,7 +2305,7 @@ body{
 
 
     <h3>
-      200 DMA Setup
+      📊 Technical Analysis
     </h3>
 
 
@@ -1552,7 +2478,7 @@ body{
 
 
     <h3>
-      Fundamental Analysis
+      📈 Fundamental Analysis
     </h3>
 
 
@@ -1657,23 +2583,54 @@ body{
       <div class="fundamental-grid">
 
         <div class="fundamental-box">
-          <div class="detail-label">P/E Ratio</div>
-          <div class="detail-value" id="dPE">—</div>
+          <div class="detail-label">
+            P/E Ratio
+          </div>
+          <div
+            class="detail-value"
+            id="dPE"
+          >
+            —
+          </div>
         </div>
 
-        <div class="fundamental-box">
-          <div class="detail-label">P/B Ratio</div>
-          <div class="detail-value" id="dPB">—</div>
-        </div>
 
         <div class="fundamental-box">
-          <div class="detail-label">EPS</div>
-          <div class="detail-value" id="dEPS2">—</div>
+          <div class="detail-label">
+            P/B Ratio
+          </div>
+          <div
+            class="detail-value"
+            id="dPB"
+          >
+            —
+          </div>
         </div>
 
+
         <div class="fundamental-box">
-          <div class="detail-label">Dividend Yield</div>
-          <div class="detail-value" id="dDividend">—</div>
+          <div class="detail-label">
+            EPS
+          </div>
+          <div
+            class="detail-value"
+            id="dEPS2"
+          >
+            —
+          </div>
+        </div>
+
+
+        <div class="fundamental-box">
+          <div class="detail-label">
+            Dividend Yield
+          </div>
+          <div
+            class="detail-value"
+            id="dDividend"
+          >
+            —
+          </div>
         </div>
 
       </div>
@@ -1693,23 +2650,54 @@ body{
       <div class="fundamental-grid">
 
         <div class="fundamental-box">
-          <div class="detail-label">ROE</div>
-          <div class="detail-value" id="dROE">—</div>
+          <div class="detail-label">
+            ROE
+          </div>
+          <div
+            class="detail-value"
+            id="dROE"
+          >
+            —
+          </div>
         </div>
 
-        <div class="fundamental-box">
-          <div class="detail-label">ROCE</div>
-          <div class="detail-value" id="dROCE">—</div>
-        </div>
 
         <div class="fundamental-box">
-          <div class="detail-label">Operating Margin</div>
-          <div class="detail-value" id="dOperatingMargin">—</div>
+          <div class="detail-label">
+            ROCE
+          </div>
+          <div
+            class="detail-value"
+            id="dROCE"
+          >
+            —
+          </div>
         </div>
 
+
         <div class="fundamental-box">
-          <div class="detail-label">Net Profit Margin</div>
-          <div class="detail-value" id="dNetMargin">—</div>
+          <div class="detail-label">
+            Operating Margin
+          </div>
+          <div
+            class="detail-value"
+            id="dOperatingMargin"
+          >
+            —
+          </div>
+        </div>
+
+
+        <div class="fundamental-box">
+          <div class="detail-label">
+            Net Profit Margin
+          </div>
+          <div
+            class="detail-value"
+            id="dNetMargin"
+          >
+            —
+          </div>
         </div>
 
       </div>
@@ -1729,23 +2717,54 @@ body{
       <div class="fundamental-grid">
 
         <div class="fundamental-box">
-          <div class="detail-label">Debt / Equity</div>
-          <div class="detail-value" id="dDebtEquity">—</div>
+          <div class="detail-label">
+            Debt / Equity
+          </div>
+          <div
+            class="detail-value"
+            id="dDebtEquity"
+          >
+            —
+          </div>
         </div>
 
-        <div class="fundamental-box">
-          <div class="detail-label">Current Ratio</div>
-          <div class="detail-value" id="dCurrentRatio">—</div>
-        </div>
 
         <div class="fundamental-box">
-          <div class="detail-label">Quick Ratio</div>
-          <div class="detail-value" id="dQuickRatio">—</div>
+          <div class="detail-label">
+            Current Ratio
+          </div>
+          <div
+            class="detail-value"
+            id="dCurrentRatio"
+          >
+            —
+          </div>
         </div>
 
+
         <div class="fundamental-box">
-          <div class="detail-label">Interest Coverage</div>
-          <div class="detail-value" id="dInterestCoverage">—</div>
+          <div class="detail-label">
+            Quick Ratio
+          </div>
+          <div
+            class="detail-value"
+            id="dQuickRatio"
+          >
+            —
+          </div>
+        </div>
+
+
+        <div class="fundamental-box">
+          <div class="detail-label">
+            Interest Coverage
+          </div>
+          <div
+            class="detail-value"
+            id="dInterestCoverage"
+          >
+            —
+          </div>
         </div>
 
       </div>
@@ -1765,24 +2784,46 @@ body{
       <div class="fundamental-grid">
 
         <div class="fundamental-box">
-          <div class="detail-label">Revenue Growth</div>
-          <div class="detail-value" id="dRevenueGrowth">—</div>
+          <div class="detail-label">
+            Revenue Growth
+          </div>
+          <div
+            class="detail-value"
+            id="dRevenueGrowth"
+          >
+            —
+          </div>
         </div>
 
-        <div class="fundamental-box">
-          <div class="detail-label">EPS Growth</div>
-          <div class="detail-value" id="dEPSGrowth">—</div>
-        </div>
 
         <div class="fundamental-box">
-          <div class="detail-label">Profit Growth</div>
-          <div class="detail-value" id="dProfitGrowth">—</div>
+          <div class="detail-label">
+            EPS Growth
+          </div>
+          <div
+            class="detail-value"
+            id="dEPSGrowth"
+          >
+            —
+          </div>
+        </div>
+
+
+        <div class="fundamental-box">
+          <div class="detail-label">
+            Profit Growth
+          </div>
+          <div
+            class="detail-value"
+            id="dProfitGrowth"
+          >
+            —
+          </div>
         </div>
 
       </div>
 
     </div>
-
 
 
     <div class="click-hint">
@@ -1816,8 +2857,6 @@ const CSV_PATH =
 
 let rows = [];
 
-let top20 = [];
-
 
 
 /* =========================================================
@@ -1835,7 +2874,11 @@ function parseCSV(text){
   let quoted=false;
 
 
-  for(let i=0;i<text.length;i++){
+  for(
+    let i=0;
+    i<text.length;
+    i++
+  ){
 
     const c=text[i];
 
@@ -1844,13 +2887,17 @@ function parseCSV(text){
 
     if(c==='"'){
 
-      if(quoted && n==='"'){
+      if(
+        quoted &&
+        n==='"'
+      ){
 
         field+='"';
 
         i++;
 
-      }else{
+      }
+      else{
 
         quoted=!quoted;
 
@@ -1858,7 +2905,10 @@ function parseCSV(text){
 
     }
 
-    else if(c===',' && !quoted){
+    else if(
+      c===',' &&
+      !quoted
+    ){
 
       row.push(field);
 
@@ -1867,28 +2917,35 @@ function parseCSV(text){
     }
 
     else if(
-      (c==='\n'||c==='\r')
-      &&
+      (
+        c==='\n' ||
+        c==='\r'
+      ) &&
       !quoted
     ){
 
       if(
-        c==='\r'
-        &&
+        c==='\r' &&
         n==='\n'
       ){
+
         i++;
+
       }
 
       row.push(field);
+
 
       if(
         row.some(
           x=>x.trim()!==""
         )
       ){
+
         out.push(row);
+
       }
+
 
       row=[];
 
@@ -1925,19 +2982,20 @@ function parseCSV(text){
       );
 
 
-  return out.map(r=>
+  return out.map(
+    r=>
 
-    Object.fromEntries(
+      Object.fromEntries(
 
-      headers.map(
-        (h,i)=>
-        [
-          h,
-          (r[i]??"").trim()
-        ]
+        headers.map(
+          (h,i)=>
+          [
+            h,
+            (r[i]??"").trim()
+          ]
+        )
+
       )
-
-    )
 
   );
 
@@ -1951,11 +3009,29 @@ function parseCSV(text){
 
 function num(v){
 
-  const x=parseFloat(v);
+  const x =
+    parseFloat(v);
 
   return Number.isFinite(x)
     ? x
     : 0;
+
+}
+
+
+
+/* =========================================================
+   FUNDAMENTAL NUMBER
+   ========================================================= */
+
+function fundamentalNum(v){
+
+  const x =
+    parseFloat(v);
+
+  return Number.isFinite(x)
+    ? x
+    : null;
 
 }
 
@@ -1994,25 +3070,407 @@ function esc(s){
 function setupClass(s){
 
   if(
+    s==="PRIOR HIGH BREAKOUT"
+  )
+    return "pill-breakout";
+
+
+  if(
+    s==="NEAR PRIOR HIGH"
+  )
+    return "pill-near";
+
+
+  if(
     s==="STRONG RETEST"
   )
-    return "strong";
+    return "pill-strong";
 
 
   if(
     s==="RECOVERY WATCH"
   )
-    return "watch";
+    return "pill-watch";
 
 
-  return "near";
+  return "pill-normal";
 
 }
 
 
 
 /* =========================================================
-   REFRESH TABLE
+   PRIOR HIGH BREAKOUTS
+   ========================================================= */
+
+function renderBreakouts(){
+
+  const breakoutRows =
+
+    rows
+
+      .filter(
+        r=>
+          String(
+            r.prior_high_breakout
+          ).toLowerCase()
+          ==="true"
+      )
+
+      .sort(
+        (a,b)=>
+
+          num(
+            b.distance_to_prior_high_pct
+          )
+
+          -
+
+          num(
+            a.distance_to_prior_high_pct
+          )
+
+      );
+
+
+  document.getElementById(
+    "breakoutCount"
+  ).textContent =
+    breakoutRows.length;
+
+
+  document.getElementById(
+    "breakoutBoardCount"
+  ).textContent =
+    breakoutRows.length;
+
+
+  const body =
+    document.getElementById(
+      "breakoutBody"
+    );
+
+
+  body.innerHTML =
+
+    breakoutRows
+
+      .slice(0,15)
+
+      .map(r=>{
+
+        const above =
+          num(
+            r.distance_to_prior_high_pct
+          );
+
+
+        return `
+
+          <tr
+            class="breakout-row"
+            onclick='openStock(${JSON.stringify(r).replace(/'/g,"&#39;")})'
+          >
+
+            <td class="stock">
+              ${esc(r.symbol)}
+            </td>
+
+
+            <td>
+              ₹${num(r.close)
+                .toLocaleString(
+                  "en-IN",
+                  {
+                    maximumFractionDigits:2
+                  }
+                )}
+            </td>
+
+
+            <td>
+              ₹${num(
+                r.prior_high_before_breakdown
+              ).toLocaleString(
+                "en-IN",
+                {
+                  maximumFractionDigits:2
+                }
+              )}
+            </td>
+
+
+            <td class="pos">
+              +${above.toFixed(2)}%
+            </td>
+
+
+            <td>
+              ₹${num(r.dma_200)
+                .toLocaleString(
+                  "en-IN",
+                  {
+                    maximumFractionDigits:2
+                  }
+                )}
+            </td>
+
+
+            <td>
+              ${num(r.rsi_14).toFixed(1)}
+            </td>
+
+
+            <td>
+              ${num(r.volume_ratio).toFixed(2)}x
+            </td>
+
+
+            <td>
+              <b>
+                ${esc(
+                  r.prior_high_score || "—"
+                )}
+              </b>
+            </td>
+
+
+            <td>
+              <span
+                class="pill pill-breakout"
+              >
+                🚀 BREAKOUT
+              </span>
+            </td>
+
+          </tr>
+
+        `;
+
+      })
+
+      .join("");
+
+
+  document.getElementById(
+    "breakoutNote"
+  ).textContent =
+
+    breakoutRows.length
+
+      ? `Showing top ${
+          Math.min(
+            breakoutRows.length,
+            15
+          )
+        } prior-high breakout candidates.`
+
+      : "No prior-high breakout candidates found in the latest scan.";
+
+}
+
+
+
+/* =========================================================
+   NEAR PRIOR HIGH
+   ========================================================= */
+
+function renderNearHigh(){
+
+  const nearRows =
+
+    rows
+
+      .filter(r=>{
+
+        const gap =
+          num(
+            r.distance_to_prior_high_pct
+          );
+
+
+        const above200 =
+          num(
+            r.close
+          ) >
+          num(
+            r.dma_200
+          );
+
+
+        return (
+
+          String(
+            r.near_prior_high
+          ).toLowerCase()
+          ==="true"
+
+          &&
+
+          above200
+
+        );
+
+      })
+
+      .sort(
+        (a,b)=>
+
+          num(
+            b.distance_to_prior_high_pct
+          )
+
+          -
+
+          num(
+            a.distance_to_prior_high_pct
+          )
+
+      );
+
+
+  document.getElementById(
+    "nearHighCount"
+  ).textContent =
+    nearRows.length;
+
+
+  document.getElementById(
+    "nearHighBoardCount"
+  ).textContent =
+    nearRows.length;
+
+
+  const body =
+    document.getElementById(
+      "nearHighBody"
+    );
+
+
+  body.innerHTML =
+
+    nearRows
+
+      .slice(0,15)
+
+      .map(r=>{
+
+        const gap =
+          num(
+            r.distance_to_prior_high_pct
+          );
+
+
+        return `
+
+          <tr
+            class="near-row"
+            onclick='openStock(${JSON.stringify(r).replace(/'/g,"&#39;")})'
+          >
+
+            <td class="stock">
+              ${esc(r.symbol)}
+            </td>
+
+
+            <td>
+              ₹${num(r.close)
+                .toLocaleString(
+                  "en-IN",
+                  {
+                    maximumFractionDigits:2
+                  }
+                )}
+            </td>
+
+
+            <td>
+              ₹${num(
+                r.prior_high_before_breakdown
+              ).toLocaleString(
+                "en-IN",
+                {
+                  maximumFractionDigits:2
+                }
+              )}
+            </td>
+
+
+            <td class="pos">
+              ${gap.toFixed(2)}%
+            </td>
+
+
+            <td>
+              ₹${num(r.dma_200)
+                .toLocaleString(
+                  "en-IN",
+                  {
+                    maximumFractionDigits:2
+                  }
+                )}
+            </td>
+
+
+            <td>
+              ${num(r.rsi_14).toFixed(1)}
+            </td>
+
+
+            <td>
+              ${num(r.volume_ratio).toFixed(2)}x
+            </td>
+
+
+            <td>
+              <b>
+                ${esc(
+                  r.prior_high_score || "—"
+                )}
+              </b>
+            </td>
+
+
+            <td>
+
+              <span
+                class="pill pill-near"
+              >
+                🔥 NEAR HIGH
+              </span>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      })
+
+      .join("");
+
+
+  document.getElementById(
+    "nearHighNote"
+  ).textContent =
+
+    nearRows.length
+
+      ? `Showing top ${
+          Math.min(
+            nearRows.length,
+            15
+          )
+        } stocks approaching their prior high.`
+
+      : "No stocks are currently within 5% of their prior high.";
+
+}
+
+
+
+/* =========================================================
+   MAIN TABLE
    ========================================================= */
 
 function refresh(){
@@ -2044,6 +3502,7 @@ function refresh(){
 
 
   let a =
+
     rows.filter(r=>{
 
       const gap =
@@ -2069,6 +3528,7 @@ function refresh(){
 
         (
           !setup ||
+          r.combined_setup===setup ||
           r.setup===setup
         )
 
@@ -2090,8 +3550,6 @@ function refresh(){
 
 
 
-  /* SORT */
-
   a.sort((x,y)=>{
 
     if(
@@ -2102,6 +3560,27 @@ function refresh(){
         num(y.score)
         -
         num(x.score)
+      );
+
+    }
+
+
+    if(
+      sort==="prior"
+    ){
+
+      return (
+
+        num(
+          y.prior_high_score
+        )
+
+        -
+
+        num(
+          x.prior_high_score
+        )
+
       );
 
     }
@@ -2164,13 +3643,9 @@ function refresh(){
 
 
   const show =
-    a.slice(0,20);
+    a.slice(0,50);
 
 
-
-  /* =====================================================
-     TABLE
-     ===================================================== */
 
   document.getElementById(
     "tbody"
@@ -2181,6 +3656,12 @@ function refresh(){
       const gap =
         num(
           r.distance_to_200dma_pct
+        );
+
+
+      const priorGap =
+        num(
+          r.distance_to_prior_high_pct
         );
 
 
@@ -2233,6 +3714,48 @@ function refresh(){
 
 
           <td>
+            ${
+              r.prior_high_before_breakdown
+              ? "₹"+
+                num(
+                  r.prior_high_before_breakdown
+                ).toLocaleString(
+                  "en-IN",
+                  {
+                    maximumFractionDigits:2
+                  }
+                )
+              : "—"
+            }
+          </td>
+
+
+          <td
+            class="${
+              priorGap>=0
+                ? "pos"
+                : "neutral"
+            }"
+          >
+
+            ${
+              r.distance_to_prior_high_pct
+              ? (
+                  priorGap>=0
+                    ? "+"
+                    : ""
+                )
+                +
+                priorGap.toFixed(2)
+                +
+                "%"
+              : "—"
+            }
+
+          </td>
+
+
+          <td>
             ₹${num(r.dma_50)
               .toLocaleString(
                 "en-IN",
@@ -2262,7 +3785,9 @@ function refresh(){
 
           <td>
             <b>
-              ${esc(r.score)}
+              ${esc(
+                r.score || "—"
+              )}
             </b>
           </td>
 
@@ -2270,9 +3795,17 @@ function refresh(){
           <td>
 
             <span
-              class="pill ${setupClass(r.setup)}"
+              class="pill ${setupClass(
+                r.combined_setup ||
+                r.setup
+              )}"
             >
-              ${esc(r.setup)}
+
+              ${esc(
+                r.combined_setup ||
+                r.setup
+              )}
+
             </span>
 
           </td>
@@ -2289,135 +3822,8 @@ function refresh(){
 
 
 /* =========================================================
-   VISUALS
-   ========================================================= */
-
-function renderVisuals(){
-
-  top20 =
-    [...rows]
-
-      .sort(
-
-        (a,b)=>
-
-          Math.abs(
-            num(
-              a.distance_to_200dma_pct
-            )
-          )
-
-          -
-
-          Math.abs(
-            num(
-              b.distance_to_200dma_pct
-            )
-          )
-
-      )
-
-      .slice(0,20);
-
-
-
-  const max =
-    Math.max(
-
-      3,
-
-      ...top20.map(
-
-        r=>
-
-          Math.abs(
-            num(
-              r.distance_to_200dma_pct
-            )
-          )
-
-      )
-
-    );
-
-
-
-  /* =====================================================
-     BAR CHART
-     ===================================================== */
-
-  document.getElementById(
-    "bars"
-  ).innerHTML =
-
-    top20.map(r=>{
-
-      const v =
-        num(
-          r.distance_to_200dma_pct
-        );
-
-
-      const w =
-        Math.min(
-          100,
-          Math.abs(v)/max*100
-        );
-
-
-      return `
-
-        <div class="barrow">
-
-          <b>
-            ${esc(r.symbol)}
-          </b>
-
-
-          <div class="barbg">
-
-            <div
-              class="bar ${v<0?'neg':''}"
-              style="width:${w}%"
-            ></div>
-
-          </div>
-
-
-          <span
-            class="${v>=0?'pos':'neg'}"
-          >
-
-            ${v>=0?"+":""}
-            ${v.toFixed(2)}%
-
-          </span>
-
-        </div>
-
-      `;
-
-    }).join("");
-
-}
-
-
-
-/* =========================================================
    FUNDAMENTAL HELPERS
    ========================================================= */
-
-function fundamentalNum(v){
-
-  const x =
-    parseFloat(v);
-
-  return Number.isFinite(x)
-    ? x
-    : null;
-
-}
-
 
 function fundamentalText(
   v,
@@ -2447,6 +3853,7 @@ function fundamentalText(
   suffix;
 
 }
+
 
 
 function marketCapText(v){
@@ -2479,6 +3886,7 @@ function marketCapText(v){
 }
 
 
+
 function scoreClass(value){
 
   const x =
@@ -2500,6 +3908,7 @@ function scoreClass(value){
   return "score-low";
 
 }
+
 
 
 function setFundamentalValue(
@@ -2531,7 +3940,6 @@ function setFundamentalValue(
 
 function openStock(r){
 
-
   document.getElementById(
     "modalStock"
   ).textContent =
@@ -2544,7 +3952,11 @@ function openStock(r){
     "modalSetup"
   ).textContent =
 
-    (r.setup || "")
+    (
+      r.combined_setup ||
+      r.setup ||
+      ""
+    )
 
     +
 
@@ -2556,7 +3968,92 @@ function openStock(r){
 
 
 
-  /* CMP */
+  /* =====================================================
+     PRIOR HIGH
+     ===================================================== */
+
+  document.getElementById(
+    "dPriorHigh"
+  ).textContent =
+
+    r.prior_high_before_breakdown
+
+      ? "₹"+
+        num(
+          r.prior_high_before_breakdown
+        ).toLocaleString(
+          "en-IN",
+          {
+            maximumFractionDigits:2
+          }
+        )
+
+      : "N/A";
+
+
+  document.getElementById(
+    "dPriorHighDate"
+  ).textContent =
+
+    r.prior_high_date ||
+    "N/A";
+
+
+  const priorGap =
+    fundamentalNum(
+      r.distance_to_prior_high_pct
+    );
+
+
+  document.getElementById(
+    "dPriorHighGap"
+  ).textContent =
+
+    priorGap===null
+
+      ? "N/A"
+
+      :
+
+        (
+          priorGap>=0
+            ? "+"
+            : ""
+        )
+        +
+        priorGap.toFixed(2)
+        +
+        "%";
+
+
+  document.getElementById(
+    "dPriorHighScore"
+  ).textContent =
+
+    r.prior_high_score ||
+    "—";
+
+
+  document.getElementById(
+    "dPriorHighSetup"
+  ).textContent =
+
+    r.prior_high_setup ||
+    "NORMAL";
+
+
+  document.getElementById(
+    "dPriorHighReasons"
+  ).textContent =
+
+    r.prior_high_reasons ||
+    "No prior-high signal available.";
+
+
+
+  /* =====================================================
+     CMP
+     ===================================================== */
 
   document.getElementById(
     "dClose"
@@ -2572,7 +4069,9 @@ function openStock(r){
 
 
 
-  /* 200 DMA */
+  /* =====================================================
+     200 DMA
+     ===================================================== */
 
   document.getElementById(
     "d200"
@@ -2588,7 +4087,9 @@ function openStock(r){
 
 
 
-  /* GAP */
+  /* =====================================================
+     GAP
+     ===================================================== */
 
   const gap =
     num(
@@ -2600,7 +4101,11 @@ function openStock(r){
     "dGap"
   ).textContent =
 
-    (gap>=0?"+":"")
+    (
+      gap>=0
+        ? "+"
+        : ""
+    )
     +
     gap.toFixed(2)
     +
@@ -2608,7 +4113,9 @@ function openStock(r){
 
 
 
-  /* 50 DMA */
+  /* =====================================================
+     50 DMA
+     ===================================================== */
 
   document.getElementById(
     "d50"
@@ -2624,7 +4131,9 @@ function openStock(r){
 
 
 
-  /* RSI */
+  /* =====================================================
+     RSI
+     ===================================================== */
 
   document.getElementById(
     "dRsi"
@@ -2635,7 +4144,9 @@ function openStock(r){
 
 
 
-  /* VOLUME */
+  /* =====================================================
+     VOLUME
+     ===================================================== */
 
   document.getElementById(
     "dVol"
@@ -2648,7 +4159,9 @@ function openStock(r){
 
 
 
-  /* RECOVERY */
+  /* =====================================================
+     RECOVERY
+     ===================================================== */
 
   document.getElementById(
     "dRecovery"
@@ -2662,7 +4175,9 @@ function openStock(r){
 
 
 
-  /* SCORE */
+  /* =====================================================
+     SCORE
+     ===================================================== */
 
   document.getElementById(
     "dScore"
@@ -2673,12 +4188,15 @@ function openStock(r){
 
 
 
-  /* SETUP */
+  /* =====================================================
+     SETUP
+     ===================================================== */
 
   document.getElementById(
     "dSetup"
   ).textContent =
 
+    r.combined_setup ||
     r.setup ||
     "—";
 
@@ -3145,28 +4663,37 @@ async function load(){
       ).length;
 
 
+    const breakouts =
 
-    const avg =
+      rows.filter(
+        r=>
+          String(
+            r.prior_high_breakout
+          ).toLowerCase()
+          ==="true"
+      ).length;
 
-      rows.reduce(
 
-        (s,r)=>
+    const nearHigh =
 
-          s+
+      rows.filter(
+        r=>
+          String(
+            r.near_prior_high
+          ).toLowerCase()
+          ==="true"
+      ).length;
 
-          Math.abs(
-            num(
-              r.distance_to_200dma_pct
-            )
-          ),
 
-        0
+    const recovery =
 
-      )
-
-      /
-
-      rows.length;
+      rows.filter(
+        r=>
+          String(
+            r.recovery_candidate
+          ).toLowerCase()
+          ==="true"
+      ).length;
 
 
 
@@ -3177,38 +4704,56 @@ async function load(){
     document.getElementById(
       "total"
     ).textContent =
-
       rows.length;
 
 
     document.getElementById(
       "strong"
     ).textContent =
-
       strong;
 
 
     document.getElementById(
       "watch"
     ).textContent =
-
       watch;
 
 
     document.getElementById(
       "near"
     ).textContent =
-
       near;
 
 
     document.getElementById(
-      "avg"
+      "breakoutCount"
     ).textContent =
+      breakouts;
 
-      avg.toFixed(2)
-      +
-      "%";
+
+    document.getElementById(
+      "nearHighCount"
+    ).textContent =
+      nearHigh;
+
+
+
+    document.getElementById(
+      "breakoutBoardCount"
+    ).textContent =
+      breakouts;
+
+
+    document.getElementById(
+      "nearHighBoardCount"
+    ).textContent =
+      nearHigh;
+
+
+    document.getElementById(
+      "recoveryBoardCount"
+    ).textContent =
+      recovery;
 
 
 
@@ -3229,7 +4774,13 @@ async function load(){
 
 
 
-    renderVisuals();
+    /* ===================================================
+       RENDER
+       =================================================== */
+
+    renderBreakouts();
+
+    renderNearHigh();
 
     refresh();
 
@@ -3265,4 +4816,5 @@ load();
 
 
 </body>
+
 </html>
