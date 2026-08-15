@@ -467,6 +467,22 @@ body{
 
 }
 
+
+.fundamental-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.fundamental-score{border:1px solid var(--line);border-radius:13px;padding:15px;background:#f8fafc}
+.fundamental-score .score-label{color:var(--muted);font-size:12px}
+.fundamental-score .score-value{font-size:24px;font-weight:900;margin-top:5px}
+.fundamental-score .score-note{color:var(--muted);font-size:11px;margin-top:4px}
+.fundamental-group{margin-top:14px}
+.fundamental-group-title{font-size:13px;font-weight:800;margin-bottom:8px;color:#334155}
+.fundamental-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.fundamental-box{border:1px solid var(--line);border-radius:11px;padding:12px;background:#fff}
+.fundamental-box .detail-label{font-size:11px}
+.fundamental-box .detail-value{font-size:16px;margin-top:5px}
+.score-good{color:var(--green)} .score-mid{color:var(--amber)} .score-low{color:var(--red)}
+@media(max-width:700px){.fundamental-summary{grid-template-columns:1fr 1fr}.fundamental-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.fundamental-summary,.fundamental-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 
@@ -905,41 +921,76 @@ body{
       </h3>
 
 
-      <div class="fundamental-placeholder">
+      <div class="fundamental-summary">
 
-        <strong>
-          Fundamentals coming next
-        </strong>
-
-        <span>
-
-          We will add:
-
-          <br>
-
-          P/E Ratio · P/B Ratio · EPS · Dividend Yield · Market Cap
-
-          <br>
-
-          ROE · ROCE · Operating Margin · Net Profit Margin
-
-          <br>
-
-          Debt/Equity · Current Ratio · Quick Ratio · Interest Coverage
-
-          <br>
-
-          Revenue Growth · EPS Growth · Profit Growth
-
-        </span>
-
-
-        <div class="click-hint">
-
-          These values will be automatically updated with the scanner.
-
+        <div class="fundamental-score">
+          <div class="score-label">Fundamental Score</div>
+          <div class="score-value" id="dFundScore">—</div>
+          <div class="score-note">Based on available fundamentals</div>
         </div>
 
+        <div class="fundamental-score">
+          <div class="score-label">Overall Score</div>
+          <div class="score-value" id="dOverallScore">—</div>
+          <div class="score-note">60% technical · 40% fundamental</div>
+        </div>
+
+        <div class="fundamental-score">
+          <div class="score-label">Market Cap</div>
+          <div class="score-value" id="dMarketCap">—</div>
+          <div class="score-note">Latest available data</div>
+        </div>
+
+        <div class="fundamental-score">
+          <div class="score-label">EPS</div>
+          <div class="score-value" id="dEPS">—</div>
+          <div class="score-note">Trailing EPS</div>
+        </div>
+
+      </div>
+
+      <div class="fundamental-group">
+        <div class="fundamental-group-title">Valuation</div>
+        <div class="fundamental-grid">
+          <div class="fundamental-box"><div class="detail-label">P/E Ratio</div><div class="detail-value" id="dPE">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">P/B Ratio</div><div class="detail-value" id="dPB">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">EPS</div><div class="detail-value" id="dEPS2">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">Dividend Yield</div><div class="detail-value" id="dDividend">—</div></div>
+        </div>
+      </div>
+
+      <div class="fundamental-group">
+        <div class="fundamental-group-title">Profitability</div>
+        <div class="fundamental-grid">
+          <div class="fundamental-box"><div class="detail-label">ROE</div><div class="detail-value" id="dROE">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">ROCE</div><div class="detail-value" id="dROCE">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">Operating Margin</div><div class="detail-value" id="dOperatingMargin">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">Net Profit Margin</div><div class="detail-value" id="dNetMargin">—</div></div>
+        </div>
+      </div>
+
+      <div class="fundamental-group">
+        <div class="fundamental-group-title">Financial Health</div>
+        <div class="fundamental-grid">
+          <div class="fundamental-box"><div class="detail-label">Debt / Equity</div><div class="detail-value" id="dDebtEquity">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">Current Ratio</div><div class="detail-value" id="dCurrentRatio">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">Quick Ratio</div><div class="detail-value" id="dQuickRatio">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">Interest Coverage</div><div class="detail-value" id="dInterestCoverage">—</div></div>
+        </div>
+      </div>
+
+      <div class="fundamental-group">
+        <div class="fundamental-group-title">Growth</div>
+        <div class="fundamental-grid">
+          <div class="fundamental-box"><div class="detail-label">Revenue Growth</div><div class="detail-value" id="dRevenueGrowth">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">EPS Growth</div><div class="detail-value" id="dEPSGrowth">—</div></div>
+          <div class="fundamental-box"><div class="detail-label">Profit Growth</div><div class="detail-value" id="dProfitGrowth">—</div></div>
+        </div>
+      </div>
+
+      <div class="click-hint">
+        Fundamental data is sourced by the scanner and may be unavailable for some stocks.
+        Verify company filings before making investment decisions.
       </div>
 
     </div>
@@ -1544,6 +1595,47 @@ function renderVisuals(){
 
 
 /* =================================
+   FUNDAMENTAL HELPERS
+   ================================= */
+
+function fundamentalNum(v){
+  const x=parseFloat(v);
+  return Number.isFinite(x) ? x : null;
+}
+
+function fundamentalText(v, suffix="", decimals=2){
+  const x=fundamentalNum(v);
+  if(x===null) return "N/A";
+  return x.toLocaleString("en-IN", {
+    minimumFractionDigits:decimals,
+    maximumFractionDigits:decimals
+  }) + suffix;
+}
+
+function marketCapText(v){
+  const x=fundamentalNum(v);
+  if(x===null) return "N/A";
+  if(x>=1e12) return "₹"+(x/1e12).toFixed(2)+"T";
+  if(x>=1e9) return "₹"+(x/1e9).toFixed(2)+"B";
+  if(x>=1e7) return "₹"+(x/1e7).toFixed(2)+" Cr";
+  return "₹"+x.toLocaleString("en-IN");
+}
+
+function scoreClass(value){
+  const x=fundamentalNum(value);
+  if(x===null) return "";
+  if(x>=75) return "score-good";
+  if(x>=50) return "score-mid";
+  return "score-low";
+}
+
+function setFundamentalValue(id,value){
+  const el=document.getElementById(id);
+  el.textContent=value;
+  el.classList.remove("score-good","score-mid","score-low");
+}
+
+/* =================================
    OPEN STOCK POPUP
    ================================= */
 
@@ -1560,7 +1652,8 @@ function openStock(r){
     "modalSetup"
   ).textContent=
 
-    r.setup || "";
+    (r.setup || "") +
+    (r.date ? " · Data date: " + r.date : "");
 
 
   /* CMP */
@@ -1670,6 +1763,51 @@ function openStock(r){
   ).textContent=
 
     r.setup || "—";
+
+
+  /* =================================
+     FUNDAMENTAL ANALYSIS
+     ================================= */
+
+  const fundScore=fundamentalNum(r.fundamental_score);
+  const technicalScore=fundamentalNum(r.score);
+
+  const overallScore =
+    fundScore===null || technicalScore===null
+      ? null
+      : Math.round(technicalScore*0.60 + fundScore*0.40);
+
+  const fundScoreEl=document.getElementById("dFundScore");
+  fundScoreEl.textContent=fundScore===null?"N/A":fundScore;
+  fundScoreEl.classList.remove("score-good","score-mid","score-low");
+  if(fundScore!==null) fundScoreEl.classList.add(scoreClass(fundScore));
+
+  const overallEl=document.getElementById("dOverallScore");
+  overallEl.textContent=overallScore===null?"N/A":overallScore;
+  overallEl.classList.remove("score-good","score-mid","score-low");
+  if(overallScore!==null) overallEl.classList.add(scoreClass(overallScore));
+
+  setFundamentalValue("dMarketCap",marketCapText(r.market_cap));
+  setFundamentalValue("dEPS",fundamentalText(r.eps,"",2));
+
+  setFundamentalValue("dPE",fundamentalText(r.pe_ratio,"x",2));
+  setFundamentalValue("dPB",fundamentalText(r.pb_ratio,"x",2));
+  setFundamentalValue("dEPS2",fundamentalText(r.eps,"",2));
+  setFundamentalValue("dDividend",fundamentalText(r.dividend_yield,"%",2));
+
+  setFundamentalValue("dROE",fundamentalText(r.roe,"%",1));
+  setFundamentalValue("dROCE",fundamentalText(r.roce,"%",1));
+  setFundamentalValue("dOperatingMargin",fundamentalText(r.operating_margin,"%",1));
+  setFundamentalValue("dNetMargin",fundamentalText(r.net_profit_margin,"%",1));
+
+  setFundamentalValue("dDebtEquity",fundamentalText(r.debt_to_equity,"x",2));
+  setFundamentalValue("dCurrentRatio",fundamentalText(r.current_ratio,"x",2));
+  setFundamentalValue("dQuickRatio",fundamentalText(r.quick_ratio,"x",2));
+  setFundamentalValue("dInterestCoverage",fundamentalText(r.interest_coverage,"x",2));
+
+  setFundamentalValue("dRevenueGrowth",fundamentalText(r.revenue_growth,"%",1));
+  setFundamentalValue("dEPSGrowth",fundamentalText(r.eps_growth,"%",1));
+  setFundamentalValue("dProfitGrowth",fundamentalText(r.profit_growth,"%",1));
 
 
   /* SHOW MODAL */
