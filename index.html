@@ -3,153 +3,1925 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>NSE 200 DMA Recovery Scanner</title>
+
 <style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#6b7280;--line:#e5e7eb;--green:#16834b;--red:#c63d3d;--amber:#b7791f;--blue:#2563eb}
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-.wrap{max-width:1400px;margin:auto;padding:24px}.head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:20px}.title h1{margin:0;font-size:28px}.title p{margin:6px 0 0;color:var(--muted)}
-.badge{background:#eef4ff;color:#2457c5;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:700}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px;box-shadow:0 3px 12px #17203308}.kpi .label{color:var(--muted);font-size:13px}.kpi .value{font-size:25px;font-weight:800;margin-top:6px}
-.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-bottom:18px}.section-title{font-size:16px;font-weight:800;margin-bottom:12px}.bars{display:flex;flex-direction:column;gap:9px}.barrow{display:grid;grid-template-columns:115px 1fr 70px;gap:8px;align-items:center;font-size:12px}.barbg{height:14px;background:#edf0f5;border-radius:10px;position:relative;overflow:hidden}.bar{height:100%;border-radius:10px;background:#4f7cff}.bar.neg{background:#d86a6a}.bar.zero{position:absolute;left:50%;top:0;width:1px;height:100%;background:#555}
-.scatter{position:relative;height:270px;border-left:1px solid #bbb;border-bottom:1px solid #bbb;background:linear-gradient(#ffffff,#fafbfe)}.dot{position:absolute;width:12px;height:12px;border-radius:50%;transform:translate(-50%,50%);background:#2563eb;border:2px solid white;box-shadow:0 1px 5px #0003}.axis{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;margin-top:7px}.legend{font-size:11px;color:var(--muted);margin-top:6px}
-.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:12px}.controls input,.controls select{border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--text)}.controls input{min-width:220px}
-.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:13px}.table th{position:sticky;top:0;background:#f8fafc;text-align:left;padding:11px;border-bottom:1px solid var(--line);white-space:nowrap}.table td{padding:11px;border-bottom:1px solid var(--line);white-space:nowrap}.table tr:hover{background:#f8fbff}.stock{font-weight:800}.pos{color:var(--green);font-weight:700}.neg{color:var(--red);font-weight:700}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.strong{background:#e7f7ed;color:#137642}.watch{background:#fff5dc;color:#9a6714}.near{background:#eef1f5;color:#596273}
-.note{color:var(--muted);font-size:12px;margin-top:12px}.error{color:var(--red);background:#fff0f0;border:1px solid #ffd0d0;padding:12px;border-radius:10px;display:none}
-@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}@media(max-width:600px){.wrap{padding:14px}.head{align-items:flex-start;flex-direction:column}.kpis{grid-template-columns:1fr 1fr}.title h1{font-size:23px}}
+
+:root{
+  --bg:#f5f7fb;
+  --card:#fff;
+  --text:#172033;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --green:#16834b;
+  --red:#c63d3d;
+  --amber:#b7791f;
+  --blue:#2563eb;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+.wrap{
+  max-width:1400px;
+  margin:auto;
+  padding:24px;
+}
+
+.head{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-end;
+  margin-bottom:20px;
+}
+
+.title h1{
+  margin:0;
+  font-size:28px;
+}
+
+.title p{
+  margin:6px 0 0;
+  color:var(--muted);
+}
+
+.badge{
+  background:#eef4ff;
+  color:#2457c5;
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:17px;
+  box-shadow:0 3px 12px #17203308;
+}
+
+.kpi .label{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.kpi .value{
+  font-size:25px;
+  font-weight:800;
+  margin-top:6px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1.25fr 1fr;
+  gap:16px;
+  margin-bottom:18px;
+}
+
+.section-title{
+  font-size:16px;
+  font-weight:800;
+  margin-bottom:12px;
+}
+
+.bars{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.barrow{
+  display:grid;
+  grid-template-columns:115px 1fr 70px;
+  gap:8px;
+  align-items:center;
+  font-size:12px;
+}
+
+.barbg{
+  height:14px;
+  background:#edf0f5;
+  border-radius:10px;
+  position:relative;
+  overflow:hidden;
+}
+
+.bar{
+  height:100%;
+  border-radius:10px;
+  background:#4f7cff;
+}
+
+.bar.neg{
+  background:#d86a6a;
+}
+
+.bar.zero{
+  position:absolute;
+  left:50%;
+  top:0;
+  width:1px;
+  height:100%;
+  background:#555;
+}
+
+.scatter{
+  position:relative;
+  height:270px;
+  border-left:1px solid #bbb;
+  border-bottom:1px solid #bbb;
+  background:linear-gradient(#ffffff,#fafbfe);
+}
+
+.dot{
+  position:absolute;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  transform:translate(-50%,50%);
+  background:#2563eb;
+  border:2px solid white;
+  box-shadow:0 1px 5px #0003;
+}
+
+.axis{
+  font-size:11px;
+  color:var(--muted);
+  display:flex;
+  justify-content:space-between;
+  margin-top:7px;
+}
+
+.legend{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.controls input,
+.controls select{
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:9px 11px;
+  background:#fff;
+  color:var(--text);
+}
+
+.controls input{
+  min-width:220px;
+}
+
+.tablewrap{
+  overflow:auto;
+}
+
+.table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+.table th{
+  position:sticky;
+  top:0;
+  background:#f8fafc;
+  text-align:left;
+  padding:11px;
+  border-bottom:1px solid var(--line);
+  white-space:nowrap;
+}
+
+.table td{
+  padding:11px;
+  border-bottom:1px solid var(--line);
+  white-space:nowrap;
+}
+
+.table tbody tr{
+  cursor:pointer;
+  transition:background .15s;
+}
+
+.table tbody tr:hover{
+  background:#eef6ff;
+}
+
+.stock{
+  font-weight:800;
+}
+
+.pos{
+  color:var(--green);
+  font-weight:700;
+}
+
+.neg{
+  color:var(--red);
+  font-weight:700;
+}
+
+.pill{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+}
+
+.strong{
+  background:#e7f7ed;
+  color:#137642;
+}
+
+.watch{
+  background:#fff5dc;
+  color:#9a6714;
+}
+
+.near{
+  background:#eef1f5;
+  color:#596273;
+}
+
+.note{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:12px;
+}
+
+.error{
+  color:var(--red);
+  background:#fff0f0;
+  border:1px solid #ffd0d0;
+  padding:12px;
+  border-radius:10px;
+  display:none;
+}
+
+
+/* ================================
+   STOCK DETAIL POPUP
+   ================================ */
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.60);
+  z-index:9999;
+  padding:25px;
+  overflow:auto;
+}
+
+.modal.show{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-card{
+  width:min(950px,100%);
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:20px;
+  padding:26px;
+  box-shadow:0 25px 80px rgba(0,0,0,.30);
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:15px;
+  margin-bottom:22px;
+}
+
+.modal-title{
+  font-size:27px;
+  font-weight:800;
+}
+
+.modal-subtitle{
+  color:var(--muted);
+  margin-top:5px;
+  font-size:13px;
+}
+
+.close-btn{
+  border:0;
+  background:#f1f5f9;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  font-size:24px;
+  cursor:pointer;
+  color:#334155;
+}
+
+.close-btn:hover{
+  background:#e2e8f0;
+}
+
+.detail-section{
+  margin-top:22px;
+}
+
+.detail-section h3{
+  margin:0 0 12px;
+  font-size:16px;
+  font-weight:800;
+}
+
+.detail-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.detail-box{
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:15px;
+  background:#fafcff;
+}
+
+.detail-label{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.detail-value{
+  font-size:19px;
+  font-weight:800;
+  margin-top:6px;
+}
+
+.fundamental-placeholder{
+  border:1px dashed #cbd5e1;
+  border-radius:13px;
+  padding:20px;
+  background:#f8fafc;
+}
+
+.fundamental-placeholder strong{
+  display:block;
+  font-size:16px;
+  margin-bottom:8px;
+}
+
+.fundamental-placeholder span{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.7;
+}
+
+.click-hint{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:14px;
+}
+
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media(max-width:1000px){
+
+  .kpis{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+@media(max-width:700px){
+
+  .detail-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .modal{
+    padding:12px;
+  }
+
+  .modal-card{
+    padding:18px;
+  }
+
+}
+
+@media(max-width:600px){
+
+  .wrap{
+    padding:14px;
+  }
+
+  .head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .kpis{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .title h1{
+    font-size:23px;
+  }
+
+  .detail-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
 </style>
 </head>
+
+
 <body>
+
 <div class="wrap">
+
+  <!-- HEADER -->
+
   <div class="head">
+
     <div class="title">
+
       <h1>NSE 200 DMA Recovery Scanner</h1>
-      <p>Top stocks approaching or retesting their 200-day moving average</p>
+
+      <p>
+        Top stocks approaching or retesting their 200-day moving average
+      </p>
+
     </div>
-    <div class="badge" id="updated">Loading data…</div>
+
+    <div class="badge" id="updated">
+      Loading data…
+    </div>
+
   </div>
+
+
+  <!-- ERROR -->
 
   <div id="error" class="error"></div>
 
+
+  <!-- KPI CARDS -->
+
   <div class="kpis">
-    <div class="card kpi"><div class="label">Stocks in report</div><div class="value" id="total">—</div></div>
-    <div class="card kpi"><div class="label">Strong Retest</div><div class="value" id="strong">—</div></div>
-    <div class="card kpi"><div class="label">Recovery Watch</div><div class="value" id="watch">—</div></div>
-    <div class="card kpi"><div class="label">Near 200 DMA</div><div class="value" id="near">—</div></div>
-    <div class="card kpi"><div class="label">Avg distance</div><div class="value" id="avg">—</div></div>
+
+    <div class="card kpi">
+      <div class="label">Stocks in report</div>
+      <div class="value" id="total">—</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="label">Strong Retest</div>
+      <div class="value" id="strong">—</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="label">Recovery Watch</div>
+      <div class="value" id="watch">—</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="label">Near 200 DMA</div>
+      <div class="value" id="near">—</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="label">Avg distance</div>
+      <div class="value" id="avg">—</div>
+    </div>
+
   </div>
+
+
+  <!-- VISUALS -->
 
   <div class="grid">
+
     <div class="card">
-      <div class="section-title">Top 20 — distance from 200 DMA</div>
+
+      <div class="section-title">
+        Top 20 — distance from 200 DMA
+      </div>
+
       <div class="bars" id="bars"></div>
-      <div class="note">Negative = below 200 DMA · Positive = above 200 DMA</div>
+
+      <div class="note">
+        Negative = below 200 DMA · Positive = above 200 DMA
+      </div>
+
     </div>
+
+
     <div class="card">
-      <div class="section-title">Recovery strength</div>
+
+      <div class="section-title">
+        Recovery strength
+      </div>
+
       <div class="scatter" id="scatter"></div>
-      <div class="axis"><span>Low recovery</span><span>High recovery →</span></div>
-      <div class="legend">X = recovery from breakdown low · Y = closeness to 200 DMA</div>
+
+      <div class="axis">
+        <span>Low recovery</span>
+        <span>High recovery →</span>
+      </div>
+
+      <div class="legend">
+        X = recovery from breakdown low · Y = closeness to 200 DMA
+      </div>
+
     </div>
+
   </div>
+
+
+  <!-- TABLE -->
 
   <div class="card">
-    <div class="section-title">Top 20 candidates</div>
+
+    <div class="section-title">
+      Top 20 candidates
+    </div>
+
     <div class="controls">
-      <input id="search" placeholder="Search stock…">
-      <select id="setup"><option value="">All setups</option><option>STRONG RETEST</option><option>RECOVERY WATCH</option><option>NEAR 200DMA</option></select>
-      <select id="side"><option value="">Above & below</option><option value="above">Above 200 DMA</option><option value="below">Below 200 DMA</option></select>
-      <select id="sort"><option value="near">Nearest 200 DMA</option><option value="score">Highest score</option><option value="recovery">Highest recovery</option><option value="rsi">Highest RSI</option></select>
+
+      <input
+        id="search"
+        placeholder="Search stock…"
+      >
+
+      <select id="setup">
+
+        <option value="">
+          All setups
+        </option>
+
+        <option>
+          STRONG RETEST
+        </option>
+
+        <option>
+          RECOVERY WATCH
+        </option>
+
+        <option>
+          NEAR 200DMA
+        </option>
+
+      </select>
+
+
+      <select id="side">
+
+        <option value="">
+          Above & below
+        </option>
+
+        <option value="above">
+          Above 200 DMA
+        </option>
+
+        <option value="below">
+          Below 200 DMA
+        </option>
+
+      </select>
+
+
+      <select id="sort">
+
+        <option value="near">
+          Nearest 200 DMA
+        </option>
+
+        <option value="score">
+          Highest score
+        </option>
+
+        <option value="recovery">
+          Highest recovery
+        </option>
+
+        <option value="rsi">
+          Highest RSI
+        </option>
+
+      </select>
+
     </div>
+
+
     <div class="tablewrap">
+
       <table class="table">
-        <thead><tr>
-          <th>Rank</th><th>Stock</th><th>CMP</th><th>200 DMA</th><th>Gap %</th><th>50 DMA</th><th>RSI</th><th>Vol</th><th>Recovery %</th><th>Score</th><th>Setup</th>
-        </tr></thead>
+
+        <thead>
+
+          <tr>
+
+            <th>Rank</th>
+            <th>Stock</th>
+            <th>CMP</th>
+            <th>200 DMA</th>
+            <th>Gap %</th>
+            <th>50 DMA</th>
+            <th>RSI</th>
+            <th>Vol</th>
+            <th>Recovery %</th>
+            <th>Score</th>
+            <th>Setup</th>
+
+          </tr>
+
+        </thead>
+
         <tbody id="tbody"></tbody>
+
       </table>
+
     </div>
-    <div class="note">Research/screening tool only. Verify live price and technical levels in your broker terminal before acting.</div>
+
+
+    <div class="note">
+      Click any stock row to open detailed analysis.
+    </div>
+
+    <div class="note">
+      Research/screening tool only. Verify live price and technical levels in your broker terminal before acting.
+    </div>
+
   </div>
+
 </div>
 
+
+<!-- =================================
+     STOCK DETAIL MODAL
+     ================================= -->
+
+<div class="modal" id="stockModal">
+
+  <div class="modal-card">
+
+
+    <!-- MODAL HEADER -->
+
+    <div class="modal-head">
+
+      <div>
+
+        <div
+          class="modal-title"
+          id="modalStock"
+        >
+          Stock Analysis
+        </div>
+
+        <div
+          class="modal-subtitle"
+          id="modalSetup"
+        >
+        </div>
+
+      </div>
+
+
+      <button
+        class="close-btn"
+        onclick="closeStock()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <!-- TECHNICAL SECTION -->
+
+    <div class="detail-section">
+
+      <h3>
+        200 DMA Setup
+      </h3>
+
+
+      <div class="detail-grid">
+
+
+        <div class="detail-box">
+
+          <div class="detail-label">
+            CMP
+          </div>
+
+          <div
+            class="detail-value"
+            id="dClose"
+          >
+            —
+          </div>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <div class="detail-label">
+            200 DMA
+          </div>
+
+          <div
+            class="detail-value"
+            id="d200"
+          >
+            —
+          </div>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <div class="detail-label">
+            Distance from 200 DMA
+          </div>
+
+          <div
+            class="detail-value"
+            id="dGap"
+          >
+            —
+          </div>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <div class="detail-label">
+            50 DMA
+          </div>
+
+          <div
+            class="detail-value"
+            id="d50"
+          >
+            —
+          </div>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <div class="detail-label">
+            RSI
+          </div>
+
+          <div
+            class="detail-value"
+            id="dRsi"
+          >
+            —
+          </div>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <div class="detail-label">
+            Volume Ratio
+          </div>
+
+          <div
+            class="detail-value"
+            id="dVol"
+          >
+            —
+          </div>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <div class="detail-label">
+            Recovery
+          </div>
+
+          <div
+            class="detail-value"
+            id="dRecovery"
+          >
+            —
+          </div>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <div class="detail-label">
+            Technical Score
+          </div>
+
+          <div
+            class="detail-value"
+            id="dScore"
+          >
+            —
+          </div>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <div class="detail-label">
+            Setup
+          </div>
+
+          <div
+            class="detail-value"
+            id="dSetup"
+          >
+            —
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+
+    <!-- FUNDAMENTALS -->
+
+    <div class="detail-section">
+
+      <h3>
+        Fundamental Analysis
+      </h3>
+
+
+      <div class="fundamental-placeholder">
+
+        <strong>
+          Fundamentals coming next
+        </strong>
+
+        <span>
+
+          We will add:
+
+          <br>
+
+          P/E Ratio · P/B Ratio · EPS · Dividend Yield · Market Cap
+
+          <br>
+
+          ROE · ROCE · Operating Margin · Net Profit Margin
+
+          <br>
+
+          Debt/Equity · Current Ratio · Quick Ratio · Interest Coverage
+
+          <br>
+
+          Revenue Growth · EPS Growth · Profit Growth
+
+        </span>
+
+
+        <div class="click-hint">
+
+          These values will be automatically updated with the scanner.
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+</div>
+
+
+
 <script>
-const CSV_PATH = "output/NSE_200DMA_Recovery_Scanner.csv";
-let rows = [], top20 = [];
+
+
+/* =================================
+   DATA SOURCE
+   ================================= */
+
+const CSV_PATH =
+  "output/NSE_200DMA_Recovery_Scanner.csv";
+
+
+let rows = [];
+
+let top20 = [];
+
+
+
+/* =================================
+   CSV PARSER
+   ================================= */
 
 function parseCSV(text){
-  const out=[]; let row=[], field="", quoted=false;
-  for(let i=0;i<text.length;i++){
-    const c=text[i], n=text[i+1];
-    if(c==='"'){ if(quoted && n==='"'){field+='"';i++;} else quoted=!quoted; }
-    else if(c===',' && !quoted){row.push(field);field="";}
-    else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&n==='\n')i++;row.push(field);if(row.some(x=>x.trim()!==""))out.push(row);row=[];field="";}
-    else field+=c;
-  }
-  if(field.length||row.length){row.push(field);out.push(row);}
-  const headers=out.shift().map(x=>x.trim());
-  return out.map(r=>Object.fromEntries(headers.map((h,i)=>[h,(r[i]??"").trim()])));
-}
-function num(v){const x=parseFloat(v);return Number.isFinite(x)?x:0}
-function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function setupClass(s){return s==="STRONG RETEST"?"strong":s==="RECOVERY WATCH"?"watch":"near"}
-function refresh(){
-  const search=document.getElementById("search").value.toUpperCase().trim();
-  const setup=document.getElementById("setup").value;
-  const side=document.getElementById("side").value;
-  const sort=document.getElementById("sort").value;
-  let a=rows.filter(r=>{
-    const gap=num(r.distance_to_200dma_pct);
-    return (!search || r.symbol.toUpperCase().includes(search))
-      && (!setup || r.setup===setup)
-      && (!side || (side==="above"?gap>=0:gap<0));
-  });
-  a.sort((x,y)=>sort==="score"?num(y.score)-num(x.score):sort==="recovery"?num(y.recovery_from_breakdown_low_pct)-num(x.recovery_from_breakdown_low_pct):sort==="rsi"?num(y.rsi_14)-num(x.rsi_14):Math.abs(num(x.distance_to_200dma_pct))-Math.abs(num(y.distance_to_200dma_pct)));
-  const show=a.slice(0,20);
-  document.getElementById("tbody").innerHTML=show.map((r,i)=>{
-    const gap=num(r.distance_to_200dma_pct);
-    return `<tr><td>${i+1}</td><td class="stock">${esc(r.symbol)}</td><td>₹${num(r.close).toLocaleString('en-IN',{maximumFractionDigits:2})}</td><td>₹${num(r.dma_200).toLocaleString('en-IN',{maximumFractionDigits:2})}</td><td class="${gap>=0?'pos':'neg'}">${gap>=0?'+':''}${gap.toFixed(2)}%</td><td>₹${num(r.dma_50).toLocaleString('en-IN',{maximumFractionDigits:2})}</td><td>${num(r.rsi_14).toFixed(1)}</td><td>${num(r.volume_ratio).toFixed(2)}x</td><td>${num(r.recovery_from_breakdown_low_pct).toFixed(1)}%</td><td><b>${esc(r.score)}</b></td><td><span class="pill ${setupClass(r.setup)}">${esc(r.setup)}</span></td></tr>`;
-  }).join("");
-}
-function renderVisuals(){
-  top20=[...rows].sort((a,b)=>Math.abs(num(a.distance_to_200dma_pct))-Math.abs(num(b.distance_to_200dma_pct))).slice(0,20);
-  const max=Math.max(3,...top20.map(r=>Math.abs(num(r.distance_to_200dma_pct))));
-  document.getElementById("bars").innerHTML=top20.map(r=>{
-    const v=num(r.distance_to_200dma_pct), w=Math.min(100,Math.abs(v)/max*100);
-    return `<div class="barrow"><b>${esc(r.symbol)}</b><div class="barbg"><div class="bar ${v<0?'neg':''}" style="width:${w}%"></div></div><span class="${v>=0?'pos':'neg'}">${v>=0?'+':''}${v.toFixed(2)}%</span></div>`;
-  }).join("");
 
-  const sc=document.getElementById("scatter"); sc.innerHTML="";
-  const maxRec=Math.max(10,...top20.map(r=>num(r.recovery_from_breakdown_low_pct)));
-  top20.forEach(r=>{
-    const x=Math.max(2,Math.min(98,num(r.recovery_from_breakdown_low_pct)/maxRec*96));
-    const closeness=Math.min(100,Math.abs(num(r.distance_to_200dma_pct))/max*100);
-    const y=96-closeness*0.88;
-    const d=document.createElement("div"); d.className="dot"; d.style.left=x+"%"; d.style.bottom=(100-y)+"%"; d.title=`${r.symbol}: recovery ${num(r.recovery_from_breakdown_low_pct).toFixed(1)}%, gap ${num(r.distance_to_200dma_pct).toFixed(2)}%`;
-    sc.appendChild(d);
+  const out=[];
+
+  let row=[];
+
+  let field="";
+
+  let quoted=false;
+
+
+  for(let i=0;i<text.length;i++){
+
+    const c=text[i];
+
+    const n=text[i+1];
+
+
+    if(c==='"'){
+
+      if(quoted && n==='"'){
+
+        field+='"';
+
+        i++;
+
+      }else{
+
+        quoted=!quoted;
+
+      }
+
+    }
+
+    else if(c===',' && !quoted){
+
+      row.push(field);
+
+      field="";
+
+    }
+
+    else if((c==='\n'||c==='\r')&&!quoted){
+
+      if(c==='\r'&&n==='\n') i++;
+
+      row.push(field);
+
+      if(row.some(x=>x.trim()!==""))
+
+        out.push(row);
+
+      row=[];
+
+      field="";
+
+    }
+
+    else{
+
+      field+=c;
+
+    }
+
+  }
+
+
+  if(field.length||row.length){
+
+    row.push(field);
+
+    out.push(row);
+
+  }
+
+
+  const headers=
+    out.shift().map(x=>x.trim());
+
+
+  return out.map(r=>
+
+    Object.fromEntries(
+
+      headers.map((h,i)=>
+        [h,(r[i]??"").trim()]
+      )
+
+    )
+
+  );
+
+}
+
+
+
+/* =================================
+   NUMBER HELPER
+   ================================= */
+
+function num(v){
+
+  const x=parseFloat(v);
+
+  return Number.isFinite(x)?x:0;
+
+}
+
+
+
+/* =================================
+   HTML ESCAPE
+   ================================= */
+
+function esc(s){
+
+  return String(s??"")
+    .replace(
+      /[&<>"']/g,
+
+      m=>({
+
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+
+      }[m])
+
+    );
+
+}
+
+
+
+/* =================================
+   SETUP CSS CLASS
+   ================================= */
+
+function setupClass(s){
+
+  if(s==="STRONG RETEST")
+
+    return "strong";
+
+  if(s==="RECOVERY WATCH")
+
+    return "watch";
+
+  return "near";
+
+}
+
+
+
+/* =================================
+   REFRESH TABLE
+   ================================= */
+
+function refresh(){
+
+  const search=
+    document
+      .getElementById("search")
+      .value
+      .toUpperCase()
+      .trim();
+
+
+  const setup=
+    document
+      .getElementById("setup")
+      .value;
+
+
+  const side=
+    document
+      .getElementById("side")
+      .value;
+
+
+  const sort=
+    document
+      .getElementById("sort")
+      .value;
+
+
+  let a=rows.filter(r=>{
+
+    const gap=
+      num(r.distance_to_200dma_pct);
+
+
+    return (
+
+      (!search ||
+        r.symbol
+          .toUpperCase()
+          .includes(search))
+
+      &&
+
+      (!setup ||
+        r.setup===setup)
+
+      &&
+
+      (!side ||
+        (
+          side==="above"
+          ? gap>=0
+          : gap<0
+        )
+      )
+
+    );
+
   });
+
+
+  /* SORT */
+
+  a.sort((x,y)=>{
+
+    if(sort==="score")
+
+      return num(y.score)-num(x.score);
+
+
+    if(sort==="recovery")
+
+      return num(
+        y.recovery_from_breakdown_low_pct
+      )
+      -
+      num(
+        x.recovery_from_breakdown_low_pct
+      );
+
+
+    if(sort==="rsi")
+
+      return num(y.rsi_14)-num(x.rsi_14);
+
+
+    return Math.abs(
+      num(x.distance_to_200dma_pct)
+    )
+    -
+    Math.abs(
+      num(y.distance_to_200dma_pct)
+    );
+
+  });
+
+
+  const show=a.slice(0,20);
+
+
+  /* =================================
+     BUILD TABLE
+     ================================= */
+
+  document.getElementById("tbody").innerHTML=
+
+    show.map((r,i)=>{
+
+      const gap=
+        num(r.distance_to_200dma_pct);
+
+
+      return `
+
+        <tr
+          onclick='openStock(${JSON.stringify(r).replace(/'/g,"&#39;")})'
+        >
+
+          <td>
+            ${i+1}
+          </td>
+
+
+          <td class="stock">
+            ${esc(r.symbol)}
+          </td>
+
+
+          <td>
+            ₹${num(r.close)
+              .toLocaleString(
+                'en-IN',
+                {maximumFractionDigits:2}
+              )}
+          </td>
+
+
+          <td>
+            ₹${num(r.dma_200)
+              .toLocaleString(
+                'en-IN',
+                {maximumFractionDigits:2}
+              )}
+          </td>
+
+
+          <td
+            class="${gap>=0?'pos':'neg'}"
+          >
+            ${gap>=0?'+':''}${gap.toFixed(2)}%
+          </td>
+
+
+          <td>
+            ₹${num(r.dma_50)
+              .toLocaleString(
+                'en-IN',
+                {maximumFractionDigits:2}
+              )}
+          </td>
+
+
+          <td>
+            ${num(r.rsi_14).toFixed(1)}
+          </td>
+
+
+          <td>
+            ${num(r.volume_ratio).toFixed(2)}x
+          </td>
+
+
+          <td>
+            ${num(
+              r.recovery_from_breakdown_low_pct
+            ).toFixed(1)}%
+          </td>
+
+
+          <td>
+            <b>
+              ${esc(r.score)}
+            </b>
+          </td>
+
+
+          <td>
+
+            <span
+              class="pill ${setupClass(r.setup)}"
+            >
+
+              ${esc(r.setup)}
+
+            </span>
+
+          </td>
+
+
+        </tr>
+
+      `;
+
+    }).join("");
+
 }
+
+
+
+/* =================================
+   VISUALS
+   ================================= */
+
+function renderVisuals(){
+
+  top20=[...rows]
+
+    .sort(
+
+      (a,b)=>
+
+        Math.abs(
+          num(a.distance_to_200dma_pct)
+        )
+
+        -
+
+        Math.abs(
+          num(b.distance_to_200dma_pct)
+        )
+
+    )
+
+    .slice(0,20);
+
+
+  const max=Math.max(
+
+    3,
+
+    ...top20.map(
+
+      r=>
+
+        Math.abs(
+          num(r.distance_to_200dma_pct)
+        )
+
+    )
+
+  );
+
+
+  /* =================================
+     BAR CHART
+     ================================= */
+
+  document.getElementById("bars").innerHTML=
+
+    top20.map(r=>{
+
+      const v=
+        num(r.distance_to_200dma_pct);
+
+
+      const w=
+        Math.min(
+          100,
+          Math.abs(v)/max*100
+        );
+
+
+      return `
+
+        <div class="barrow">
+
+          <b>
+            ${esc(r.symbol)}
+          </b>
+
+          <div class="barbg">
+
+            <div
+              class="bar ${v<0?'neg':''}"
+              style="width:${w}%"
+            >
+            </div>
+
+          </div>
+
+          <span
+            class="${v>=0?'pos':'neg'}"
+          >
+
+            ${v>=0?'+':''}${v.toFixed(2)}%
+
+          </span>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+
+  /* =================================
+     SCATTER
+     ================================= */
+
+  const sc=
+    document.getElementById("scatter");
+
+
+  sc.innerHTML="";
+
+
+  const maxRec=Math.max(
+
+    10,
+
+    ...top20.map(
+
+      r=>
+
+        num(
+          r.recovery_from_breakdown_low_pct
+        )
+
+    )
+
+  );
+
+
+  top20.forEach(r=>{
+
+    const x=Math.max(
+
+      2,
+
+      Math.min(
+
+        98,
+
+        num(
+          r.recovery_from_breakdown_low_pct
+        )
+        /
+        maxRec
+        *
+        96
+
+      )
+
+    );
+
+
+    const closeness=Math.min(
+
+      100,
+
+      Math.abs(
+        num(r.distance_to_200dma_pct)
+      )
+      /
+      max
+      *
+      100
+
+    );
+
+
+    const y=
+      96-closeness*0.88;
+
+
+    const d=
+      document.createElement("div");
+
+
+    d.className="dot";
+
+
+    d.style.left=
+      x+"%";
+
+
+    d.style.bottom=
+      (100-y)+"%";
+
+
+    d.title=
+
+      `${r.symbol}: recovery ${
+        num(
+          r.recovery_from_breakdown_low_pct
+        ).toFixed(1)
+      }%, gap ${
+        num(
+          r.distance_to_200dma_pct
+        ).toFixed(2)
+      }%`;
+
+
+    sc.appendChild(d);
+
+  });
+
+}
+
+
+
+/* =================================
+   OPEN STOCK POPUP
+   ================================= */
+
+function openStock(r){
+
+  document.getElementById(
+    "modalStock"
+  ).textContent=
+
+    r.symbol || "Stock Analysis";
+
+
+  document.getElementById(
+    "modalSetup"
+  ).textContent=
+
+    r.setup || "";
+
+
+  /* CMP */
+
+  document.getElementById(
+    "dClose"
+  ).textContent=
+
+    "₹"+num(r.close)
+      .toLocaleString(
+        "en-IN",
+        {maximumFractionDigits:2}
+      );
+
+
+  /* 200 DMA */
+
+  document.getElementById(
+    "d200"
+  ).textContent=
+
+    "₹"+num(r.dma_200)
+      .toLocaleString(
+        "en-IN",
+        {maximumFractionDigits:2}
+      );
+
+
+  /* GAP */
+
+  const gap=
+    num(r.distance_to_200dma_pct);
+
+
+  document.getElementById(
+    "dGap"
+  ).textContent=
+
+    (gap>=0?"+":"")
+    +
+    gap.toFixed(2)
+    +
+    "%";
+
+
+  /* 50 DMA */
+
+  document.getElementById(
+    "d50"
+  ).textContent=
+
+    "₹"+num(r.dma_50)
+      .toLocaleString(
+        "en-IN",
+        {maximumFractionDigits:2}
+      );
+
+
+  /* RSI */
+
+  document.getElementById(
+    "dRsi"
+  ).textContent=
+
+    num(r.rsi_14)
+      .toFixed(1);
+
+
+  /* VOLUME */
+
+  document.getElementById(
+    "dVol"
+  ).textContent=
+
+    num(r.volume_ratio)
+      .toFixed(2)
+    +
+    "x";
+
+
+  /* RECOVERY */
+
+  document.getElementById(
+    "dRecovery"
+  ).textContent=
+
+    num(
+      r.recovery_from_breakdown_low_pct
+    ).toFixed(1)
+    +
+    "%";
+
+
+  /* SCORE */
+
+  document.getElementById(
+    "dScore"
+  ).textContent=
+
+    r.score || "—";
+
+
+  /* SETUP */
+
+  document.getElementById(
+    "dSetup"
+  ).textContent=
+
+    r.setup || "—";
+
+
+  /* SHOW MODAL */
+
+  document
+    .getElementById("stockModal")
+    .classList
+    .add("show");
+
+}
+
+
+
+/* =================================
+   CLOSE STOCK POPUP
+   ================================= */
+
+function closeStock(){
+
+  document
+    .getElementById("stockModal")
+    .classList
+    .remove("show");
+
+}
+
+
+
+/* =================================
+   CLICK OUTSIDE TO CLOSE
+   ================================= */
+
+document
+  .getElementById("stockModal")
+  .addEventListener(
+    "click",
+    function(e){
+
+      if(e.target===this){
+
+        closeStock();
+
+      }
+
+    }
+  );
+
+
+
+/* =================================
+   ESC KEY TO CLOSE
+   ================================= */
+
+document.addEventListener(
+  "keydown",
+  function(e){
+
+    if(e.key==="Escape"){
+
+      closeStock();
+
+    }
+
+  }
+);
+
+
+
+/* =================================
+   FILTER EVENTS
+   ================================= */
+
+["search","setup","side","sort"]
+
+.forEach(id=>{
+
+  document
+    .getElementById(id)
+    .addEventListener(
+      "input",
+      refresh
+    );
+
+});
+
+
+
+/* =================================
+   LOAD CSV
+   ================================= */
+
 async function load(){
+
   try{
-    const res=await fetch(CSV_PATH+"?v="+Date.now(),{cache:"no-store"});
-    if(!res.ok) throw new Error("Could not load the latest scanner CSV ("+res.status+").");
-    rows=parseCSV(await res.text());
-    if(!rows.length) throw new Error("The scanner CSV is empty.");
-    const dates=rows.map(r=>r.date).filter(Boolean).sort();
-    const strong=rows.filter(r=>r.setup==="STRONG RETEST").length;
-    const watch=rows.filter(r=>r.setup==="RECOVERY WATCH").length;
-    const near=rows.filter(r=>r.setup==="NEAR 200DMA").length;
-    const avg=rows.reduce((s,r)=>s+Math.abs(num(r.distance_to_200dma_pct)),0)/rows.length;
-    document.getElementById("total").textContent=rows.length;
-    document.getElementById("strong").textContent=strong;
-    document.getElementById("watch").textContent=watch;
-    document.getElementById("near").textContent=near;
-    document.getElementById("avg").textContent=avg.toFixed(2)+"%";
-    document.getElementById("updated").textContent="Data: "+(dates.at(-1)||"latest");
-    renderVisuals(); refresh();
-  }catch(e){document.getElementById("error").style.display="block";document.getElementById("error").textContent=e.message}
+
+    const res=
+
+      await fetch(
+        CSV_PATH+"?v="+Date.now(),
+        {
+          cache:"no-store"
+        }
+      );
+
+
+    if(!res.ok)
+
+      throw new Error(
+        "Could not load the latest scanner CSV ("+
+        res.status+
+        ")."
+      );
+
+
+    rows=
+      parseCSV(
+        await res.text()
+      );
+
+
+    if(!rows.length)
+
+      throw new Error(
+        "The scanner CSV is empty."
+      );
+
+
+    const dates=
+
+      rows
+        .map(r=>r.date)
+        .filter(Boolean)
+        .sort();
+
+
+    const strong=
+
+      rows.filter(
+        r=>r.setup==="STRONG RETEST"
+      ).length;
+
+
+    const watch=
+
+      rows.filter(
+        r=>r.setup==="RECOVERY WATCH"
+      ).length;
+
+
+    const near=
+
+      rows.filter(
+        r=>r.setup==="NEAR 200DMA"
+      ).length;
+
+
+    const avg=
+
+      rows.reduce(
+
+        (s,r)=>
+
+          s+
+          Math.abs(
+            num(
+              r.distance_to_200dma_pct
+            )
+          ),
+
+        0
+
+      )
+      /
+      rows.length;
+
+
+    document.getElementById(
+      "total"
+    ).textContent=
+
+      rows.length;
+
+
+    document.getElementById(
+      "strong"
+    ).textContent=
+
+      strong;
+
+
+    document.getElementById(
+      "watch"
+    ).textContent=
+
+      watch;
+
+
+    document.getElementById(
+      "near"
+    ).textContent=
+
+      near;
+
+
+    document.getElementById(
+      "avg"
+    ).textContent=
+
+      avg.toFixed(2)+"%";
+
+
+    document.getElementById(
+      "updated"
+    ).textContent=
+
+      "Data: "+
+      (dates.at(-1)||"latest");
+
+
+    renderVisuals();
+
+    refresh();
+
+
+  }
+
+  catch(e){
+
+    document.getElementById(
+      "error"
+    ).style.display="block";
+
+
+    document.getElementById(
+      "error"
+    ).textContent=
+
+      e.message;
+
+  }
+
 }
-["search","setup","side","sort"].forEach(id=>document.getElementById(id).addEventListener("input",refresh));
+
+
+
+/* =================================
+   START
+   ================================= */
+
 load();
+
 </script>
+
 </body>
 </html>
