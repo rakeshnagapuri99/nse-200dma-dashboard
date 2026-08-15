@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 """
-NSE 200 DMA + HIGH LEVEL SCANNER
+NSE 200 DMA + PRIOR HIGH BREAKOUT SCANNER
 
 Scans the Nifty 500 universe using Yahoo Finance EOD data.
 
-Two independent setups are calculated:
+SETUPS:
 
 1. 200 DMA RECOVERY
    - Recent cross from above 200 DMA to below 200 DMA
@@ -15,21 +15,30 @@ Two independent setups are calculated:
    - RSI
    - Volume
 
-2. HIGH LEVEL / 52-WEEK HIGH
+2. 52 WEEK HIGH / HIGH LEVEL
    - Current price close to 52-week high
    - Current price above 200 DMA
    - Current price above 50 DMA
-   - RSI confirmation
-   - Volume confirmation
+   - RSI
+   - Volume
 
-Every valid downloaded stock is retained in the CSV.
+3. PRIOR HIGH BREAKOUT  <-- NEW
+   - Identify the significant high BEFORE the 200 DMA breakdown
+   - Stock subsequently falls toward/below 200 DMA
+   - Stock recovers
+   - Current price is above 200 DMA
+   - Current price is above that PREVIOUS HIGH
 
-The dashboard can therefore later filter:
+Example:
 
-ALL
-200 DMA RECOVERY
-HIGH LEVEL
-BOTH
+Previous High        ₹530
+200 DMA              ₹370
+Correction Low       ₹350
+Current Price        ₹540
+
+=> PRIOR HIGH BREAKOUT
+
+The scanner retains every valid downloaded stock.
 
 No Zerodha API and no orders are used.
 
@@ -63,23 +72,47 @@ NIFTY500_URL = (
     "content/indices/ind_nifty500list.csv"
 )
 
-# ------------------------------------------------------------
+
+# ============================================================
 # 200 DMA RECOVERY SETTINGS
-# ------------------------------------------------------------
+# ============================================================
 
 PROXIMITY_PCT = 3.0
+
+# Look for a 200 DMA breakdown within last 90 sessions
 BREAK_LOOKBACK = 90
+
 MIN_DAYS = 220
 
-# ------------------------------------------------------------
-# HIGH LEVEL SETTINGS
-# ------------------------------------------------------------
+
+# ============================================================
+# PRIOR HIGH SETTINGS
+# ============================================================
+
+# Number of trading sessions before the 200 DMA breakdown
+# used to identify the meaningful previous high.
+#
+# 180 sessions ≈ 9 months of trading.
+#
+# This avoids using an ancient all-time high.
+PRIOR_HIGH_LOOKBACK = 180
+
+
+# Near prior high means current price is within this
+# percentage below the previous high.
+PRIOR_HIGH_NEAR_PCT = 5.0
+
+
+# ============================================================
+# 52 WEEK HIGH SETTINGS
+# ============================================================
 
 HIGH_LEVEL_MAX_DISTANCE = 15.0
 
-# ------------------------------------------------------------
+
+# ============================================================
 # DOWNLOAD SETTINGS
-# ------------------------------------------------------------
+# ============================================================
 
 CHUNK_SIZE = 50
 BATCH_PAUSE = 0.5
@@ -201,7 +234,7 @@ def clean_yf_frame(df, ticker):
 
     df = df.copy()
 
-    # Handle multi-index columns returned by batch downloads.
+    # Handle MultiIndex columns
     if isinstance(df.columns, pd.MultiIndex):
 
         try:
@@ -349,12 +382,6 @@ def analyse(symbol, df):
         .max()
     )
 
-    # Highest price available in our 2-year dataset.
-    df["high_2y"] = (
-        df["high"]
-        .cummax()
-    )
-
     # ========================================================
     # CURRENT VALUES
     # ========================================================
@@ -403,27 +430,6 @@ def analyse(symbol, df):
         ) * 100
 
     # ========================================================
-    # DISTANCE FROM 2 YEAR HIGH
-    # ========================================================
-
-    high_2y = cur["high_2y"]
-
-    if (
-        pd.isna(high_2y)
-        or high_2y <= 0
-    ):
-
-        distance_to_2y_high = np.nan
-
-    else:
-
-        distance_to_2y_high = (
-            current_price /
-            float(high_2y) -
-            1
-        ) * 100
-
-    # ========================================================
     # COMMON INDICATORS
     # ========================================================
 
@@ -431,144 +437,250 @@ def analyse(symbol, df):
     volume_ratio = cur["volume_ratio"]
 
     # ========================================================
-    # HIGH LEVEL SCORE
+    # FIND 200 DMA BREAKDOWN
     # ========================================================
 
-    high_score = 0
-    high_reasons = []
+    cross = (
 
-    # --------------------------------------------------------
-    # Within 5% of 52W High
-    # --------------------------------------------------------
-
-    if (
-        not pd.isna(distance_to_52w_high)
-        and distance_to_52w_high >= -5
-    ):
-
-        high_score += 40
-
-        high_reasons.append(
-            "within 5% of 52W high"
+        (
+            df["close"].shift(1)
+            >
+            df["dma_200"].shift(1)
         )
 
-    elif (
-        not pd.isna(distance_to_52w_high)
-        and distance_to_52w_high >= -10
-    ):
+        &
 
-        high_score += 30
-
-        high_reasons.append(
-            "within 10% of 52W high"
+        (
+            df["close"]
+            <=
+            df["dma_200"]
         )
 
-    elif (
-        not pd.isna(distance_to_52w_high)
-        and distance_to_52w_high >= -15
-    ):
-
-        high_score += 20
-
-        high_reasons.append(
-            "within 15% of 52W high"
-        )
-
-    # --------------------------------------------------------
-    # Above 200 DMA
-    # --------------------------------------------------------
-
-    if (
-        not pd.isna(dma_200)
-        and current_price > float(dma_200)
-    ):
-
-        high_score += 20
-
-        high_reasons.append(
-            "above 200DMA"
-        )
-
-    # --------------------------------------------------------
-    # Above 50 DMA
-    # --------------------------------------------------------
-
-    if (
-        not pd.isna(dma_50)
-        and current_price > float(dma_50)
-    ):
-
-        high_score += 15
-
-        high_reasons.append(
-            "above 50DMA"
-        )
-
-    # --------------------------------------------------------
-    # RSI
-    # --------------------------------------------------------
-
-    if (
-        not pd.isna(rsi_value)
-        and float(rsi_value) >= 50
-    ):
-
-        high_score += 10
-
-        high_reasons.append(
-            "RSI >=50"
-        )
-
-    # --------------------------------------------------------
-    # Volume
-    # --------------------------------------------------------
-
-    if (
-        not pd.isna(volume_ratio)
-        and float(volume_ratio) >= 1.2
-    ):
-
-        high_score += 10
-
-        high_reasons.append(
-            "volume >=1.2x"
-        )
-
-    # ========================================================
-    # HIGH LEVEL SETUP
-    # ========================================================
-
-    if (
-        not pd.isna(distance_to_52w_high)
-        and distance_to_52w_high >= -5
-        and current_price > float(dma_200)
-    ):
-
-        high_setup = "BREAKOUT WATCH"
-
-    elif (
-        not pd.isna(distance_to_52w_high)
-        and distance_to_52w_high >= -10
-        and current_price > float(dma_200)
-    ):
-
-        high_setup = "HIGH LEVEL"
-
-    elif (
-        not pd.isna(distance_to_52w_high)
-        and distance_to_52w_high >= -15
-        and current_price > float(dma_200)
-    ):
-
-        high_setup = "APPROACHING HIGH"
-
-    else:
-
-        high_setup = "NORMAL"
-
-    high_level_candidate = (
-        high_setup != "NORMAL"
     )
+
+    cross_candidates = (
+        df.loc[cross]
+        .tail(BREAK_LOOKBACK)
+    )
+
+    # ========================================================
+    # PRIOR HIGH VARIABLES
+    # ========================================================
+
+    prior_high = np.nan
+    prior_high_date = None
+
+    distance_to_prior_high = np.nan
+
+    prior_high_breakout = False
+    near_prior_high = False
+
+    prior_high_setup = "NORMAL"
+
+    prior_high_score = 0
+
+    prior_high_reasons = []
+
+    breakdown_found = False
+
+    # ========================================================
+    # FIND HIGH BEFORE BREAKDOWN
+    # ========================================================
+
+    if not cross_candidates.empty:
+
+        last_cross_idx = (
+            cross_candidates
+            .index[-1]
+        )
+
+        cross_position = (
+            df.index.get_loc(
+                last_cross_idx
+            )
+        )
+
+        breakdown_found = True
+
+        # ----------------------------------------------------
+        # Find the meaningful high BEFORE breakdown
+        # ----------------------------------------------------
+
+        start_position = max(
+            0,
+            cross_position -
+            PRIOR_HIGH_LOOKBACK
+        )
+
+        prior_period = df.iloc[
+            start_position:
+            cross_position
+        ]
+
+        if not prior_period.empty:
+
+            prior_high = (
+                prior_period["high"]
+                .max()
+            )
+
+            if not pd.isna(prior_high):
+
+                prior_high_row = (
+                    prior_period[
+                        prior_period["high"]
+                        ==
+                        prior_high
+                    ]
+                    .iloc[-1]
+                )
+
+                prior_high_date = (
+                    prior_high_row["date"]
+                    .date()
+                )
+
+                # ------------------------------------------------
+                # Current price vs previous high
+                # ------------------------------------------------
+
+                distance_to_prior_high = (
+
+                    current_price /
+                    float(prior_high) -
+                    1
+
+                ) * 100
+
+                # ------------------------------------------------
+                # BREAKOUT
+                # ------------------------------------------------
+
+                if (
+                    current_price >
+                    float(dma_200)
+                    and
+                    current_price >
+                    float(prior_high)
+                ):
+
+                    prior_high_breakout = True
+
+                    prior_high_score += 50
+
+                    prior_high_reasons.append(
+                        "above prior high"
+                    )
+
+                # ------------------------------------------------
+                # NEAR PRIOR HIGH
+                # ------------------------------------------------
+
+                elif (
+                    current_price >
+                    float(dma_200)
+                    and
+                    distance_to_prior_high >=
+                    -PRIOR_HIGH_NEAR_PCT
+                ):
+
+                    near_prior_high = True
+
+                    prior_high_score += 35
+
+                    prior_high_reasons.append(
+                        "within 5% of prior high"
+                    )
+
+                # ------------------------------------------------
+                # ABOVE 200 DMA
+                # ------------------------------------------------
+
+                if current_price > float(dma_200):
+
+                    prior_high_score += 20
+
+                    prior_high_reasons.append(
+                        "above 200DMA"
+                    )
+
+                # ------------------------------------------------
+                # ABOVE 50 DMA
+                # ------------------------------------------------
+
+                if (
+                    not pd.isna(dma_50)
+                    and
+                    current_price >
+                    float(dma_50)
+                ):
+
+                    prior_high_score += 10
+
+                    prior_high_reasons.append(
+                        "above 50DMA"
+                    )
+
+                # ------------------------------------------------
+                # RSI
+                # ------------------------------------------------
+
+                if (
+                    not pd.isna(rsi_value)
+                    and
+                    float(rsi_value) >= 50
+                ):
+
+                    prior_high_score += 10
+
+                    prior_high_reasons.append(
+                        "RSI >=50"
+                    )
+
+                # ------------------------------------------------
+                # Volume
+                # ------------------------------------------------
+
+                if (
+                    not pd.isna(volume_ratio)
+                    and
+                    float(volume_ratio) >= 1.2
+                ):
+
+                    prior_high_score += 10
+
+                    prior_high_reasons.append(
+                        "volume >=1.2x"
+                    )
+
+                # ------------------------------------------------
+                # Setup classification
+                # ------------------------------------------------
+
+                if prior_high_breakout:
+
+                    prior_high_setup = (
+                        "PRIOR HIGH BREAKOUT"
+                    )
+
+                elif near_prior_high:
+
+                    prior_high_setup = (
+                        "NEAR PRIOR HIGH"
+                    )
+
+                elif (
+                    current_price >
+                    float(dma_200)
+                ):
+
+                    prior_high_setup = (
+                        "ABOVE 200DMA"
+                    )
+
+                else:
+
+                    prior_high_setup = "NORMAL"
 
     # ========================================================
     # 200 DMA RECOVERY
@@ -584,34 +696,11 @@ def analyse(symbol, df):
     recovery_pct = np.nan
     improving = False
 
-    # --------------------------------------------------------
-    # Price within +/- 3% of 200 DMA
-    # --------------------------------------------------------
-
-    if abs(distance_to_200dma) <= PROXIMITY_PCT:
-
-        cross = (
-
-            (
-                df["close"].shift(1)
-                >
-                df["dma_200"].shift(1)
-            )
-
-            &
-
-            (
-                df["close"]
-                <=
-                df["dma_200"]
-            )
-
-        )
-
-        cross_candidates = (
-            df.loc[cross]
-            .tail(BREAK_LOOKBACK)
-        )
+    if (
+        abs(distance_to_200dma)
+        <=
+        PROXIMITY_PCT
+    ):
 
         if not cross_candidates.empty:
 
@@ -620,8 +709,10 @@ def analyse(symbol, df):
                 .index[-1]
             )
 
-            pos = df.index.get_loc(
-                last_cross_idx
+            pos = (
+                df.index.get_loc(
+                    last_cross_idx
+                )
             )
 
             after = df.iloc[pos:]
@@ -638,14 +729,19 @@ def analyse(symbol, df):
             )
 
             if (
-                not pd.isna(breakdown_low)
-                and breakdown_low > 0
+                not pd.isna(
+                    breakdown_low
+                )
+                and
+                breakdown_low > 0
             ):
 
                 recovery_pct = (
+
                     current_price /
                     float(breakdown_low) -
                     1
+
                 ) * 100
 
             break_below_date = (
@@ -656,36 +752,43 @@ def analyse(symbol, df):
             )
 
             # ------------------------------------------------
-            # Is price moving closer to 200 DMA?
+            # Improving toward 200 DMA
             # ------------------------------------------------
 
             if len(df) >= 10:
 
                 prev = df.iloc[-10]
 
-                improving = (
-
+                if (
                     not pd.isna(
                         prev["dma_200"]
                     )
-
                     and
-
-                    abs(
-                        current_price /
-                        float(dma_200) -
-                        1
+                    not pd.isna(
+                        prev["close"]
                     )
+                ):
 
-                    <
+                    improving = (
 
-                    abs(
-                        float(prev["close"]) /
-                        float(prev["dma_200"]) -
-                        1
+                        abs(
+                            current_price /
+                            float(dma_200) -
+                            1
+                        )
+
+                        <
+
+                        abs(
+                            float(
+                                prev["close"]
+                            ) /
+                            float(
+                                prev["dma_200"]
+                            ) -
+                            1
+                        )
                     )
-
-                )
 
             # ------------------------------------------------
             # Distance score
@@ -753,7 +856,9 @@ def analyse(symbol, df):
 
             if (
                 not pd.isna(dma_50)
-                and current_price > float(dma_50)
+                and
+                current_price >
+                float(dma_50)
             ):
 
                 recovery_score += 15
@@ -768,7 +873,8 @@ def analyse(symbol, df):
 
             if (
                 not pd.isna(volume_ratio)
-                and float(volume_ratio) >= 1.2
+                and
+                float(volume_ratio) >= 1.2
             ):
 
                 recovery_score += 10
@@ -783,7 +889,8 @@ def analyse(symbol, df):
 
             if (
                 not pd.isna(rsi_value)
-                and float(rsi_value) >= 50
+                and
+                float(rsi_value) >= 50
             ):
 
                 recovery_score += 10
@@ -815,12 +922,163 @@ def analyse(symbol, df):
         recovery_setup = "NEAR 200DMA"
 
     # ========================================================
+    # 52 WEEK HIGH SETUP
+    # ========================================================
+
+    high_score = 0
+    high_reasons = []
+
+    if (
+        not pd.isna(
+            distance_to_52w_high
+        )
+        and
+        distance_to_52w_high >= -5
+    ):
+
+        high_score += 40
+
+        high_reasons.append(
+            "within 5% of 52W high"
+        )
+
+    elif (
+        not pd.isna(
+            distance_to_52w_high
+        )
+        and
+        distance_to_52w_high >= -10
+    ):
+
+        high_score += 30
+
+        high_reasons.append(
+            "within 10% of 52W high"
+        )
+
+    elif (
+        not pd.isna(
+            distance_to_52w_high
+        )
+        and
+        distance_to_52w_high >= -15
+    ):
+
+        high_score += 20
+
+        high_reasons.append(
+            "within 15% of 52W high"
+        )
+
+    if current_price > float(dma_200):
+
+        high_score += 20
+
+        high_reasons.append(
+            "above 200DMA"
+        )
+
+    if (
+        not pd.isna(dma_50)
+        and
+        current_price >
+        float(dma_50)
+    ):
+
+        high_score += 15
+
+        high_reasons.append(
+            "above 50DMA"
+        )
+
+    if (
+        not pd.isna(rsi_value)
+        and
+        float(rsi_value) >= 50
+    ):
+
+        high_score += 10
+
+        high_reasons.append(
+            "RSI >=50"
+        )
+
+    if (
+        not pd.isna(volume_ratio)
+        and
+        float(volume_ratio) >= 1.2
+    ):
+
+        high_score += 10
+
+        high_reasons.append(
+            "volume >=1.2x"
+        )
+
+    if (
+        not pd.isna(
+            distance_to_52w_high
+        )
+        and
+        distance_to_52w_high >= -5
+        and
+        current_price > float(dma_200)
+    ):
+
+        high_setup = "BREAKOUT WATCH"
+
+    elif (
+        not pd.isna(
+            distance_to_52w_high
+        )
+        and
+        distance_to_52w_high >= -10
+        and
+        current_price > float(dma_200)
+    ):
+
+        high_setup = "HIGH LEVEL"
+
+    elif (
+        not pd.isna(
+            distance_to_52w_high
+        )
+        and
+        distance_to_52w_high >= -15
+        and
+        current_price > float(dma_200)
+    ):
+
+        high_setup = "APPROACHING HIGH"
+
+    else:
+
+        high_setup = "NORMAL"
+
+    high_level_candidate = (
+        high_setup != "NORMAL"
+    )
+
+    # ========================================================
     # COMBINED SETUP
     # ========================================================
 
-    if (
+    if prior_high_breakout:
+
+        combined_setup = (
+            "PRIOR HIGH BREAKOUT"
+        )
+
+    elif near_prior_high:
+
+        combined_setup = (
+            "NEAR PRIOR HIGH"
+        )
+
+    elif (
         recovery_candidate
-        and high_level_candidate
+        and
+        high_level_candidate
     ):
 
         combined_setup = "BOTH"
@@ -843,9 +1101,9 @@ def analyse(symbol, df):
 
     return {
 
-        # ----------------------------------------------------
+        # ====================================================
         # BASIC
-        # ----------------------------------------------------
+        # ====================================================
 
         "symbol": symbol,
 
@@ -856,9 +1114,9 @@ def analyse(symbol, df):
             2
         ),
 
-        # ----------------------------------------------------
+        # ====================================================
         # 200 DMA
-        # ----------------------------------------------------
+        # ====================================================
 
         "dma_200": round(
             float(dma_200),
@@ -870,9 +1128,9 @@ def analyse(symbol, df):
             2
         ),
 
-        # ----------------------------------------------------
+        # ====================================================
         # 50 DMA
-        # ----------------------------------------------------
+        # ====================================================
 
         "dma_50": (
             round(
@@ -883,9 +1141,9 @@ def analyse(symbol, df):
             else np.nan
         ),
 
-        # ----------------------------------------------------
+        # ====================================================
         # RSI
-        # ----------------------------------------------------
+        # ====================================================
 
         "rsi_14": (
             round(
@@ -896,9 +1154,9 @@ def analyse(symbol, df):
             else np.nan
         ),
 
-        # ----------------------------------------------------
+        # ====================================================
         # VOLUME
-        # ----------------------------------------------------
+        # ====================================================
 
         "volume_ratio": (
             round(
@@ -910,7 +1168,7 @@ def analyse(symbol, df):
         ),
 
         # ====================================================
-        # 200 DMA RECOVERY DATA
+        # 200 DMA RECOVERY
         # ====================================================
 
         "break_below_date":
@@ -949,7 +1207,7 @@ def analyse(symbol, df):
             ),
 
         # ====================================================
-        # HIGH LEVEL DATA
+        # 52 WEEK HIGH
         # ====================================================
 
         "high_52w": (
@@ -966,25 +1224,9 @@ def analyse(symbol, df):
                 float(distance_to_52w_high),
                 2
             )
-            if not pd.isna(distance_to_52w_high)
-            else np.nan
-        ),
-
-        "high_2y": (
-            round(
-                float(high_2y),
-                2
+            if not pd.isna(
+                distance_to_52w_high
             )
-            if not pd.isna(high_2y)
-            else np.nan
-        ),
-
-        "distance_to_2y_high_pct": (
-            round(
-                float(distance_to_2y_high),
-                2
-            )
-            if not pd.isna(distance_to_2y_high)
             else np.nan
         ),
 
@@ -1000,6 +1242,52 @@ def analyse(symbol, df):
         "high_level_reasons":
             "; ".join(
                 high_reasons
+            ),
+
+        # ====================================================
+        # NEW — PRIOR HIGH
+        # ====================================================
+
+        "prior_high_before_breakdown": (
+            round(
+                float(prior_high),
+                2
+            )
+            if not pd.isna(prior_high)
+            else np.nan
+        ),
+
+        "prior_high_date":
+            prior_high_date,
+
+        "distance_to_prior_high_pct": (
+            round(
+                float(
+                    distance_to_prior_high
+                ),
+                2
+            )
+            if not pd.isna(
+                distance_to_prior_high
+            )
+            else np.nan
+        ),
+
+        "prior_high_breakout":
+            bool(prior_high_breakout),
+
+        "near_prior_high":
+            bool(near_prior_high),
+
+        "prior_high_score":
+            int(prior_high_score),
+
+        "prior_high_setup":
+            prior_high_setup,
+
+        "prior_high_reasons":
+            "; ".join(
+                prior_high_reasons
             ),
 
         # ====================================================
@@ -1074,16 +1362,12 @@ def main():
         "=============================================="
     )
     print(
-        " FAST NSE 200 DMA + HIGH LEVEL SCANNER"
+        " FAST NSE 200 DMA + PRIOR HIGH SCANNER"
     )
     print(
         "=============================================="
     )
     print("")
-
-    # --------------------------------------------------------
-    # Load Nifty 500
-    # --------------------------------------------------------
 
     symbols = (
         get_nifty500_symbols()
@@ -1142,7 +1426,7 @@ def main():
         )
 
         # ====================================================
-        # FALLBACK TO INDIVIDUAL DOWNLOAD
+        # FALLBACK
         # ====================================================
 
         if data is None:
@@ -1285,38 +1569,62 @@ def main():
 
     else:
 
-        # ----------------------------------------------------
-        # Ranking
+        # ====================================================
+        # SORTING
         #
-        # BOTH first
-        # 200 DMA recovery second
-        # High Level third
-        # Others last
-        # ----------------------------------------------------
+        # 1. PRIOR HIGH BREAKOUT
+        # 2. NEAR PRIOR HIGH
+        # 3. BOTH
+        # 4. 200 DMA RECOVERY
+        # 5. HIGH LEVEL
+        # 6. OTHER
+        # ====================================================
 
         out["_sort_group"] = np.select(
 
             [
-                out["combined_setup"].eq(
+
+                out[
+                    "combined_setup"
+                ].eq(
+                    "PRIOR HIGH BREAKOUT"
+                ),
+
+                out[
+                    "combined_setup"
+                ].eq(
+                    "NEAR PRIOR HIGH"
+                ),
+
+                out[
+                    "combined_setup"
+                ].eq(
                     "BOTH"
                 ),
 
-                out["combined_setup"].eq(
+                out[
+                    "combined_setup"
+                ].eq(
                     "200DMA RECOVERY"
                 ),
 
-                out["combined_setup"].eq(
+                out[
+                    "combined_setup"
+                ].eq(
                     "HIGH LEVEL"
                 )
+
             ],
 
             [
                 0,
                 1,
-                2
+                2,
+                3,
+                4
             ],
 
-            default=3
+            default=5
 
         )
 
@@ -1325,17 +1633,31 @@ def main():
             .sort_values(
 
                 [
+
                     "_sort_group",
+
+                    "prior_high_score",
+
                     "score",
+
                     "high_level_score",
-                    "distance_to_200dma_pct"
+
+                    "distance_to_prior_high_pct"
+
                 ],
 
                 ascending=[
+
                     True,
+
                     False,
+
                     False,
-                    True
+
+                    False,
+
+                    False
+
                 ]
 
             )
@@ -1351,9 +1673,9 @@ def main():
             inplace=True
         )
 
-        # ----------------------------------------------------
-        # Rank
-        # ----------------------------------------------------
+        # ====================================================
+        # RANK
+        # ====================================================
 
         out.insert(
             0,
@@ -1364,9 +1686,9 @@ def main():
             )
         )
 
-        # ----------------------------------------------------
-        # Save CSV
-        # ----------------------------------------------------
+        # ====================================================
+        # SAVE CSV
+        # ====================================================
 
         csv_path = (
             OUTPUT_DIR /
@@ -1378,9 +1700,9 @@ def main():
             index=False
         )
 
-        # ----------------------------------------------------
-        # Save Excel
-        # ----------------------------------------------------
+        # ====================================================
+        # SAVE EXCEL
+        # ====================================================
 
         xlsx_path = (
             OUTPUT_DIR /
@@ -1405,6 +1727,18 @@ def main():
         high_count = int(
             out[
                 "high_level_candidate"
+            ].sum()
+        )
+
+        prior_breakout_count = int(
+            out[
+                "prior_high_breakout"
+            ].sum()
+        )
+
+        near_prior_count = int(
+            out[
+                "near_prior_high"
             ].sum()
         )
 
@@ -1438,8 +1772,18 @@ def main():
         )
 
         print(
-            f"High-level candidates: "
+            f"52W high-level candidates: "
             f"{high_count}"
+        )
+
+        print(
+            f"Prior high breakouts: "
+            f"{prior_breakout_count}"
+        )
+
+        print(
+            f"Near prior high: "
+            f"{near_prior_count}"
         )
 
         print(
@@ -1498,6 +1842,7 @@ def main():
     )
 
     print("")
+
     print(
         "=============================================="
     )
