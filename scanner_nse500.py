@@ -1,14 +1,41 @@
 #!/usr/bin/env python3
 
 """
-PHASE 1 — NSE 200 DMA RECOVERY SCANNER
+NSE 200 DMA + HIGH LEVEL SCANNER
 
-Optimized version:
-- Uses official NSE Nifty 500 constituent list
-- Downloads Yahoo Finance data in parallel batches
-- Calculates 200 DMA, 50 DMA, RSI, volume ratio and recovery
-- Produces CSV and Excel output
-- No Zerodha API and no orders are used
+Scans the Nifty 500 universe using Yahoo Finance EOD data.
+
+Two independent setups are calculated:
+
+1. 200 DMA RECOVERY
+   - Recent cross from above 200 DMA to below 200 DMA
+   - Current price within +/-3% of 200 DMA
+   - Recovery from breakdown low
+   - 50 DMA
+   - RSI
+   - Volume
+
+2. HIGH LEVEL / 52-WEEK HIGH
+   - Current price close to 52-week high
+   - Current price above 200 DMA
+   - Current price above 50 DMA
+   - RSI confirmation
+   - Volume confirmation
+
+Every valid downloaded stock is retained in the CSV.
+
+The dashboard can therefore later filter:
+
+ALL
+200 DMA RECOVERY
+HIGH LEVEL
+BOTH
+
+No Zerodha API and no orders are used.
+
+Yahoo Finance is a third-party EOD data source.
+Use this as a research/screening tool and verify
+candidates before trading.
 """
 
 from pathlib import Path
@@ -21,9 +48,9 @@ import requests
 import yfinance as yf
 
 
-# =========================================================
+# ============================================================
 # CONFIGURATION
-# =========================================================
+# ============================================================
 
 DATA_DIR = Path("data")
 OUTPUT_DIR = Path("output")
@@ -36,20 +63,31 @@ NIFTY500_URL = (
     "content/indices/ind_nifty500list.csv"
 )
 
+# ------------------------------------------------------------
+# 200 DMA RECOVERY SETTINGS
+# ------------------------------------------------------------
+
 PROXIMITY_PCT = 3.0
 BREAK_LOOKBACK = 90
 MIN_DAYS = 220
 
-# Download 50 stocks concurrently at a time.
-CHUNK_SIZE = 50
+# ------------------------------------------------------------
+# HIGH LEVEL SETTINGS
+# ------------------------------------------------------------
 
-# Small pause between batches.
+HIGH_LEVEL_MAX_DISTANCE = 15.0
+
+# ------------------------------------------------------------
+# DOWNLOAD SETTINGS
+# ------------------------------------------------------------
+
+CHUNK_SIZE = 50
 BATCH_PAUSE = 0.5
 
 
-# =========================================================
+# ============================================================
 # RSI
-# =========================================================
+# ============================================================
 
 def rsi(series, period=14):
 
@@ -78,9 +116,9 @@ def rsi(series, period=14):
     return 100 - (100 / (1 + rs))
 
 
-# =========================================================
-# NSE NIFTY 500 LIST
-# =========================================================
+# ============================================================
+# GET NIFTY 500 SYMBOLS
+# ============================================================
 
 def get_nifty500_symbols():
 
@@ -102,9 +140,7 @@ def get_nifty500_symbols():
 
         response.raise_for_status()
 
-        local.write_bytes(
-            response.content
-        )
+        local.write_bytes(response.content)
 
         df = pd.read_csv(local)
 
@@ -148,17 +184,15 @@ def get_nifty500_symbols():
         .tolist()
     )
 
-    symbols = [
+    return [
         s for s in symbols
         if s and s.lower() != "nan"
     ]
 
-    return symbols
 
-
-# =========================================================
+# ============================================================
 # CLEAN YAHOO DATA
-# =========================================================
+# ============================================================
 
 def clean_yf_frame(df, ticker):
 
@@ -167,7 +201,7 @@ def clean_yf_frame(df, ticker):
 
     df = df.copy()
 
-    # Handle MultiIndex returned by batch download.
+    # Handle multi-index columns returned by batch downloads.
     if isinstance(df.columns, pd.MultiIndex):
 
         try:
@@ -199,16 +233,10 @@ def clean_yf_frame(df, ticker):
         for c in df.columns
     ]
 
-    required = [
-        "close",
-        "volume"
-    ]
+    if "close" not in df.columns:
+        return None
 
-    if not all(
-        c in df.columns
-        for c in required
-    ):
-
+    if "volume" not in df.columns:
         return None
 
     for c in [
@@ -239,7 +267,6 @@ def clean_yf_frame(df, ticker):
         errors="coerce"
     )
 
-    # Remove timezone safely.
     try:
 
         if df["date"].dt.tz is not None:
@@ -258,16 +285,14 @@ def clean_yf_frame(df, ticker):
         .drop_duplicates("date")
     )
 
-    df = df.dropna(
+    return df.dropna(
         subset=["close"]
     )
 
-    return df
 
-
-# =========================================================
-# ANALYSE STOCK
-# =========================================================
+# ============================================================
+# ANALYSE ONE STOCK
+# ============================================================
 
 def analyse(symbol, df):
 
@@ -279,9 +304,9 @@ def analyse(symbol, df):
 
     df = df.copy()
 
-    # -----------------------------------------
-    # Technical indicators
-    # -----------------------------------------
+    # ========================================================
+    # TECHNICAL INDICATORS
+    # ========================================================
 
     df["dma_200"] = (
         df["close"]
@@ -311,341 +336,685 @@ def analyse(symbol, df):
         df["vol_avg_20"]
     )
 
-    # -----------------------------------------
-    # Current values
-    # -----------------------------------------
+    # ========================================================
+    # 52 WEEK HIGH
+    # ========================================================
+
+    df["high_52w"] = (
+        df["high"]
+        .rolling(
+            252,
+            min_periods=20
+        )
+        .max()
+    )
+
+    # Highest price available in our 2-year dataset.
+    df["high_2y"] = (
+        df["high"]
+        .cummax()
+    )
+
+    # ========================================================
+    # CURRENT VALUES
+    # ========================================================
 
     cur = df.iloc[-1]
 
-    if pd.isna(cur["dma_200"]):
-
-        return None
-
-    proximity = (
-        cur["close"] /
-        cur["dma_200"] -
-        1
-    ) * 100
-
-    # -----------------------------------------
-    # Must be within +/- 3%
-    # -----------------------------------------
-
-    if abs(proximity) > PROXIMITY_PCT:
-
-        return None
-
-    # -----------------------------------------
-    # Find cross from above 200 DMA
-    # -----------------------------------------
-
-    cross = (
-
-        (
-            df["close"].shift(1)
-            >
-            df["dma_200"].shift(1)
-        )
-
-        &
-
-        (
-            df["close"]
-            <=
-            df["dma_200"]
-        )
-
-    )
-
-    cross_candidates = (
-        df.loc[cross]
-        .tail(BREAK_LOOKBACK)
-    )
-
-    if cross_candidates.empty:
-
-        return None
-
-    last_cross_idx = (
-        cross_candidates
-        .index[-1]
-    )
-
-    pos = df.index.get_loc(
-        last_cross_idx
-    )
-
-    after = df.iloc[pos:]
-
-    low_col = (
-        "low"
-        if "low" in after.columns
-        else "close"
-    )
-
-    breakdown_low = (
-        after[low_col]
-        .min()
-    )
-
-    recovery_pct = (
-        cur["close"] /
-        breakdown_low -
-        1
-    ) * 100
-
-    # -----------------------------------------
-    # Is price moving toward 200 DMA?
-    # -----------------------------------------
-
-    if len(df) >= 10:
-
-        prev = df.iloc[-10]
-
-        improving = (
-
-            not pd.isna(
-                prev["dma_200"]
-            )
-
-            and
-
-            abs(
-                cur["close"] /
-                cur["dma_200"] -
-                1
-            )
-
-            <
-
-            abs(
-                prev["close"] /
-                prev["dma_200"] -
-                1
-            )
-
-        )
-
-    else:
-
-        improving = False
-
-    # -----------------------------------------
-    # SCORE
-    # -----------------------------------------
-
-    score = 0
-
-    reasons = []
-
-    # Distance
-    if proximity >= -1:
-
-        score += 25
-
-        reasons.append(
-            "at/above 200DMA"
-        )
-
-    else:
-
-        score += 15
-
-        reasons.append(
-            "within 3% of 200DMA"
-        )
-
-    # Improving
-    if improving:
-
-        score += 20
-
-        reasons.append(
-            "moving toward 200DMA"
-        )
-
-    # Recovery
-    if recovery_pct >= 10:
-
-        score += 25
-
-        reasons.append(
-            "recovery >=10%"
-        )
-
-    elif recovery_pct >= 5:
-
-        score += 20
-
-        reasons.append(
-            "recovery >=5%"
-        )
-
-    elif recovery_pct > 0:
-
-        score += 10
-
-        reasons.append(
-            "above breakdown low"
-        )
-
-    # 50 DMA
-    if (
-
-        not pd.isna(
-            cur["dma_50"]
-        )
-
-        and
-
+    current_price = float(
         cur["close"]
-        >
-        cur["dma_50"]
+    )
 
+    dma_200 = cur["dma_200"]
+    dma_50 = cur["dma_50"]
+
+    if pd.isna(dma_200):
+        return None
+
+    # ========================================================
+    # DISTANCE FROM 200 DMA
+    # ========================================================
+
+    distance_to_200dma = (
+        current_price /
+        float(dma_200) -
+        1
+    ) * 100
+
+    # ========================================================
+    # DISTANCE FROM 52 WEEK HIGH
+    # ========================================================
+
+    high_52w = cur["high_52w"]
+
+    if (
+        pd.isna(high_52w)
+        or high_52w <= 0
     ):
 
-        score += 15
+        distance_to_52w_high = np.nan
 
-        reasons.append(
+    else:
+
+        distance_to_52w_high = (
+            current_price /
+            float(high_52w) -
+            1
+        ) * 100
+
+    # ========================================================
+    # DISTANCE FROM 2 YEAR HIGH
+    # ========================================================
+
+    high_2y = cur["high_2y"]
+
+    if (
+        pd.isna(high_2y)
+        or high_2y <= 0
+    ):
+
+        distance_to_2y_high = np.nan
+
+    else:
+
+        distance_to_2y_high = (
+            current_price /
+            float(high_2y) -
+            1
+        ) * 100
+
+    # ========================================================
+    # COMMON INDICATORS
+    # ========================================================
+
+    rsi_value = cur["rsi_14"]
+    volume_ratio = cur["volume_ratio"]
+
+    # ========================================================
+    # HIGH LEVEL SCORE
+    # ========================================================
+
+    high_score = 0
+    high_reasons = []
+
+    # --------------------------------------------------------
+    # Within 5% of 52W High
+    # --------------------------------------------------------
+
+    if (
+        not pd.isna(distance_to_52w_high)
+        and distance_to_52w_high >= -5
+    ):
+
+        high_score += 40
+
+        high_reasons.append(
+            "within 5% of 52W high"
+        )
+
+    elif (
+        not pd.isna(distance_to_52w_high)
+        and distance_to_52w_high >= -10
+    ):
+
+        high_score += 30
+
+        high_reasons.append(
+            "within 10% of 52W high"
+        )
+
+    elif (
+        not pd.isna(distance_to_52w_high)
+        and distance_to_52w_high >= -15
+    ):
+
+        high_score += 20
+
+        high_reasons.append(
+            "within 15% of 52W high"
+        )
+
+    # --------------------------------------------------------
+    # Above 200 DMA
+    # --------------------------------------------------------
+
+    if (
+        not pd.isna(dma_200)
+        and current_price > float(dma_200)
+    ):
+
+        high_score += 20
+
+        high_reasons.append(
+            "above 200DMA"
+        )
+
+    # --------------------------------------------------------
+    # Above 50 DMA
+    # --------------------------------------------------------
+
+    if (
+        not pd.isna(dma_50)
+        and current_price > float(dma_50)
+    ):
+
+        high_score += 15
+
+        high_reasons.append(
             "above 50DMA"
         )
 
-    # Volume
-    if (
-
-        not pd.isna(
-            cur["volume_ratio"]
-        )
-
-        and
-
-        cur["volume_ratio"]
-        >= 1.2
-
-    ):
-
-        score += 10
-
-        reasons.append(
-            "volume >=1.2x"
-        )
-
+    # --------------------------------------------------------
     # RSI
+    # --------------------------------------------------------
+
     if (
-
-        not pd.isna(
-            cur["rsi_14"]
-        )
-
-        and
-
-        cur["rsi_14"]
-        >= 50
-
+        not pd.isna(rsi_value)
+        and float(rsi_value) >= 50
     ):
 
-        score += 10
+        high_score += 10
 
-        reasons.append(
+        high_reasons.append(
             "RSI >=50"
         )
 
-    # -----------------------------------------
-    # SETUP
-    # -----------------------------------------
+    # --------------------------------------------------------
+    # Volume
+    # --------------------------------------------------------
 
-    if score >= 75:
+    if (
+        not pd.isna(volume_ratio)
+        and float(volume_ratio) >= 1.2
+    ):
 
-        setup = "STRONG RETEST"
+        high_score += 10
 
-    elif score >= 55:
+        high_reasons.append(
+            "volume >=1.2x"
+        )
 
-        setup = "RECOVERY WATCH"
+    # ========================================================
+    # HIGH LEVEL SETUP
+    # ========================================================
+
+    if (
+        not pd.isna(distance_to_52w_high)
+        and distance_to_52w_high >= -5
+        and current_price > float(dma_200)
+    ):
+
+        high_setup = "BREAKOUT WATCH"
+
+    elif (
+        not pd.isna(distance_to_52w_high)
+        and distance_to_52w_high >= -10
+        and current_price > float(dma_200)
+    ):
+
+        high_setup = "HIGH LEVEL"
+
+    elif (
+        not pd.isna(distance_to_52w_high)
+        and distance_to_52w_high >= -15
+        and current_price > float(dma_200)
+    ):
+
+        high_setup = "APPROACHING HIGH"
 
     else:
 
-        setup = "NEAR 200DMA"
+        high_setup = "NORMAL"
 
-    # -----------------------------------------
-    # RESULT
-    # -----------------------------------------
+    high_level_candidate = (
+        high_setup != "NORMAL"
+    )
+
+    # ========================================================
+    # 200 DMA RECOVERY
+    # ========================================================
+
+    recovery_score = 0
+    recovery_reasons = []
+
+    recovery_candidate = False
+
+    break_below_date = None
+    breakdown_low = np.nan
+    recovery_pct = np.nan
+    improving = False
+
+    # --------------------------------------------------------
+    # Price within +/- 3% of 200 DMA
+    # --------------------------------------------------------
+
+    if abs(distance_to_200dma) <= PROXIMITY_PCT:
+
+        cross = (
+
+            (
+                df["close"].shift(1)
+                >
+                df["dma_200"].shift(1)
+            )
+
+            &
+
+            (
+                df["close"]
+                <=
+                df["dma_200"]
+            )
+
+        )
+
+        cross_candidates = (
+            df.loc[cross]
+            .tail(BREAK_LOOKBACK)
+        )
+
+        if not cross_candidates.empty:
+
+            last_cross_idx = (
+                cross_candidates
+                .index[-1]
+            )
+
+            pos = df.index.get_loc(
+                last_cross_idx
+            )
+
+            after = df.iloc[pos:]
+
+            low_col = (
+                "low"
+                if "low" in after.columns
+                else "close"
+            )
+
+            breakdown_low = (
+                after[low_col]
+                .min()
+            )
+
+            if (
+                not pd.isna(breakdown_low)
+                and breakdown_low > 0
+            ):
+
+                recovery_pct = (
+                    current_price /
+                    float(breakdown_low) -
+                    1
+                ) * 100
+
+            break_below_date = (
+                df.loc[
+                    last_cross_idx,
+                    "date"
+                ].date()
+            )
+
+            # ------------------------------------------------
+            # Is price moving closer to 200 DMA?
+            # ------------------------------------------------
+
+            if len(df) >= 10:
+
+                prev = df.iloc[-10]
+
+                improving = (
+
+                    not pd.isna(
+                        prev["dma_200"]
+                    )
+
+                    and
+
+                    abs(
+                        current_price /
+                        float(dma_200) -
+                        1
+                    )
+
+                    <
+
+                    abs(
+                        float(prev["close"]) /
+                        float(prev["dma_200"]) -
+                        1
+                    )
+
+                )
+
+            # ------------------------------------------------
+            # Distance score
+            # ------------------------------------------------
+
+            if distance_to_200dma >= -1:
+
+                recovery_score += 25
+
+                recovery_reasons.append(
+                    "at/above 200DMA"
+                )
+
+            else:
+
+                recovery_score += 15
+
+                recovery_reasons.append(
+                    "within 3% of 200DMA"
+                )
+
+            # ------------------------------------------------
+            # Improving
+            # ------------------------------------------------
+
+            if improving:
+
+                recovery_score += 20
+
+                recovery_reasons.append(
+                    "moving toward 200DMA"
+                )
+
+            # ------------------------------------------------
+            # Recovery
+            # ------------------------------------------------
+
+            if recovery_pct >= 10:
+
+                recovery_score += 25
+
+                recovery_reasons.append(
+                    "recovery >=10%"
+                )
+
+            elif recovery_pct >= 5:
+
+                recovery_score += 20
+
+                recovery_reasons.append(
+                    "recovery >=5%"
+                )
+
+            elif recovery_pct > 0:
+
+                recovery_score += 10
+
+                recovery_reasons.append(
+                    "above breakdown low"
+                )
+
+            # ------------------------------------------------
+            # 50 DMA
+            # ------------------------------------------------
+
+            if (
+                not pd.isna(dma_50)
+                and current_price > float(dma_50)
+            ):
+
+                recovery_score += 15
+
+                recovery_reasons.append(
+                    "above 50DMA"
+                )
+
+            # ------------------------------------------------
+            # Volume
+            # ------------------------------------------------
+
+            if (
+                not pd.isna(volume_ratio)
+                and float(volume_ratio) >= 1.2
+            ):
+
+                recovery_score += 10
+
+                recovery_reasons.append(
+                    "volume >=1.2x"
+                )
+
+            # ------------------------------------------------
+            # RSI
+            # ------------------------------------------------
+
+            if (
+                not pd.isna(rsi_value)
+                and float(rsi_value) >= 50
+            ):
+
+                recovery_score += 10
+
+                recovery_reasons.append(
+                    "RSI >=50"
+                )
+
+            recovery_candidate = True
+
+    # ========================================================
+    # RECOVERY SETUP
+    # ========================================================
+
+    if not recovery_candidate:
+
+        recovery_setup = "NOT A RECOVERY"
+
+    elif recovery_score >= 75:
+
+        recovery_setup = "STRONG RETEST"
+
+    elif recovery_score >= 55:
+
+        recovery_setup = "RECOVERY WATCH"
+
+    else:
+
+        recovery_setup = "NEAR 200DMA"
+
+    # ========================================================
+    # COMBINED SETUP
+    # ========================================================
+
+    if (
+        recovery_candidate
+        and high_level_candidate
+    ):
+
+        combined_setup = "BOTH"
+
+    elif recovery_candidate:
+
+        combined_setup = "200DMA RECOVERY"
+
+    elif high_level_candidate:
+
+        combined_setup = "HIGH LEVEL"
+
+    else:
+
+        combined_setup = "NONE"
+
+    # ========================================================
+    # RETURN
+    # ========================================================
 
     return {
 
+        # ----------------------------------------------------
+        # BASIC
+        # ----------------------------------------------------
+
         "symbol": symbol,
 
-        "date":
-            cur["date"].date(),
+        "date": cur["date"].date(),
 
-        "close":
-            round(
-                float(cur["close"]),
-                2
-            ),
+        "close": round(
+            current_price,
+            2
+        ),
 
-        "dma_200":
-            round(
-                float(cur["dma_200"]),
-                2
-            ),
+        # ----------------------------------------------------
+        # 200 DMA
+        # ----------------------------------------------------
 
-        "distance_to_200dma_pct":
-            round(
-                float(proximity),
-                2
-            ),
+        "dma_200": round(
+            float(dma_200),
+            2
+        ),
 
-        "dma_50":
-            round(
-                float(cur["dma_50"]),
-                2
-            ),
+        "distance_to_200dma_pct": round(
+            float(distance_to_200dma),
+            2
+        ),
 
-        "rsi_14":
-            round(
-                float(cur["rsi_14"]),
-                2
-            ),
+        # ----------------------------------------------------
+        # 50 DMA
+        # ----------------------------------------------------
 
-        "volume_ratio":
+        "dma_50": (
             round(
-                float(cur["volume_ratio"]),
+                float(dma_50),
                 2
-            ),
+            )
+            if not pd.isna(dma_50)
+            else np.nan
+        ),
+
+        # ----------------------------------------------------
+        # RSI
+        # ----------------------------------------------------
+
+        "rsi_14": (
+            round(
+                float(rsi_value),
+                2
+            )
+            if not pd.isna(rsi_value)
+            else np.nan
+        ),
+
+        # ----------------------------------------------------
+        # VOLUME
+        # ----------------------------------------------------
+
+        "volume_ratio": (
+            round(
+                float(volume_ratio),
+                2
+            )
+            if not pd.isna(volume_ratio)
+            else np.nan
+        ),
+
+        # ====================================================
+        # 200 DMA RECOVERY DATA
+        # ====================================================
 
         "break_below_date":
-            df.loc[
-                last_cross_idx,
-                "date"
-            ].date(),
+            break_below_date,
 
-        "breakdown_low":
+        "breakdown_low": (
             round(
                 float(breakdown_low),
                 2
-            ),
+            )
+            if not pd.isna(breakdown_low)
+            else np.nan
+        ),
 
-        "recovery_from_breakdown_low_pct":
+        "recovery_from_breakdown_low_pct": (
             round(
                 float(recovery_pct),
                 2
-            ),
+            )
+            if not pd.isna(recovery_pct)
+            else np.nan
+        ),
 
         "score":
-            int(score),
+            int(recovery_score),
 
         "setup":
-            setup,
+            recovery_setup,
+
+        "recovery_candidate":
+            bool(recovery_candidate),
 
         "reasons":
-            "; ".join(reasons)
+            "; ".join(
+                recovery_reasons
+            ),
+
+        # ====================================================
+        # HIGH LEVEL DATA
+        # ====================================================
+
+        "high_52w": (
+            round(
+                float(high_52w),
+                2
+            )
+            if not pd.isna(high_52w)
+            else np.nan
+        ),
+
+        "distance_to_52w_high_pct": (
+            round(
+                float(distance_to_52w_high),
+                2
+            )
+            if not pd.isna(distance_to_52w_high)
+            else np.nan
+        ),
+
+        "high_2y": (
+            round(
+                float(high_2y),
+                2
+            )
+            if not pd.isna(high_2y)
+            else np.nan
+        ),
+
+        "distance_to_2y_high_pct": (
+            round(
+                float(distance_to_2y_high),
+                2
+            )
+            if not pd.isna(distance_to_2y_high)
+            else np.nan
+        ),
+
+        "high_level_score":
+            int(high_score),
+
+        "high_level_setup":
+            high_setup,
+
+        "high_level_candidate":
+            bool(high_level_candidate),
+
+        "high_level_reasons":
+            "; ".join(
+                high_reasons
+            ),
+
+        # ====================================================
+        # COMBINED
+        # ====================================================
+
+        "combined_setup":
+            combined_setup,
 
     }
 
 
-# =========================================================
+# ============================================================
 # BATCH DOWNLOAD
-# =========================================================
+# ============================================================
 
 def download_batch(symbols):
 
@@ -692,9 +1061,9 @@ def download_batch(symbols):
         return None
 
 
-# =========================================================
+# ============================================================
 # MAIN
-# =========================================================
+# ============================================================
 
 def main():
 
@@ -702,10 +1071,19 @@ def main():
 
     print("")
     print(
-        "=== FAST NSE 200 DMA "
-        "RECOVERY SCANNER ==="
+        "=============================================="
+    )
+    print(
+        " FAST NSE 200 DMA + HIGH LEVEL SCANNER"
+    )
+    print(
+        "=============================================="
     )
     print("")
+
+    # --------------------------------------------------------
+    # Load Nifty 500
+    # --------------------------------------------------------
 
     symbols = (
         get_nifty500_symbols()
@@ -724,7 +1102,6 @@ def main():
     print("")
 
     results = []
-
     failed = []
 
     total_batches = int(
@@ -733,6 +1110,10 @@ def main():
             CHUNK_SIZE
         )
     )
+
+    # ========================================================
+    # BATCH LOOP
+    # ========================================================
 
     for batch_number, start in enumerate(
 
@@ -760,15 +1141,15 @@ def main():
             batch_symbols
         )
 
-        if data is None:
+        # ====================================================
+        # FALLBACK TO INDIVIDUAL DOWNLOAD
+        # ====================================================
 
-            # ---------------------------------
-            # Retry batch individually
-            # ---------------------------------
+        if data is None:
 
             print(
                 "Batch failed. "
-                "Retrying stocks individually..."
+                "Retrying individually..."
             )
 
             for symbol in batch_symbols:
@@ -797,11 +1178,9 @@ def main():
 
                     )
 
-                    clean = (
-                        clean_yf_frame(
-                            df,
-                            ticker
-                        )
+                    clean = clean_yf_frame(
+                        df,
+                        ticker
                     )
 
                     if clean is None:
@@ -823,17 +1202,25 @@ def main():
                                 row
                             )
 
-                except Exception:
+                except Exception as e:
+
+                    print(
+                        f"  ! {symbol}: {e}"
+                    )
 
                     failed.append(
                         symbol
                     )
 
+            time.sleep(
+                BATCH_PAUSE
+            )
+
             continue
 
-        # -------------------------------------
-        # Analyse each stock in batch
-        # -------------------------------------
+        # ====================================================
+        # ANALYSE EACH STOCK
+        # ====================================================
 
         for symbol in batch_symbols:
 
@@ -843,11 +1230,9 @@ def main():
 
             try:
 
-                clean = (
-                    clean_yf_frame(
-                        data,
-                        ticker
-                    )
+                clean = clean_yf_frame(
+                    data,
+                    ticker
                 )
 
                 if clean is None:
@@ -879,14 +1264,13 @@ def main():
                     symbol
                 )
 
-        # Small pause between batches
         time.sleep(
             BATCH_PAUSE
         )
 
-    # =====================================================
-    # OUTPUT
-    # =====================================================
+    # ========================================================
+    # CREATE OUTPUT
+    # ========================================================
 
     out = pd.DataFrame(
         results
@@ -896,27 +1280,80 @@ def main():
 
         print("")
         print(
-            "No stocks matched "
-            "the current setup."
+            "No valid stocks were downloaded."
         )
 
     else:
 
-        # Preserve your original ranking logic.
+        # ----------------------------------------------------
+        # Ranking
+        #
+        # BOTH first
+        # 200 DMA recovery second
+        # High Level third
+        # Others last
+        # ----------------------------------------------------
+
+        out["_sort_group"] = np.select(
+
+            [
+                out["combined_setup"].eq(
+                    "BOTH"
+                ),
+
+                out["combined_setup"].eq(
+                    "200DMA RECOVERY"
+                ),
+
+                out["combined_setup"].eq(
+                    "HIGH LEVEL"
+                )
+            ],
+
+            [
+                0,
+                1,
+                2
+            ],
+
+            default=3
+
+        )
+
         out = (
             out
             .sort_values(
+
                 [
+                    "_sort_group",
                     "score",
+                    "high_level_score",
                     "distance_to_200dma_pct"
                 ],
+
                 ascending=[
+                    True,
+                    False,
                     False,
                     True
                 ]
+
             )
-            .reset_index(drop=True)
+            .reset_index(
+                drop=True
+            )
         )
+
+        out.drop(
+            columns=[
+                "_sort_group"
+            ],
+            inplace=True
+        )
+
+        # ----------------------------------------------------
+        # Rank
+        # ----------------------------------------------------
 
         out.insert(
             0,
@@ -927,14 +1364,13 @@ def main():
             )
         )
 
+        # ----------------------------------------------------
+        # Save CSV
+        # ----------------------------------------------------
+
         csv_path = (
             OUTPUT_DIR /
             "NSE_200DMA_Recovery_Scanner.csv"
-        )
-
-        xlsx_path = (
-            OUTPUT_DIR /
-            "NSE_200DMA_Recovery_Scanner.xlsx"
         )
 
         out.to_csv(
@@ -942,52 +1378,119 @@ def main():
             index=False
         )
 
+        # ----------------------------------------------------
+        # Save Excel
+        # ----------------------------------------------------
+
+        xlsx_path = (
+            OUTPUT_DIR /
+            "NSE_200DMA_Recovery_Scanner.xlsx"
+        )
+
         out.to_excel(
             xlsx_path,
             index=False
         )
 
+        # ====================================================
+        # SUMMARY
+        # ====================================================
+
+        recovery_count = int(
+            out[
+                "recovery_candidate"
+            ].sum()
+        )
+
+        high_count = int(
+            out[
+                "high_level_candidate"
+            ].sum()
+        )
+
+        both_count = int(
+            (
+                out[
+                    "combined_setup"
+                ]
+                .eq("BOTH")
+            ).sum()
+        )
+
         print("")
         print(
-            "=== CANDIDATES ==="
+            "=============================================="
         )
+        print(
+            " SCANNER SUMMARY"
+        )
+        print(
+            "=============================================="
+        )
+
+        print(
+            f"Valid stocks: {len(out)}"
+        )
+
+        print(
+            f"200 DMA recovery candidates: "
+            f"{recovery_count}"
+        )
+
+        print(
+            f"High-level candidates: "
+            f"{high_count}"
+        )
+
+        print(
+            f"Both setups: "
+            f"{both_count}"
+        )
+
         print("")
 
         print(
-            out.to_string(
-                index=False
-            )
-        )
-
-        print("")
-        print(
-            f"Saved: {csv_path}"
+            f"CSV: {csv_path}"
         )
 
         print(
-            f"Saved: {xlsx_path}"
+            f"Excel: {xlsx_path}"
         )
+
+    # ========================================================
+    # DOWNLOAD FAILURES
+    # ========================================================
 
     if failed:
+
+        failure_file = (
+            OUTPUT_DIR /
+            "download_failures.csv"
+        )
 
         pd.DataFrame(
             {
                 "symbol": failed
             }
         ).to_csv(
-
-            OUTPUT_DIR /
-            "download_failures.csv",
-
+            failure_file,
             index=False
-
         )
 
         print("")
+
         print(
             f"Data unavailable for "
-            f"{len(failed)} symbols."
+            f"{len(failed)} stocks."
         )
+
+        print(
+            f"See: {failure_file}"
+        )
+
+    # ========================================================
+    # TIME
+    # ========================================================
 
     elapsed = (
         time.time() -
@@ -996,7 +1499,7 @@ def main():
 
     print("")
     print(
-        "======================================"
+        "=============================================="
     )
 
     print(
@@ -1005,13 +1508,13 @@ def main():
     )
 
     print(
-        "======================================"
+        "=============================================="
     )
 
 
-# =========================================================
-# START
-# =========================================================
+# ============================================================
+# ENTRY POINT
+# ============================================================
 
 if __name__ == "__main__":
 
