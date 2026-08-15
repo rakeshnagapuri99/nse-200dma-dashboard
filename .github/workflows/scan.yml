@@ -10,6 +10,12 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
 
@@ -20,7 +26,7 @@ jobs:
     steps:
 
       # -----------------------------------------
-      # 1. Get repository
+      # 1. Checkout repository
       # -----------------------------------------
 
       - name: Checkout repository
@@ -38,7 +44,7 @@ jobs:
 
 
       # -----------------------------------------
-      # 3. Install packages
+      # 3. Install dependencies
       # -----------------------------------------
 
       - name: Install dependencies
@@ -48,7 +54,7 @@ jobs:
 
 
       # -----------------------------------------
-      # 4. Run NSE technical scanner
+      # 4. Run NSE 200 DMA scanner
       # -----------------------------------------
 
       - name: Run NSE 200 DMA scanner
@@ -57,7 +63,7 @@ jobs:
 
 
       # -----------------------------------------
-      # 5. Add fundamental analysis
+      # 5. Run fundamental analysis
       # -----------------------------------------
 
       - name: Run fundamental analysis
@@ -80,7 +86,7 @@ jobs:
 
 
       # -----------------------------------------
-      # 7. Commit updated data
+      # 7. Commit updated scanner data
       # -----------------------------------------
 
       - name: Commit updated scanner data
@@ -97,3 +103,30 @@ jobs:
             git commit -m "Update NSE 200 DMA and fundamentals"
             git push
           fi
+
+
+      # -----------------------------------------
+      # 8. Setup GitHub Pages
+      # -----------------------------------------
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+
+      # -----------------------------------------
+      # 9. Upload dashboard to Pages
+      # -----------------------------------------
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+
+      # -----------------------------------------
+      # 10. Deploy dashboard
+      # -----------------------------------------
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
