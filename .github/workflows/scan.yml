@@ -1,33 +1,21 @@
-name: CARJ NSE Smart Stock Scanner
+name: NSE 200 DMA Scanner
 
 on:
-
   workflow_dispatch:
 
   schedule:
-
-    # 7:00 PM IST
-    # 13:30 UTC
-    # Monday-Friday
-
+    # 7:00 PM IST = 13:30 UTC
+    # Monday to Friday
     - cron: "30 13 * * 1-5"
 
-
 permissions:
-
   contents: write
-
   pages: write
-
   id-token: write
 
-
 concurrency:
-
   group: "pages"
-
   cancel-in-progress: false
-
 
 jobs:
 
@@ -35,176 +23,124 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # Required for deploy-pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
 
-
-      # =========================================
-      # 1. CHECKOUT
-      # =========================================
+      # -----------------------------------------
+      # 1. Checkout repository
+      # -----------------------------------------
 
       - name: Checkout repository
-
         uses: actions/checkout@v4
 
 
-      # =========================================
-      # 2. PYTHON
-      # =========================================
+      # -----------------------------------------
+      # 2. Setup Python
+      # -----------------------------------------
 
       - name: Setup Python
-
         uses: actions/setup-python@v5
-
         with:
-
           python-version: "3.11"
 
 
-      # =========================================
-      # 3. DEPENDENCIES
-      # =========================================
+      # -----------------------------------------
+      # 3. Install dependencies
+      # -----------------------------------------
 
       - name: Install dependencies
-
         run: |
-
           python -m pip install --upgrade pip
-
-          pip install \
-            pandas \
-            numpy \
-            requests \
-            yfinance \
-            openpyxl
+          pip install -r requirements.txt
 
 
-      # =========================================
-      # 4. FULL NSE SCANNER
-      # =========================================
+      # -----------------------------------------
+      # 4. Run NSE 200 DMA Scanner
+      # -----------------------------------------
 
-      - name: Run Full NSE Scanner
-
+      - name: Run NSE 200 DMA scanner
         run: |
-
           echo "======================================"
-
-          echo "FULL NSE EQUITY SCANNER"
-
+          echo " NSE 200 DMA SCANNER"
           echo "======================================"
-
           python scanner_nse500.py
 
 
-      # =========================================
-      # 5. FUNDAMENTALS — ALL STOCKS
-      # =========================================
+      # -----------------------------------------
+      # 5. Run Fundamental Analysis
+      # -----------------------------------------
 
-      - name: Run Fundamentals
-
+      - name: Run fundamental analysis
         run: |
-
           echo "======================================"
-
-          echo "FULL FUNDAMENTAL ANALYSIS"
-
+          echo " FUNDAMENTAL ANALYSIS"
           echo "======================================"
-
           python fundamentals.py
 
 
-      # =========================================
-      # 6. CHECK OUTPUT
-      # =========================================
+      # -----------------------------------------
+      # 6. Check Generated Files
+      # -----------------------------------------
 
-      - name: Check generated files
-
+      - name: Show output files
         run: |
-
-          echo ""
-
-          echo "Generated files:"
+          echo "======================================"
+          echo " GENERATED FILES"
+          echo "======================================"
 
           ls -lah output/
 
-
           echo ""
-
-          echo "CSV rows:"
-
-          wc -l output/NSE_200DMA_Recovery_Scanner.csv
-
-
-          echo ""
-
           echo "CSV preview:"
-
-          head -5 \
-            output/NSE_200DMA_Recovery_Scanner.csv
+          head -5 output/NSE_200DMA_Recovery_Scanner.csv
 
 
-      # =========================================
-      # 7. COMMIT DATA
-      # =========================================
+      # -----------------------------------------
+      # 7. Commit Updated Scanner Data
+      # -----------------------------------------
 
       - name: Commit scanner data
-
         run: |
 
-          git config user.name \
-            "github-actions[bot]"
-
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add output/
 
-          git add data/
-
-
           if git diff --cached --quiet; then
-
             echo "No changes to commit."
-
           else
-
-            git commit \
-              -m "Update full NSE scanner and fundamentals"
-
+            git commit -m "Update NSE 200 DMA and fundamentals"
             git push
-
           fi
 
 
-      # =========================================
-      # 8. GITHUB PAGES
-      # =========================================
+      # -----------------------------------------
+      # 8. Setup GitHub Pages
+      # -----------------------------------------
 
       - name: Setup Pages
-
         uses: actions/configure-pages@v5
 
 
-      # =========================================
-      # 9. UPLOAD SITE
-      # =========================================
+      # -----------------------------------------
+      # 9. Upload Dashboard to Pages
+      # -----------------------------------------
 
       - name: Upload Pages artifact
-
         uses: actions/upload-pages-artifact@v3
-
         with:
-
           path: .
 
 
-      # =========================================
-      # 10. DEPLOY
-      # =========================================
+      # -----------------------------------------
+      # 10. Deploy Dashboard
+      # -----------------------------------------
 
       - name: Deploy to GitHub Pages
-
         id: deployment
-
         uses: actions/deploy-pages@v4
