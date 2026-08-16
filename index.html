@@ -12,6 +12,9 @@
 
 <title>NSE Smart Stock Scanner</title>
 
+<!-- Excel export library -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 <style>
 
 /* =========================================================
@@ -60,15 +63,9 @@
 
 }
 
-
-/* =========================================================
-   GLOBAL
-   ========================================================= */
-
 *{
   box-sizing:border-box;
 }
-
 
 body{
 
@@ -95,7 +92,6 @@ body{
     sans-serif;
 
 }
-
 
 .wrap{
 
@@ -144,7 +140,6 @@ body{
 
 }
 
-
 .title h1{
 
   margin:0;
@@ -157,7 +152,6 @@ body{
 
 }
 
-
 .title p{
 
   margin:7px 0 0;
@@ -167,7 +161,6 @@ body{
   font-size:13px;
 
 }
-
 
 .updated-by{
 
@@ -180,7 +173,6 @@ body{
   font-weight:700;
 
 }
-
 
 .badge{
 
@@ -224,7 +216,6 @@ body{
 
 }
 
-
 .card{
 
   background:var(--card);
@@ -240,7 +231,6 @@ body{
 
 }
 
-
 .kpi{
 
   position:relative;
@@ -253,7 +243,6 @@ body{
 
 }
 
-
 .kpi:hover{
 
   transform:
@@ -263,7 +252,6 @@ body{
     var(--shadow-hover);
 
 }
-
 
 .kpi::before{
 
@@ -283,31 +271,25 @@ body{
 
 }
 
-
 .kpi:nth-child(2)::before{
   background:var(--green);
 }
-
 
 .kpi:nth-child(3)::before{
   background:var(--amber);
 }
 
-
 .kpi:nth-child(4)::before{
   background:var(--purple);
 }
-
 
 .kpi:nth-child(5)::before{
   background:var(--orange);
 }
 
-
 .kpi:nth-child(6)::before{
   background:var(--cyan);
 }
-
 
 .kpi .label{
 
@@ -322,7 +304,6 @@ body{
   letter-spacing:.4px;
 
 }
-
 
 .kpi .value{
 
@@ -354,7 +335,6 @@ body{
 
 }
 
-
 .opportunity-card{
 
   border-radius:18px;
@@ -378,7 +358,6 @@ body{
 
 }
 
-
 .opportunity-card:hover{
 
   transform:
@@ -388,29 +367,6 @@ body{
     0 15px 35px rgba(15,23,42,.17);
 
 }
-
-
-.opportunity-card::after{
-
-  content:"";
-
-  position:absolute;
-
-  width:130px;
-
-  height:130px;
-
-  right:-35px;
-
-  bottom:-50px;
-
-  border-radius:50%;
-
-  background:
-    rgba(255,255,255,.10);
-
-}
-
 
 .breakout-card{
 
@@ -423,7 +379,6 @@ body{
 
 }
 
-
 .near-high-card{
 
   background:
@@ -435,7 +390,6 @@ body{
 
 }
 
-
 .recovery-card{
 
   background:
@@ -446,7 +400,6 @@ body{
     );
 
 }
-
 
 .opportunity-title{
 
@@ -462,7 +415,6 @@ body{
 
 }
 
-
 .opportunity-value{
 
   font-size:38px;
@@ -473,7 +425,6 @@ body{
 
 }
 
-
 .opportunity-sub{
 
   font-size:11px;
@@ -481,6 +432,18 @@ body{
   margin-top:5px;
 
   opacity:.88;
+
+}
+
+.clickable-card{
+
+  cursor:pointer;
+
+}
+
+.clickable-card:hover{
+
+  transform:translateY(-4px);
 
 }
 
@@ -503,7 +466,6 @@ body{
 
 }
 
-
 .section-title{
 
   font-size:17px;
@@ -513,7 +475,6 @@ body{
   color:var(--navy);
 
 }
-
 
 .section-description{
 
@@ -525,7 +486,7 @@ body{
 
 
 /* =========================================================
-   SPECIAL TABLES
+   TABLES
    ========================================================= */
 
 .highlight-table{
@@ -540,11 +501,9 @@ body{
 
 }
 
-
 .highlight-table th{
 
-  background:
-    #f8fafc;
+  background:#f8fafc;
 
   color:#475569;
 
@@ -565,7 +524,6 @@ body{
 
 }
 
-
 .highlight-table td{
 
   padding:12px 11px;
@@ -577,7 +535,6 @@ body{
 
 }
 
-
 .highlight-table tbody tr{
 
   cursor:pointer;
@@ -587,13 +544,11 @@ body{
 
 }
 
-
 .highlight-table tbody tr:hover{
 
   background:#f0fdf4;
 
 }
-
 
 .breakout-row:hover{
 
@@ -601,13 +556,11 @@ body{
 
 }
 
-
 .near-row:hover{
 
   background:#fff7ed !important;
 
 }
-
 
 .stock{
 
@@ -617,7 +570,6 @@ body{
 
 }
 
-
 .pos{
 
   color:var(--green);
@@ -626,7 +578,6 @@ body{
 
 }
 
-
 .neg{
 
   color:var(--red);
@@ -634,7 +585,6 @@ body{
   font-weight:800;
 
 }
-
 
 .neutral{
 
@@ -667,7 +617,6 @@ body{
 
 }
 
-
 .pill-breakout{
 
   background:
@@ -680,7 +629,6 @@ body{
     1px solid #bbf7d0;
 
 }
-
 
 .pill-near{
 
@@ -695,7 +643,6 @@ body{
 
 }
 
-
 .pill-strong{
 
   background:
@@ -709,7 +656,6 @@ body{
 
 }
 
-
 .pill-watch{
 
   background:
@@ -722,7 +668,6 @@ body{
     1px solid #fde68a;
 
 }
-
 
 .pill-normal{
 
@@ -783,7 +728,6 @@ body{
 
 }
 
-
 .controls input,
 .controls select{
 
@@ -808,7 +752,6 @@ body{
 
 }
 
-
 .controls input:focus,
 .controls select:focus{
 
@@ -821,7 +764,6 @@ body{
 
 }
 
-
 .controls input{
 
   min-width:240px;
@@ -830,7 +772,7 @@ body{
 
 
 /* =========================================================
-   TABLE
+   MAIN TABLE
    ========================================================= */
 
 .tablewrap{
@@ -844,7 +786,6 @@ body{
 
 }
 
-
 .table{
 
   width:100%;
@@ -857,7 +798,6 @@ body{
   font-size:13px;
 
 }
-
 
 .table th{
 
@@ -893,7 +833,6 @@ body{
 
 }
 
-
 .table td{
 
   padding:12px;
@@ -905,7 +844,6 @@ body{
 
 }
 
-
 .table tbody tr{
 
   cursor:pointer;
@@ -915,13 +853,11 @@ body{
 
 }
 
-
 .table tbody tr:hover{
 
   background:#eff6ff;
 
 }
-
 
 .table tbody tr:last-child td{
 
@@ -931,7 +867,24 @@ body{
 
 
 /* =========================================================
-   MODAL
+   NOTE
+   ========================================================= */
+
+.note{
+
+  color:var(--muted);
+
+  font-size:11px;
+
+  margin-top:12px;
+
+  line-height:1.5;
+
+}
+
+
+/* =========================================================
+   STOCK DETAIL MODAL
    ========================================================= */
 
 .modal{
@@ -956,7 +909,6 @@ body{
 
 }
 
-
 .modal.show{
 
   display:flex;
@@ -966,7 +918,6 @@ body{
   justify-content:center;
 
 }
-
 
 .modal-card{
 
@@ -987,7 +938,6 @@ body{
 
 }
 
-
 .modal-head{
 
   display:flex;
@@ -1007,7 +957,6 @@ body{
 
 }
 
-
 .modal-title{
 
   font-size:28px;
@@ -1018,7 +967,6 @@ body{
 
 }
 
-
 .modal-subtitle{
 
   color:var(--muted);
@@ -1028,7 +976,6 @@ body{
   font-size:12px;
 
 }
-
 
 .close-btn{
 
@@ -1050,7 +997,6 @@ body{
 
 }
 
-
 .close-btn:hover{
 
   background:#e2e8f0;
@@ -1068,7 +1014,6 @@ body{
 
 }
 
-
 .detail-section h3{
 
   margin:0 0 13px;
@@ -1081,7 +1026,6 @@ body{
 
 }
 
-
 .detail-grid{
 
   display:grid;
@@ -1092,7 +1036,6 @@ body{
   gap:12px;
 
 }
-
 
 .detail-box{
 
@@ -1112,7 +1055,6 @@ body{
 
 }
 
-
 .detail-label{
 
   color:var(--muted);
@@ -1122,7 +1064,6 @@ body{
   font-weight:650;
 
 }
-
 
 .detail-value{
 
@@ -1159,7 +1100,6 @@ body{
 
 }
 
-
 .prior-high-grid{
 
   display:grid;
@@ -1170,7 +1110,6 @@ body{
   gap:12px;
 
 }
-
 
 .prior-high-box{
 
@@ -1185,7 +1124,6 @@ body{
 
 }
 
-
 .prior-high-box .label{
 
   color:#64748b;
@@ -1197,7 +1135,6 @@ body{
   text-transform:uppercase;
 
 }
-
 
 .prior-high-box .value{
 
@@ -1229,7 +1166,6 @@ body{
 
 }
 
-
 .fundamental-score{
 
   border:
@@ -1243,7 +1179,6 @@ body{
 
 }
 
-
 .fundamental-score .score-label{
 
   color:var(--muted);
@@ -1256,7 +1191,6 @@ body{
 
 }
 
-
 .fundamental-score .score-value{
 
   font-size:25px;
@@ -1266,7 +1200,6 @@ body{
   margin-top:5px;
 
 }
-
 
 .fundamental-score .score-note{
 
@@ -1278,13 +1211,11 @@ body{
 
 }
 
-
 .fundamental-group{
 
   margin-top:15px;
 
 }
-
 
 .fundamental-group-title{
 
@@ -1302,7 +1233,6 @@ body{
 
 }
 
-
 .fundamental-grid{
 
   display:grid;
@@ -1313,7 +1243,6 @@ body{
   gap:10px;
 
 }
-
 
 .fundamental-box{
 
@@ -1328,13 +1257,11 @@ body{
 
 }
 
-
 .fundamental-box .detail-label{
 
   font-size:10px;
 
 }
-
 
 .fundamental-box .detail-value{
 
@@ -1344,21 +1271,17 @@ body{
 
 }
 
-
 .score-good{
   color:var(--green);
 }
-
 
 .score-mid{
   color:var(--amber);
 }
 
-
 .score-low{
   color:var(--red);
 }
-
 
 .click-hint{
 
@@ -1369,6 +1292,288 @@ body{
   margin-top:15px;
 
   line-height:1.6;
+
+}
+
+
+/* =========================================================
+   COMPLETE LIST MODAL
+   ========================================================= */
+
+.list-modal{
+
+  display:none;
+
+  position:fixed;
+
+  inset:0;
+
+  background:
+    rgba(15,23,42,.78);
+
+  z-index:10000;
+
+  padding:20px;
+
+  overflow:auto;
+
+  backdrop-filter:blur(6px);
+
+}
+
+.list-modal.show{
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+}
+
+.list-modal-card{
+
+  width:min(1450px,100%);
+
+  max-height:94vh;
+
+  overflow:hidden;
+
+  background:white;
+
+  border-radius:22px;
+
+  box-shadow:
+    0 30px 100px rgba(0,0,0,.35);
+
+  display:flex;
+
+  flex-direction:column;
+
+}
+
+.list-modal-head{
+
+  padding:22px 25px;
+
+  border-bottom:
+    1px solid var(--line);
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  gap:15px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8fafc,
+      #ffffff
+    );
+
+}
+
+.list-modal-title{
+
+  font-size:24px;
+
+  font-weight:900;
+
+  color:var(--navy);
+
+}
+
+.list-modal-count{
+
+  margin-top:4px;
+
+  font-size:12px;
+
+  color:var(--muted);
+
+}
+
+.list-modal-actions{
+
+  display:flex;
+
+  gap:8px;
+
+  align-items:center;
+
+  flex-wrap:wrap;
+
+}
+
+.list-search{
+
+  border:
+    1px solid #d7dee8;
+
+  border-radius:10px;
+
+  padding:10px 12px;
+
+  width:240px;
+
+  outline:none;
+
+  font-size:13px;
+
+}
+
+.list-search:focus{
+
+  border-color:var(--blue);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(37,99,235,.10);
+
+}
+
+.export-btn{
+
+  border:0;
+
+  background:
+    linear-gradient(
+      135deg,
+      #047857,
+      #16a34a
+    );
+
+  color:white;
+
+  padding:10px 15px;
+
+  border-radius:10px;
+
+  font-size:12px;
+
+  font-weight:900;
+
+  cursor:pointer;
+
+}
+
+.export-btn:hover{
+
+  transform:translateY(-1px);
+
+  box-shadow:
+    0 5px 15px rgba(22,163,74,.25);
+
+}
+
+.list-close{
+
+  border:0;
+
+  background:#f1f5f9;
+
+  width:40px;
+
+  height:40px;
+
+  border-radius:50%;
+
+  font-size:22px;
+
+  cursor:pointer;
+
+}
+
+.list-modal-body{
+
+  overflow:auto;
+
+  padding:0 20px 20px;
+
+}
+
+.list-table{
+
+  width:100%;
+
+  border-collapse:separate;
+
+  border-spacing:0;
+
+  font-size:12px;
+
+}
+
+.list-table th{
+
+  position:sticky;
+
+  top:0;
+
+  z-index:3;
+
+  background:#f8fafc;
+
+  color:#475569;
+
+  padding:11px;
+
+  text-align:left;
+
+  font-size:10px;
+
+  text-transform:uppercase;
+
+  letter-spacing:.35px;
+
+  border-bottom:
+    1px solid var(--line);
+
+  white-space:nowrap;
+
+}
+
+.list-table td{
+
+  padding:11px;
+
+  border-bottom:
+    1px solid #edf1f5;
+
+  white-space:nowrap;
+
+}
+
+.list-table tbody tr{
+
+  cursor:pointer;
+
+}
+
+.list-table tbody tr:hover{
+
+  background:#eff6ff;
+
+}
+
+.list-stock{
+
+  font-weight:900;
+
+  color:var(--navy);
+
+}
+
+.list-empty{
+
+  padding:40px;
+
+  text-align:center;
+
+  color:var(--muted);
 
 }
 
@@ -1402,7 +1607,6 @@ body{
 
 }
 
-
 @media(max-width:800px){
 
   .kpis{
@@ -1434,7 +1638,6 @@ body{
   }
 
 }
-
 
 @media(max-width:600px){
 
@@ -1507,6 +1710,40 @@ body{
 
   }
 
+  .list-modal{
+
+    padding:8px;
+
+  }
+
+  .list-modal-card{
+
+    max-height:96vh;
+
+  }
+
+  .list-modal-head{
+
+    align-items:flex-start;
+
+    flex-direction:column;
+
+  }
+
+  .list-modal-actions{
+
+    width:100%;
+
+  }
+
+  .list-search{
+
+    width:100%;
+
+    flex:1;
+
+  }
+
 }
 
 
@@ -1522,13 +1759,11 @@ body{
 
 }
 
-
 ::-webkit-scrollbar-track{
 
   background:#eef2f7;
 
 }
-
 
 ::-webkit-scrollbar-thumb{
 
@@ -1537,7 +1772,6 @@ body{
   border-radius:10px;
 
 }
-
 
 ::-webkit-scrollbar-thumb:hover{
 
@@ -1551,7 +1785,6 @@ body{
 
 
 <body>
-
 
 <div class="wrap">
 
@@ -1579,7 +1812,6 @@ body{
 
   </div>
 
-
   <div
     class="badge"
     id="updated"
@@ -1590,14 +1822,12 @@ body{
 </div>
 
 
-
 <!-- ERROR -->
 
 <div
   id="error"
   class="error"
 ></div>
-
 
 
 <!-- =======================================================
@@ -1607,7 +1837,10 @@ body{
 <div class="kpis">
 
 
-  <div class="card kpi">
+  <div
+    class="card kpi clickable-card"
+    onclick="openList('all')"
+  >
 
     <div class="label">
       Stocks in report
@@ -1623,8 +1856,10 @@ body{
   </div>
 
 
-
-  <div class="card kpi">
+  <div
+    class="card kpi clickable-card"
+    onclick="openList('strong')"
+  >
 
     <div class="label">
       Strong Retest
@@ -1640,8 +1875,10 @@ body{
   </div>
 
 
-
-  <div class="card kpi">
+  <div
+    class="card kpi clickable-card"
+    onclick="openList('watch')"
+  >
 
     <div class="label">
       Recovery Watch
@@ -1657,8 +1894,10 @@ body{
   </div>
 
 
-
-  <div class="card kpi">
+  <div
+    class="card kpi clickable-card"
+    onclick="openList('near')"
+  >
 
     <div class="label">
       Near 200 DMA
@@ -1674,8 +1913,10 @@ body{
   </div>
 
 
-
-  <div class="card kpi">
+  <div
+    class="card kpi clickable-card"
+    onclick="openList('breakout')"
+  >
 
     <div class="label">
       Prior High Breakouts
@@ -1691,8 +1932,10 @@ body{
   </div>
 
 
-
-  <div class="card kpi">
+  <div
+    class="card kpi clickable-card"
+    onclick="openList('nearHigh')"
+  >
 
     <div class="label">
       Near Prior High
@@ -1711,7 +1954,6 @@ body{
 </div>
 
 
-
 <!-- =======================================================
      OPPORTUNITY BOARD
      ======================================================= -->
@@ -1720,7 +1962,8 @@ body{
 
 
   <div
-    class="opportunity-card breakout-card"
+    class="opportunity-card breakout-card clickable-card"
+    onclick="openList('breakout')"
   >
 
     <div class="opportunity-title">
@@ -1742,9 +1985,9 @@ body{
   </div>
 
 
-
   <div
-    class="opportunity-card near-high-card"
+    class="opportunity-card near-high-card clickable-card"
+    onclick="openList('nearHigh')"
   >
 
     <div class="opportunity-title">
@@ -1766,9 +2009,9 @@ body{
   </div>
 
 
-
   <div
-    class="opportunity-card recovery-card"
+    class="opportunity-card recovery-card clickable-card"
+    onclick="openList('recovery')"
   >
 
     <div class="opportunity-title">
@@ -1793,7 +2036,6 @@ body{
 </div>
 
 
-
 <!-- =======================================================
      PRIOR HIGH BREAKOUTS
      ======================================================= -->
@@ -1802,7 +2044,6 @@ body{
   class="card"
   style="margin-bottom:20px;"
 >
-
 
   <div class="section-head">
 
@@ -1831,21 +2072,13 @@ body{
         <tr>
 
           <th>Stock</th>
-
           <th>CMP</th>
-
           <th>Prior High</th>
-
           <th>Above High</th>
-
           <th>200 DMA</th>
-
           <th>RSI</th>
-
           <th>Volume</th>
-
           <th>Score</th>
-
           <th>Setup</th>
 
         </tr>
@@ -1866,9 +2099,7 @@ body{
     id="breakoutNote"
   ></div>
 
-
 </div>
-
 
 
 <!-- =======================================================
@@ -1879,7 +2110,6 @@ body{
   class="card"
   style="margin-bottom:20px;"
 >
-
 
   <div class="section-head">
 
@@ -1908,21 +2138,13 @@ body{
         <tr>
 
           <th>Stock</th>
-
           <th>CMP</th>
-
           <th>Prior High</th>
-
           <th>Gap to High</th>
-
           <th>200 DMA</th>
-
           <th>RSI</th>
-
           <th>Volume</th>
-
           <th>Score</th>
-
           <th>Setup</th>
 
         </tr>
@@ -1943,9 +2165,7 @@ body{
     id="nearHighNote"
   ></div>
 
-
 </div>
-
 
 
 <!-- =======================================================
@@ -1957,22 +2177,17 @@ body{
   style="margin-top:20px;"
 >
 
-
   <div class="section-title">
-
     Complete Stock Screening Results
-
   </div>
 
 
   <div class="controls">
 
-
     <input
       id="search"
       placeholder="Search stock…"
     >
-
 
 
     <select id="setup">
@@ -2012,7 +2227,6 @@ body{
     </select>
 
 
-
     <select id="side">
 
       <option value="">
@@ -2028,7 +2242,6 @@ body{
       </option>
 
     </select>
-
 
 
     <select id="sort">
@@ -2055,84 +2268,57 @@ body{
 
     </select>
 
-
   </div>
-
 
 
   <div class="tablewrap">
 
-
     <table class="table">
-
 
       <thead>
 
         <tr>
 
           <th>Rank</th>
-
           <th>Stock</th>
-
           <th>CMP</th>
-
           <th>200 DMA</th>
-
           <th>Gap %</th>
-
           <th>Prior High</th>
-
           <th>Gap to High</th>
-
           <th>50 DMA</th>
-
           <th>RSI</th>
-
           <th>Vol</th>
-
           <th>Recovery %</th>
-
           <th>Score</th>
-
           <th>Setup</th>
 
         </tr>
 
       </thead>
 
-
       <tbody
         id="tbody"
       ></tbody>
 
-
     </table>
 
-
   </div>
 
 
   <div class="note">
-
     Click any stock row to open detailed analysis.
-
   </div>
 
-
   <div class="note">
-
     Research/screening tool only.
     Verify live price and technical levels
     in your broker terminal before acting.
-
   </div>
 
-
 </div>
 
-
 </div>
-
 
 
 <!-- =======================================================
@@ -2144,12 +2330,9 @@ body{
   id="stockModal"
 >
 
-
 <div class="modal-card">
 
-
   <div class="modal-head">
-
 
     <div>
 
@@ -2160,14 +2343,12 @@ body{
         Stock Analysis
       </div>
 
-
       <div
         class="modal-subtitle"
         id="modalSetup"
       ></div>
 
     </div>
-
 
     <button
       class="close-btn"
@@ -2176,14 +2357,10 @@ body{
       ×
     </button>
 
-
   </div>
 
 
-
-  <!-- =====================================================
-       PRIOR HIGH
-       ===================================================== -->
+  <!-- PRIOR HIGH -->
 
   <div
     class="detail-section"
@@ -2194,12 +2371,9 @@ body{
       🚀 Prior High Analysis
     </h3>
 
-
     <div class="prior-high-panel">
 
-
       <div class="prior-high-grid">
-
 
         <div class="prior-high-box">
 
@@ -2215,7 +2389,6 @@ body{
           </div>
 
         </div>
-
 
 
         <div class="prior-high-box">
@@ -2234,7 +2407,6 @@ body{
         </div>
 
 
-
         <div class="prior-high-box">
 
           <div class="label">
@@ -2249,7 +2421,6 @@ body{
           </div>
 
         </div>
-
 
 
         <div class="prior-high-box">
@@ -2267,13 +2438,10 @@ body{
 
         </div>
 
-
       </div>
 
 
-      <div
-        style="margin-top:15px;"
-      >
+      <div style="margin-top:15px;">
 
         <span
           class="pill pill-breakout"
@@ -2290,200 +2458,80 @@ body{
         id="dPriorHighReasons"
       ></div>
 
-
     </div>
 
   </div>
 
 
-
-  <!-- =====================================================
-       TECHNICAL ANALYSIS
-       ===================================================== -->
+  <!-- TECHNICAL -->
 
   <div class="detail-section">
-
 
     <h3>
       📊 Technical Analysis
     </h3>
 
-
     <div class="detail-grid">
 
-
       <div class="detail-box">
-
-        <div class="detail-label">
-          CMP
-        </div>
-
-        <div
-          class="detail-value"
-          id="dClose"
-        >
-          —
-        </div>
-
+        <div class="detail-label">CMP</div>
+        <div class="detail-value" id="dClose">—</div>
       </div>
 
-
-
       <div class="detail-box">
-
-        <div class="detail-label">
-          200 DMA
-        </div>
-
-        <div
-          class="detail-value"
-          id="d200"
-        >
-          —
-        </div>
-
+        <div class="detail-label">200 DMA</div>
+        <div class="detail-value" id="d200">—</div>
       </div>
 
-
-
       <div class="detail-box">
-
-        <div class="detail-label">
-          Distance from 200 DMA
-        </div>
-
-        <div
-          class="detail-value"
-          id="dGap"
-        >
-          —
-        </div>
-
+        <div class="detail-label">Distance from 200 DMA</div>
+        <div class="detail-value" id="dGap">—</div>
       </div>
 
-
-
       <div class="detail-box">
-
-        <div class="detail-label">
-          50 DMA
-        </div>
-
-        <div
-          class="detail-value"
-          id="d50"
-        >
-          —
-        </div>
-
+        <div class="detail-label">50 DMA</div>
+        <div class="detail-value" id="d50">—</div>
       </div>
 
-
-
       <div class="detail-box">
-
-        <div class="detail-label">
-          RSI
-        </div>
-
-        <div
-          class="detail-value"
-          id="dRsi"
-        >
-          —
-        </div>
-
+        <div class="detail-label">RSI</div>
+        <div class="detail-value" id="dRsi">—</div>
       </div>
 
-
-
       <div class="detail-box">
-
-        <div class="detail-label">
-          Volume Ratio
-        </div>
-
-        <div
-          class="detail-value"
-          id="dVol"
-        >
-          —
-        </div>
-
+        <div class="detail-label">Volume Ratio</div>
+        <div class="detail-value" id="dVol">—</div>
       </div>
 
-
-
       <div class="detail-box">
-
-        <div class="detail-label">
-          Recovery
-        </div>
-
-        <div
-          class="detail-value"
-          id="dRecovery"
-        >
-          —
-        </div>
-
+        <div class="detail-label">Recovery</div>
+        <div class="detail-value" id="dRecovery">—</div>
       </div>
 
-
-
       <div class="detail-box">
-
-        <div class="detail-label">
-          Technical Score
-        </div>
-
-        <div
-          class="detail-value"
-          id="dScore"
-        >
-          —
-        </div>
-
+        <div class="detail-label">Technical Score</div>
+        <div class="detail-value" id="dScore">—</div>
       </div>
 
-
-
       <div class="detail-box">
-
-        <div class="detail-label">
-          Setup
-        </div>
-
-        <div
-          class="detail-value"
-          id="dSetup"
-        >
-          —
-        </div>
-
+        <div class="detail-label">Setup</div>
+        <div class="detail-value" id="dSetup">—</div>
       </div>
-
 
     </div>
 
   </div>
 
 
-
-  <!-- =====================================================
-       FUNDAMENTALS
-       ===================================================== -->
+  <!-- FUNDAMENTALS -->
 
   <div class="detail-section">
-
 
     <h3>
       📈 Fundamental Analysis
     </h3>
 
-
     <div class="fundamental-summary">
-
 
       <div class="fundamental-score">
 
@@ -2503,7 +2551,6 @@ body{
         </div>
 
       </div>
-
 
 
       <div class="fundamental-score">
@@ -2526,7 +2573,6 @@ body{
       </div>
 
 
-
       <div class="fundamental-score">
 
         <div class="score-label">
@@ -2545,7 +2591,6 @@ body{
         </div>
 
       </div>
-
 
 
       <div class="fundamental-score">
@@ -2567,9 +2612,7 @@ body{
 
       </div>
 
-
     </div>
-
 
 
     <!-- VALUATION -->
@@ -2583,60 +2626,28 @@ body{
       <div class="fundamental-grid">
 
         <div class="fundamental-box">
-          <div class="detail-label">
-            P/E Ratio
-          </div>
-          <div
-            class="detail-value"
-            id="dPE"
-          >
-            —
-          </div>
+          <div class="detail-label">P/E Ratio</div>
+          <div class="detail-value" id="dPE">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            P/B Ratio
-          </div>
-          <div
-            class="detail-value"
-            id="dPB"
-          >
-            —
-          </div>
+          <div class="detail-label">P/B Ratio</div>
+          <div class="detail-value" id="dPB">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            EPS
-          </div>
-          <div
-            class="detail-value"
-            id="dEPS2"
-          >
-            —
-          </div>
+          <div class="detail-label">EPS</div>
+          <div class="detail-value" id="dEPS2">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            Dividend Yield
-          </div>
-          <div
-            class="detail-value"
-            id="dDividend"
-          >
-            —
-          </div>
+          <div class="detail-label">Dividend Yield</div>
+          <div class="detail-value" id="dDividend">—</div>
         </div>
 
       </div>
 
     </div>
-
 
 
     <!-- PROFITABILITY -->
@@ -2650,60 +2661,28 @@ body{
       <div class="fundamental-grid">
 
         <div class="fundamental-box">
-          <div class="detail-label">
-            ROE
-          </div>
-          <div
-            class="detail-value"
-            id="dROE"
-          >
-            —
-          </div>
+          <div class="detail-label">ROE</div>
+          <div class="detail-value" id="dROE">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            ROCE
-          </div>
-          <div
-            class="detail-value"
-            id="dROCE"
-          >
-            —
-          </div>
+          <div class="detail-label">ROCE</div>
+          <div class="detail-value" id="dROCE">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            Operating Margin
-          </div>
-          <div
-            class="detail-value"
-            id="dOperatingMargin"
-          >
-            —
-          </div>
+          <div class="detail-label">Operating Margin</div>
+          <div class="detail-value" id="dOperatingMargin">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            Net Profit Margin
-          </div>
-          <div
-            class="detail-value"
-            id="dNetMargin"
-          >
-            —
-          </div>
+          <div class="detail-label">Net Profit Margin</div>
+          <div class="detail-value" id="dNetMargin">—</div>
         </div>
 
       </div>
 
     </div>
-
 
 
     <!-- FINANCIAL HEALTH -->
@@ -2717,60 +2696,28 @@ body{
       <div class="fundamental-grid">
 
         <div class="fundamental-box">
-          <div class="detail-label">
-            Debt / Equity
-          </div>
-          <div
-            class="detail-value"
-            id="dDebtEquity"
-          >
-            —
-          </div>
+          <div class="detail-label">Debt / Equity</div>
+          <div class="detail-value" id="dDebtEquity">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            Current Ratio
-          </div>
-          <div
-            class="detail-value"
-            id="dCurrentRatio"
-          >
-            —
-          </div>
+          <div class="detail-label">Current Ratio</div>
+          <div class="detail-value" id="dCurrentRatio">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            Quick Ratio
-          </div>
-          <div
-            class="detail-value"
-            id="dQuickRatio"
-          >
-            —
-          </div>
+          <div class="detail-label">Quick Ratio</div>
+          <div class="detail-value" id="dQuickRatio">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            Interest Coverage
-          </div>
-          <div
-            class="detail-value"
-            id="dInterestCoverage"
-          >
-            —
-          </div>
+          <div class="detail-label">Interest Coverage</div>
+          <div class="detail-value" id="dInterestCoverage">—</div>
         </div>
 
       </div>
 
     </div>
-
 
 
     <!-- GROWTH -->
@@ -2784,41 +2731,18 @@ body{
       <div class="fundamental-grid">
 
         <div class="fundamental-box">
-          <div class="detail-label">
-            Revenue Growth
-          </div>
-          <div
-            class="detail-value"
-            id="dRevenueGrowth"
-          >
-            —
-          </div>
+          <div class="detail-label">Revenue Growth</div>
+          <div class="detail-value" id="dRevenueGrowth">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            EPS Growth
-          </div>
-          <div
-            class="detail-value"
-            id="dEPSGrowth"
-          >
-            —
-          </div>
+          <div class="detail-label">EPS Growth</div>
+          <div class="detail-value" id="dEPSGrowth">—</div>
         </div>
 
-
         <div class="fundamental-box">
-          <div class="detail-label">
-            Profit Growth
-          </div>
-          <div
-            class="detail-value"
-            id="dProfitGrowth"
-          >
-            —
-          </div>
+          <div class="detail-label">Profit Growth</div>
+          <div class="detail-value" id="dProfitGrowth">—</div>
         </div>
 
       </div>
@@ -2834,11 +2758,110 @@ body{
 
     </div>
 
-
   </div>
 
+</div>
 
 </div>
+
+
+<!-- =======================================================
+     COMPLETE LIST MODAL
+     ======================================================= -->
+
+<div
+  class="list-modal"
+  id="listModal"
+>
+
+  <div class="list-modal-card">
+
+    <div class="list-modal-head">
+
+      <div>
+
+        <div
+          class="list-modal-title"
+          id="listModalTitle"
+        >
+          Complete List
+        </div>
+
+        <div
+          class="list-modal-count"
+          id="listModalCount"
+        >
+          —
+        </div>
+
+      </div>
+
+
+      <div class="list-modal-actions">
+
+        <input
+          type="text"
+          class="list-search"
+          id="listSearch"
+          placeholder="Search stock..."
+        >
+
+        <button
+          class="export-btn"
+          onclick="exportCurrentList()"
+        >
+          📥 Export to Excel
+        </button>
+
+        <button
+          class="list-close"
+          onclick="closeList()"
+        >
+          ×
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="list-modal-body">
+
+      <table class="list-table">
+
+        <thead>
+
+          <tr>
+
+            <th>Rank</th>
+            <th>Stock</th>
+            <th>CMP</th>
+            <th>200 DMA</th>
+            <th>Gap %</th>
+            <th>Prior High</th>
+            <th>Gap to High</th>
+            <th>50 DMA</th>
+            <th>RSI</th>
+            <th>Volume</th>
+            <th>Recovery</th>
+            <th>Technical</th>
+            <th>Fundamental</th>
+            <th>Overall</th>
+            <th>Setup</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody
+          id="listModalBody"
+        ></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
 
 </div>
 
@@ -2854,9 +2877,11 @@ body{
 const CSV_PATH =
   "output/NSE_200DMA_Recovery_Scanner.csv";
 
-
 let rows = [];
 
+let currentListRows = [];
+
+let currentListType = "all";
 
 
 /* =========================================================
@@ -2873,7 +2898,6 @@ function parseCSV(text){
 
   let quoted=false;
 
-
   for(
     let i=0;
     i<text.length;
@@ -2883,7 +2907,6 @@ function parseCSV(text){
     const c=text[i];
 
     const n=text[i+1];
-
 
     if(c==='"'){
 
@@ -2897,6 +2920,7 @@ function parseCSV(text){
         i++;
 
       }
+
       else{
 
         quoted=!quoted;
@@ -2935,7 +2959,6 @@ function parseCSV(text){
 
       row.push(field);
 
-
       if(
         row.some(
           x=>x.trim()!==""
@@ -2945,7 +2968,6 @@ function parseCSV(text){
         out.push(row);
 
       }
-
 
       row=[];
 
@@ -2961,7 +2983,6 @@ function parseCSV(text){
 
   }
 
-
   if(
     field.length ||
     row.length
@@ -2973,6 +2994,8 @@ function parseCSV(text){
 
   }
 
+  if(!out.length)
+    return [];
 
   const headers =
     out
@@ -2980,7 +3003,6 @@ function parseCSV(text){
       .map(
         x=>x.trim()
       );
-
 
   return out.map(
     r=>
@@ -3002,7 +3024,6 @@ function parseCSV(text){
 }
 
 
-
 /* =========================================================
    NUMBER
    ========================================================= */
@@ -3019,7 +3040,6 @@ function num(v){
 }
 
 
-
 /* =========================================================
    FUNDAMENTAL NUMBER
    ========================================================= */
@@ -3034,7 +3054,6 @@ function fundamentalNum(v){
     : null;
 
 }
-
 
 
 /* =========================================================
@@ -3062,7 +3081,6 @@ function esc(s){
 }
 
 
-
 /* =========================================================
    SETUP CLASS
    ========================================================= */
@@ -3074,29 +3092,24 @@ function setupClass(s){
   )
     return "pill-breakout";
 
-
   if(
     s==="NEAR PRIOR HIGH"
   )
     return "pill-near";
-
 
   if(
     s==="STRONG RETEST"
   )
     return "pill-strong";
 
-
   if(
     s==="RECOVERY WATCH"
   )
     return "pill-watch";
 
-
   return "pill-normal";
 
 }
-
 
 
 /* =========================================================
@@ -3176,7 +3189,6 @@ function renderBreakouts(){
               ${esc(r.symbol)}
             </td>
 
-
             <td>
               ₹${num(r.close)
                 .toLocaleString(
@@ -3186,7 +3198,6 @@ function renderBreakouts(){
                   }
                 )}
             </td>
-
 
             <td>
               ₹${num(
@@ -3199,11 +3210,9 @@ function renderBreakouts(){
               )}
             </td>
 
-
             <td class="pos">
               +${above.toFixed(2)}%
             </td>
-
 
             <td>
               ₹${num(r.dma_200)
@@ -3215,16 +3224,13 @@ function renderBreakouts(){
                 )}
             </td>
 
-
             <td>
               ${num(r.rsi_14).toFixed(1)}
             </td>
 
-
             <td>
               ${num(r.volume_ratio).toFixed(2)}x
             </td>
-
 
             <td>
               <b>
@@ -3233,7 +3239,6 @@ function renderBreakouts(){
                 )}
               </b>
             </td>
-
 
             <td>
               <span
@@ -3263,12 +3268,11 @@ function renderBreakouts(){
             breakoutRows.length,
             15
           )
-        } prior-high breakout candidates.`
+        } prior-high breakout candidates. Click the dashboard count to view all.`
 
       : "No prior-high breakout candidates found in the latest scan.";
 
 }
-
 
 
 /* =========================================================
@@ -3283,20 +3287,9 @@ function renderNearHigh(){
 
       .filter(r=>{
 
-        const gap =
-          num(
-            r.distance_to_prior_high_pct
-          );
-
-
         const above200 =
-          num(
-            r.close
-          ) >
-          num(
-            r.dma_200
-          );
-
+          num(r.close) >
+          num(r.dma_200);
 
         return (
 
@@ -3372,7 +3365,6 @@ function renderNearHigh(){
               ${esc(r.symbol)}
             </td>
 
-
             <td>
               ₹${num(r.close)
                 .toLocaleString(
@@ -3382,7 +3374,6 @@ function renderNearHigh(){
                   }
                 )}
             </td>
-
 
             <td>
               ₹${num(
@@ -3395,11 +3386,9 @@ function renderNearHigh(){
               )}
             </td>
 
-
             <td class="pos">
               ${gap.toFixed(2)}%
             </td>
-
 
             <td>
               ₹${num(r.dma_200)
@@ -3411,16 +3400,13 @@ function renderNearHigh(){
                 )}
             </td>
 
-
             <td>
               ${num(r.rsi_14).toFixed(1)}
             </td>
 
-
             <td>
               ${num(r.volume_ratio).toFixed(2)}x
             </td>
-
 
             <td>
               <b>
@@ -3429,7 +3415,6 @@ function renderNearHigh(){
                 )}
               </b>
             </td>
-
 
             <td>
 
@@ -3461,12 +3446,11 @@ function renderNearHigh(){
             nearRows.length,
             15
           )
-        } stocks approaching their prior high.`
+        } stocks approaching their prior high. Click the dashboard count to view all.`
 
       : "No stocks are currently within 5% of their prior high.";
 
 }
-
 
 
 /* =========================================================
@@ -3547,7 +3531,6 @@ function refresh(){
       );
 
     });
-
 
 
   a.sort((x,y)=>{
@@ -3641,10 +3624,8 @@ function refresh(){
   });
 
 
-
   const show =
     a.slice(0,50);
-
 
 
   document.getElementById(
@@ -3675,11 +3656,9 @@ function refresh(){
             <b>${i+1}</b>
           </td>
 
-
           <td class="stock">
             ${esc(r.symbol)}
           </td>
-
 
           <td>
             ₹${num(r.close)
@@ -3691,7 +3670,6 @@ function refresh(){
               )}
           </td>
 
-
           <td>
             ₹${num(r.dma_200)
               .toLocaleString(
@@ -3702,7 +3680,6 @@ function refresh(){
               )}
           </td>
 
-
           <td
             class="${gap>=0?'pos':'neg'}"
           >
@@ -3711,7 +3688,6 @@ function refresh(){
             ${gap.toFixed(2)}%
 
           </td>
-
 
           <td>
             ${
@@ -3728,7 +3704,6 @@ function refresh(){
               : "—"
             }
           </td>
-
 
           <td
             class="${
@@ -3754,7 +3729,6 @@ function refresh(){
 
           </td>
 
-
           <td>
             ₹${num(r.dma_50)
               .toLocaleString(
@@ -3765,23 +3739,19 @@ function refresh(){
               )}
           </td>
 
-
           <td>
             ${num(r.rsi_14).toFixed(1)}
           </td>
 
-
           <td>
             ${num(r.volume_ratio).toFixed(2)}x
           </td>
-
 
           <td>
             ${num(
               r.recovery_from_breakdown_low_pct
             ).toFixed(1)}%
           </td>
-
 
           <td>
             <b>
@@ -3790,7 +3760,6 @@ function refresh(){
               )}
             </b>
           </td>
-
 
           <td>
 
@@ -3810,7 +3779,6 @@ function refresh(){
 
           </td>
 
-
         </tr>
 
       `;
@@ -3818,7 +3786,6 @@ function refresh(){
     }).join("");
 
 }
-
 
 
 /* =========================================================
@@ -3855,7 +3822,6 @@ function fundamentalText(
 }
 
 
-
 function marketCapText(v){
 
   const x =
@@ -3886,7 +3852,6 @@ function marketCapText(v){
 }
 
 
-
 function scoreClass(value){
 
   const x =
@@ -3910,7 +3875,6 @@ function scoreClass(value){
 }
 
 
-
 function setFundamentalValue(
   id,
   value
@@ -3931,7 +3895,6 @@ function setFundamentalValue(
   );
 
 }
-
 
 
 /* =========================================================
@@ -3967,10 +3930,7 @@ function openStock(r){
     );
 
 
-
-  /* =====================================================
-     PRIOR HIGH
-     ===================================================== */
+  /* PRIOR HIGH */
 
   document.getElementById(
     "dPriorHigh"
@@ -4050,10 +4010,7 @@ function openStock(r){
     "No prior-high signal available.";
 
 
-
-  /* =====================================================
-     CMP
-     ===================================================== */
+  /* CMP */
 
   document.getElementById(
     "dClose"
@@ -4068,10 +4025,7 @@ function openStock(r){
       );
 
 
-
-  /* =====================================================
-     200 DMA
-     ===================================================== */
+  /* 200 DMA */
 
   document.getElementById(
     "d200"
@@ -4086,10 +4040,7 @@ function openStock(r){
       );
 
 
-
-  /* =====================================================
-     GAP
-     ===================================================== */
+  /* GAP */
 
   const gap =
     num(
@@ -4112,10 +4063,7 @@ function openStock(r){
     "%";
 
 
-
-  /* =====================================================
-     50 DMA
-     ===================================================== */
+  /* 50 DMA */
 
   document.getElementById(
     "d50"
@@ -4130,10 +4078,7 @@ function openStock(r){
       );
 
 
-
-  /* =====================================================
-     RSI
-     ===================================================== */
+  /* RSI */
 
   document.getElementById(
     "dRsi"
@@ -4143,10 +4088,7 @@ function openStock(r){
       .toFixed(1);
 
 
-
-  /* =====================================================
-     VOLUME
-     ===================================================== */
+  /* VOLUME */
 
   document.getElementById(
     "dVol"
@@ -4158,10 +4100,7 @@ function openStock(r){
     "x";
 
 
-
-  /* =====================================================
-     RECOVERY
-     ===================================================== */
+  /* RECOVERY */
 
   document.getElementById(
     "dRecovery"
@@ -4174,10 +4113,7 @@ function openStock(r){
     "%";
 
 
-
-  /* =====================================================
-     SCORE
-     ===================================================== */
+  /* SCORE */
 
   document.getElementById(
     "dScore"
@@ -4187,10 +4123,7 @@ function openStock(r){
     "—";
 
 
-
-  /* =====================================================
-     SETUP
-     ===================================================== */
+  /* SETUP */
 
   document.getElementById(
     "dSetup"
@@ -4201,10 +4134,7 @@ function openStock(r){
     "—";
 
 
-
-  /* =====================================================
-     FUNDAMENTALS
-     ===================================================== */
+  /* FUNDAMENTALS */
 
   const fundScore =
     fundamentalNum(
@@ -4232,7 +4162,6 @@ function openStock(r){
           +
           fundScore*0.40
         );
-
 
 
   const fundScoreEl =
@@ -4265,7 +4194,6 @@ function openStock(r){
   }
 
 
-
   const overallEl =
     document.getElementById(
       "dOverallScore"
@@ -4294,7 +4222,6 @@ function openStock(r){
     );
 
   }
-
 
 
   setFundamentalValue(
@@ -4465,9 +4392,6 @@ function openStock(r){
   );
 
 
-
-  /* SHOW MODAL */
-
   document
     .getElementById(
       "stockModal"
@@ -4478,9 +4402,8 @@ function openStock(r){
 }
 
 
-
 /* =========================================================
-   CLOSE
+   CLOSE STOCK
    ========================================================= */
 
 function closeStock(){
@@ -4495,9 +4418,715 @@ function closeStock(){
 }
 
 
+/* =========================================================
+   COMPLETE LIST
+   ========================================================= */
+
+function getListData(type){
+
+  if(type==="all"){
+
+    return [...rows];
+
+  }
+
+
+  if(type==="strong"){
+
+    return rows.filter(
+      r =>
+        r.setup==="STRONG RETEST"
+    );
+
+  }
+
+
+  if(type==="watch"){
+
+    return rows.filter(
+      r =>
+        r.setup==="RECOVERY WATCH"
+    );
+
+  }
+
+
+  if(type==="near"){
+
+    return rows.filter(
+      r =>
+        r.setup==="NEAR 200DMA"
+    );
+
+  }
+
+
+  if(type==="breakout"){
+
+    return rows.filter(
+      r =>
+        String(
+          r.prior_high_breakout
+        ).toLowerCase()==="true"
+    );
+
+  }
+
+
+  if(type==="nearHigh"){
+
+    return rows.filter(r=>{
+
+      return (
+
+        String(
+          r.near_prior_high
+        ).toLowerCase()==="true"
+
+        &&
+
+        num(r.close)>
+        num(r.dma_200)
+
+      );
+
+    });
+
+  }
+
+
+  if(type==="recovery"){
+
+    return rows.filter(
+      r =>
+        String(
+          r.recovery_candidate
+        ).toLowerCase()==="true"
+    );
+
+  }
+
+
+  return [];
+
+}
+
+
+function getListTitle(type){
+
+  const titles={
+
+    all:
+      "Complete NSE Screening Results",
+
+    strong:
+      "Strong Retest Stocks",
+
+    watch:
+      "Recovery Watch Stocks",
+
+    near:
+      "Stocks Near 200 DMA",
+
+    breakout:
+      "Prior High Breakout Stocks",
+
+    nearHigh:
+      "Stocks Near Prior High",
+
+    recovery:
+      "200 DMA Recovery Candidates"
+
+  };
+
+
+  return titles[type] ||
+    "Complete Stock List";
+
+}
+
+
+function overallScoreForRow(r){
+
+  const technical =
+    fundamentalNum(
+      r.score
+    );
+
+  const fundamental =
+    fundamentalNum(
+      r.fundamental_score
+    );
+
+
+  if(
+    technical===null ||
+    fundamental===null
+  ){
+
+    return null;
+
+  }
+
+
+  return Math.round(
+    technical*.60+
+    fundamental*.40
+  );
+
+}
+
+
+function openList(type){
+
+  currentListType=
+    type;
+
+  currentListRows=
+    getListData(type);
+
+
+  document.getElementById(
+    "listModalTitle"
+  ).textContent=
+    getListTitle(type);
+
+
+  document.getElementById(
+    "listSearch"
+  ).value="";
+
+
+  renderCompleteList();
+
+
+  document.getElementById(
+    "listModal"
+  ).classList.add("show");
+
+}
+
+
+function closeList(){
+
+  document.getElementById(
+    "listModal"
+  ).classList.remove("show");
+
+}
+
+
+function renderCompleteList(){
+
+  const search =
+    document
+      .getElementById(
+        "listSearch"
+      )
+      .value
+      .toUpperCase()
+      .trim();
+
+
+  const filtered =
+    currentListRows.filter(r=>{
+
+      if(!search)
+        return true;
+
+
+      return String(
+        r.symbol||""
+      )
+      .toUpperCase()
+      .includes(search);
+
+    });
+
+
+  document.getElementById(
+    "listModalCount"
+  ).textContent=
+
+    `${filtered.length} stocks shown · ${currentListRows.length} total`;
+
+
+  const body =
+    document.getElementById(
+      "listModalBody"
+    );
+
+
+  if(!filtered.length){
+
+    body.innerHTML=`
+
+      <tr>
+
+        <td
+          colspan="15"
+          class="list-empty"
+        >
+
+          No stocks found.
+
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  body.innerHTML=
+
+    filtered.map((r,i)=>{
+
+      const gap=
+        num(
+          r.distance_to_200dma_pct
+        );
+
+
+      const priorGap=
+        num(
+          r.distance_to_prior_high_pct
+        );
+
+
+      const overall=
+        overallScoreForRow(r);
+
+
+      return `
+
+        <tr
+          onclick='openStock(${JSON.stringify(r).replace(/'/g,"&#39;")})'
+        >
+
+          <td>
+            <b>${i+1}</b>
+          </td>
+
+          <td class="list-stock">
+            ${esc(r.symbol)}
+          </td>
+
+          <td>
+            ₹${num(r.close).toLocaleString(
+              "en-IN",
+              {
+                maximumFractionDigits:2
+              }
+            )}
+          </td>
+
+          <td>
+            ₹${num(r.dma_200).toLocaleString(
+              "en-IN",
+              {
+                maximumFractionDigits:2
+              }
+            )}
+          </td>
+
+          <td
+            class="${gap>=0?"pos":"neg"}"
+          >
+
+            ${gap>=0?"+":""}
+            ${gap.toFixed(2)}%
+
+          </td>
+
+          <td>
+
+            ${
+              r.prior_high_before_breakdown
+
+              ? "₹"+
+                num(
+                  r.prior_high_before_breakdown
+                ).toLocaleString(
+                  "en-IN",
+                  {
+                    maximumFractionDigits:2
+                  }
+                )
+
+              : "—"
+            }
+
+          </td>
+
+          <td
+            class="${
+              priorGap>=0
+                ? "pos"
+                : "neutral"
+            }"
+          >
+
+            ${
+              r.distance_to_prior_high_pct
+
+              ? (
+                  priorGap>=0
+                    ? "+"
+                    : ""
+                )
+                +
+                priorGap.toFixed(2)
+                +
+                "%"
+
+              : "—"
+            }
+
+          </td>
+
+          <td>
+            ₹${num(r.dma_50).toLocaleString(
+              "en-IN",
+              {
+                maximumFractionDigits:2
+              }
+            )}
+          </td>
+
+          <td>
+            ${num(r.rsi_14).toFixed(1)}
+          </td>
+
+          <td>
+            ${num(r.volume_ratio).toFixed(2)}x
+          </td>
+
+          <td>
+            ${num(
+              r.recovery_from_breakdown_low_pct
+            ).toFixed(1)}%
+          </td>
+
+          <td>
+            <b>
+              ${r.score||"—"}
+            </b>
+          </td>
+
+          <td>
+            ${
+              r.fundamental_score||
+              "—"
+            }
+          </td>
+
+          <td>
+            <b>
+              ${
+                overall===null
+                  ? "—"
+                  : overall
+              }
+            </b>
+          </td>
+
+          <td>
+
+            <span
+              class="pill ${setupClass(
+                r.combined_setup||
+                r.setup
+              )}"
+            >
+
+              ${esc(
+                r.combined_setup||
+                r.setup||
+                "NORMAL"
+              )}
+
+            </span>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+}
+
 
 /* =========================================================
-   CLICK OUTSIDE
+   EXCEL EXPORT
+   ========================================================= */
+
+function exportCurrentList(){
+
+  if(
+    !currentListRows.length
+  ){
+
+    alert(
+      "There are no stocks to export."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    typeof XLSX==="undefined"
+  ){
+
+    alert(
+      "Excel export library could not be loaded."
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * IMPORTANT:
+   * Export currentListRows, not the filtered
+   * visible rows.
+   *
+   * Therefore if there are 365 breakouts,
+   * Excel receives all 365.
+   */
+
+  const exportRows=
+
+    currentListRows.map((r,i)=>({
+
+      Rank:
+        i+1,
+
+      Stock:
+        r.symbol||"",
+
+      Date:
+        r.date||"",
+
+      CMP:
+        num(r.close),
+
+      "200 DMA":
+        num(r.dma_200),
+
+      "Distance to 200 DMA %":
+        num(
+          r.distance_to_200dma_pct
+        ),
+
+      "Prior High":
+        r.prior_high_before_breakdown
+          ? num(
+              r.prior_high_before_breakdown
+            )
+          : "",
+
+      "Prior High Date":
+        r.prior_high_date||"",
+
+      "Distance to Prior High %":
+        r.distance_to_prior_high_pct
+          ? num(
+              r.distance_to_prior_high_pct
+            )
+          : "",
+
+      "50 DMA":
+        num(r.dma_50),
+
+      RSI:
+        num(r.rsi_14),
+
+      "Volume Ratio":
+        num(r.volume_ratio),
+
+      "Recovery %":
+        num(
+          r.recovery_from_breakdown_low_pct
+        ),
+
+      "Technical Score":
+        r.score||"",
+
+      "Fundamental Score":
+        r.fundamental_score||"",
+
+      "Overall Score":
+        overallScoreForRow(r)??"",
+
+      Setup:
+        r.combined_setup||
+        r.setup||
+        "",
+
+      "Prior High Setup":
+        r.prior_high_setup||"",
+
+      "Prior High Score":
+        r.prior_high_score||"",
+
+      "Prior High Reasons":
+        r.prior_high_reasons||"",
+
+      "Recovery Candidate":
+        r.recovery_candidate||"",
+
+      "Prior High Breakout":
+        r.prior_high_breakout||"",
+
+      "Near Prior High":
+        r.near_prior_high||"",
+
+      "P/E":
+        r.pe_ratio||"",
+
+      "P/B":
+        r.pb_ratio||"",
+
+      EPS:
+        r.eps||"",
+
+      "Dividend Yield %":
+        r.dividend_yield||"",
+
+      "ROE %":
+        r.roe||"",
+
+      "ROCE %":
+        r.roce||"",
+
+      "Operating Margin %":
+        r.operating_margin||"",
+
+      "Net Profit Margin %":
+        r.net_profit_margin||"",
+
+      "Debt / Equity":
+        r.debt_to_equity||"",
+
+      "Current Ratio":
+        r.current_ratio||"",
+
+      "Quick Ratio":
+        r.quick_ratio||"",
+
+      "Interest Coverage":
+        r.interest_coverage||"",
+
+      "Revenue Growth %":
+        r.revenue_growth||"",
+
+      "EPS Growth %":
+        r.eps_growth||"",
+
+      "Profit Growth %":
+        r.profit_growth||""
+
+    }));
+
+
+  const worksheet=
+    XLSX.utils.json_to_sheet(
+      exportRows
+    );
+
+
+  const workbook=
+    XLSX.utils.book_new();
+
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "Stocks"
+  );
+
+
+  worksheet["!cols"]=[
+
+    {wch:8},
+    {wch:16},
+    {wch:13},
+    {wch:13},
+    {wch:22},
+    {wch:16},
+    {wch:18},
+    {wch:18},
+    {wch:24},
+    {wch:13},
+    {wch:10},
+    {wch:14},
+    {wch:14},
+    {wch:18},
+    {wch:20},
+    {wch:16},
+    {wch:25},
+    {wch:24},
+    {wch:18},
+    {wch:50},
+    {wch:20},
+    {wch:20},
+    {wch:20},
+    {wch:12},
+    {wch:12},
+    {wch:12},
+    {wch:20},
+    {wch:14},
+    {wch:14},
+    {wch:18},
+    {wch:18},
+    {wch:18},
+    {wch:18},
+    {wch:18},
+    {wch:18}
+
+  ];
+
+
+  const safeTitle=
+    getListTitle(
+      currentListType
+    )
+    .replace(
+      /[^a-zA-Z0-9]+/g,
+      "_"
+    )
+    .replace(
+      /^_+|_+$/g,
+      ""
+    );
+
+
+  const filename=
+    `NSE_${safeTitle}_${new Date()
+      .toISOString()
+      .slice(0,10)
+    }.xlsx`;
+
+
+  XLSX.writeFile(
+    workbook,
+    filename
+  );
+
+}
+
+
+/* =========================================================
+   STOCK MODAL OUTSIDE CLICK
    ========================================================= */
 
 document
@@ -4520,9 +5149,32 @@ document
   );
 
 
+/* =========================================================
+   COMPLETE LIST OUTSIDE CLICK
+   ========================================================= */
+
+document
+  .getElementById(
+    "listModal"
+  )
+  .addEventListener(
+    "click",
+    function(e){
+
+      if(
+        e.target===this
+      ){
+
+        closeList();
+
+      }
+
+    }
+  );
+
 
 /* =========================================================
-   ESC
+   ESC KEY
    ========================================================= */
 
 document.addEventListener(
@@ -4535,11 +5187,12 @@ document.addEventListener(
 
       closeStock();
 
+      closeList();
+
     }
 
   }
 );
-
 
 
 /* =========================================================
@@ -4565,6 +5218,19 @@ document.addEventListener(
 });
 
 
+/* =========================================================
+   FULL LIST SEARCH
+   ========================================================= */
+
+document
+  .getElementById(
+    "listSearch"
+  )
+  .addEventListener(
+    "input",
+    renderCompleteList
+  );
+
 
 /* =========================================================
    LOAD CSV
@@ -4574,7 +5240,7 @@ async function load(){
 
   try{
 
-    const res =
+    const res=
       await fetch(
 
         CSV_PATH+
@@ -4601,7 +5267,7 @@ async function load(){
     }
 
 
-    rows =
+    rows=
       parseCSV(
         await res.text()
       );
@@ -4616,12 +5282,9 @@ async function load(){
     }
 
 
+    /* DATE */
 
-    /* ===================================================
-       DATE
-       =================================================== */
-
-    const dates =
+    const dates=
 
       rows
         .map(
@@ -4631,12 +5294,9 @@ async function load(){
         .sort();
 
 
+    /* KPI COUNTS */
 
-    /* ===================================================
-       KPI COUNTS
-       =================================================== */
-
-    const strong =
+    const strong=
 
       rows.filter(
         r=>
@@ -4645,7 +5305,7 @@ async function load(){
       ).length;
 
 
-    const watch =
+    const watch=
 
       rows.filter(
         r=>
@@ -4654,7 +5314,7 @@ async function load(){
       ).length;
 
 
-    const near =
+    const near=
 
       rows.filter(
         r=>
@@ -4663,7 +5323,7 @@ async function load(){
       ).length;
 
 
-    const breakouts =
+    const breakouts=
 
       rows.filter(
         r=>
@@ -4674,7 +5334,7 @@ async function load(){
       ).length;
 
 
-    const nearHigh =
+    const nearHigh=
 
       rows.filter(
         r=>
@@ -4685,7 +5345,7 @@ async function load(){
       ).length;
 
 
-    const recovery =
+    const recovery=
 
       rows.filter(
         r=>
@@ -4696,87 +5356,76 @@ async function load(){
       ).length;
 
 
-
-    /* ===================================================
-       UPDATE KPI
-       =================================================== */
+    /* UPDATE KPI */
 
     document.getElementById(
       "total"
-    ).textContent =
+    ).textContent=
       rows.length;
 
 
     document.getElementById(
       "strong"
-    ).textContent =
+    ).textContent=
       strong;
 
 
     document.getElementById(
       "watch"
-    ).textContent =
+    ).textContent=
       watch;
 
 
     document.getElementById(
       "near"
-    ).textContent =
+    ).textContent=
       near;
 
 
     document.getElementById(
       "breakoutCount"
-    ).textContent =
+    ).textContent=
       breakouts;
 
 
     document.getElementById(
       "nearHighCount"
-    ).textContent =
+    ).textContent=
       nearHigh;
-
 
 
     document.getElementById(
       "breakoutBoardCount"
-    ).textContent =
+    ).textContent=
       breakouts;
 
 
     document.getElementById(
       "nearHighBoardCount"
-    ).textContent =
+    ).textContent=
       nearHigh;
 
 
     document.getElementById(
       "recoveryBoardCount"
-    ).textContent =
+    ).textContent=
       recovery;
 
 
-
-    /* ===================================================
-       UPDATED DATE
-       =================================================== */
+    /* UPDATED DATE */
 
     document.getElementById(
       "updated"
-    ).textContent =
+    ).textContent=
 
       "Data: "+
       (
-        dates.at(-1)
-        ||
+        dates.at(-1)||
         "Latest"
       );
 
 
-
-    /* ===================================================
-       RENDER
-       =================================================== */
+    /* RENDER */
 
     renderBreakouts();
 
@@ -4791,19 +5440,18 @@ async function load(){
 
     document.getElementById(
       "error"
-    ).style.display =
+    ).style.display=
       "block";
 
 
     document.getElementById(
       "error"
-    ).textContent =
+    ).textContent=
       e.message;
 
   }
 
 }
-
 
 
 /* =========================================================
@@ -4813,7 +5461,6 @@ async function load(){
 load();
 
 </script>
-
 
 </body>
 
