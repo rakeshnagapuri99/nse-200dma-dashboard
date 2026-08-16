@@ -1,29 +1,83 @@
 #!/usr/bin/env python3
 
+"""
+CARJ.IN — FULL NSE FUNDAMENTAL ENRICHMENT
+
+Reads:
+    output/NSE_200DMA_Recovery_Scanner.csv
+
+Enriches EVERY stock in the scanner output.
+
+Fundamentals:
+
+VALUATION
+    PE
+    PB
+    EPS
+    Dividend Yield
+    Market Cap
+
+PROFITABILITY
+    ROE
+    ROCE
+    Operating Margin
+    Net Profit Margin
+
+FINANCIAL HEALTH
+    Debt / Equity
+    Current Ratio
+    Quick Ratio
+    Interest Coverage
+
+GROWTH
+    Revenue Growth
+    EPS Growth
+    Profit Growth
+
+FUNDAMENTAL SCORE
+    0-100
+
+PORTFOLIO SCORE
+    Technical + Fundamental
+
+Data source:
+    Yahoo Finance.
+
+Important:
+    Yahoo Finance fundamentals can be unavailable for
+    some securities. Missing values are left blank.
+"""
+
 from pathlib import Path
-import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import warnings
 
 import pandas as pd
+import numpy as np
 import yfinance as yf
 
 
 # ============================================================
-# CONFIGURATION
+# CONFIG
 # ============================================================
 
 OUTPUT_DIR = Path("output")
 
-CSV_FILE = OUTPUT_DIR / "NSE_200DMA_Recovery_Scanner.csv"
-XLSX_FILE = OUTPUT_DIR / "NSE_200DMA_Recovery_Scanner.xlsx"
+CSV_FILE = (
+    OUTPUT_DIR /
+    "NSE_200DMA_Recovery_Scanner.csv"
+)
 
-# Number of Yahoo Finance requests running simultaneously.
-# 6 is a reasonable balance between speed and reliability.
-MAX_WORKERS = 6
+XLSX_FILE = (
+    OUTPUT_DIR /
+    "NSE_200DMA_Recovery_Scanner.xlsx"
+)
+
+MAX_WORKERS = 12
 
 
 # ============================================================
-# SAFE NUMBER CONVERSION
+# SAFE NUMBER
 # ============================================================
 
 def safe_number(value):
@@ -46,206 +100,297 @@ def safe_number(value):
 
 
 # ============================================================
-# FUNDAMENTAL DATA
+# GET FUNDAMENTALS
 # ============================================================
 
-def get_fundamentals(symbol):
+def get_fundamentals(
+    symbol
+):
 
     result = {
 
-        # -----------------------------
-        # VALUATION
-        # -----------------------------
+        "pe_ratio":
+            None,
 
-        "pe_ratio": None,
-        "pb_ratio": None,
-        "eps": None,
-        "dividend_yield": None,
-        "market_cap": None,
+        "pb_ratio":
+            None,
 
-        # -----------------------------
-        # PROFITABILITY
-        # -----------------------------
+        "eps":
+            None,
 
-        "roe": None,
-        "roce": None,
-        "operating_margin": None,
-        "net_profit_margin": None,
+        "dividend_yield":
+            None,
 
-        # -----------------------------
-        # FINANCIAL HEALTH
-        # -----------------------------
+        "market_cap":
+            None,
 
-        "debt_to_equity": None,
-        "current_ratio": None,
-        "quick_ratio": None,
-        "interest_coverage": None,
+        "roe":
+            None,
 
-        # -----------------------------
-        # GROWTH
-        # -----------------------------
+        "roce":
+            None,
 
-        "revenue_growth": None,
-        "eps_growth": None,
-        "profit_growth": None,
+        "operating_margin":
+            None,
 
-        # -----------------------------
-        # SCORE
-        # -----------------------------
+        "net_profit_margin":
+            None,
 
-        "fundamental_score": None,
+        "debt_to_equity":
+            None,
+
+        "current_ratio":
+            None,
+
+        "quick_ratio":
+            None,
+
+        "interest_coverage":
+            None,
+
+        "revenue_growth":
+            None,
+
+        "eps_growth":
+            None,
+
+        "profit_growth":
+            None,
+
+        "fundamental_score":
+            None
 
     }
 
+
     try:
 
-        print(f"→ {symbol}: fetching fundamentals...")
-
-        ticker = yf.Ticker(f"{symbol}.NS")
+        ticker = yf.Ticker(
+            f"{symbol}.NS"
+        )
 
         info = ticker.info
 
-        if not info:
-
-            print(
-                f"⚠ {symbol}: Yahoo returned no fundamental data"
-            )
-
-            return result
 
         # ====================================================
         # VALUATION
         # ====================================================
 
         result["pe_ratio"] = safe_number(
-            info.get("trailingPE")
+            info.get(
+                "trailingPE"
+            )
         )
+
 
         result["pb_ratio"] = safe_number(
-            info.get("priceToBook")
+            info.get(
+                "priceToBook"
+            )
         )
+
 
         result["eps"] = safe_number(
-            info.get("trailingEps")
+            info.get(
+                "trailingEps"
+            )
         )
 
+
         dividend = safe_number(
-            info.get("dividendYield")
+            info.get(
+                "dividendYield"
+            )
         )
+
 
         if dividend is not None:
 
-            result["dividend_yield"] = dividend * 100
+            result[
+                "dividend_yield"
+            ] = dividend * 100
+
 
         result["market_cap"] = safe_number(
-            info.get("marketCap")
+            info.get(
+                "marketCap"
+            )
         )
+
 
         # ====================================================
         # PROFITABILITY
         # ====================================================
 
         roe = safe_number(
-            info.get("returnOnEquity")
+            info.get(
+                "returnOnEquity"
+            )
         )
+
 
         if roe is not None:
 
-            result["roe"] = roe * 100
+            result["roe"] = (
+                roe * 100
+            )
+
 
         roce = safe_number(
-            info.get("returnOnCapitalEmployed")
+            info.get(
+                "returnOnCapitalEmployed"
+            )
         )
+
 
         if roce is not None:
 
-            # Yahoo may return ROCE as decimal or percentage.
             if abs(roce) <= 1:
 
                 roce *= 100
 
-            result["roce"] = roce
+
+            result[
+                "roce"
+            ] = roce
+
 
         operating_margin = safe_number(
-            info.get("operatingMargins")
+            info.get(
+                "operatingMargins"
+            )
         )
+
 
         if operating_margin is not None:
 
-            result["operating_margin"] = (
-                operating_margin * 100
+            result[
+                "operating_margin"
+            ] = (
+                operating_margin *
+                100
             )
 
+
         net_margin = safe_number(
-            info.get("profitMargins")
+            info.get(
+                "profitMargins"
+            )
         )
+
 
         if net_margin is not None:
 
-            result["net_profit_margin"] = (
-                net_margin * 100
+            result[
+                "net_profit_margin"
+            ] = (
+                net_margin *
+                100
             )
+
 
         # ====================================================
         # FINANCIAL HEALTH
         # ====================================================
 
-        result["debt_to_equity"] = safe_number(
-            info.get("debtToEquity")
+        result[
+            "debt_to_equity"
+        ] = safe_number(
+            info.get(
+                "debtToEquity"
+            )
         )
 
-        result["current_ratio"] = safe_number(
-            info.get("currentRatio")
+
+        result[
+            "current_ratio"
+        ] = safe_number(
+            info.get(
+                "currentRatio"
+            )
         )
 
-        result["quick_ratio"] = safe_number(
-            info.get("quickRatio")
+
+        result[
+            "quick_ratio"
+        ] = safe_number(
+            info.get(
+                "quickRatio"
+            )
         )
 
-        result["interest_coverage"] = safe_number(
-            info.get("interestCoverage")
+
+        result[
+            "interest_coverage"
+        ] = safe_number(
+            info.get(
+                "interestCoverage"
+            )
         )
+
 
         # ====================================================
         # GROWTH
         # ====================================================
 
         revenue_growth = safe_number(
-            info.get("revenueGrowth")
+            info.get(
+                "revenueGrowth"
+            )
         )
+
 
         if revenue_growth is not None:
 
-            result["revenue_growth"] = (
-                revenue_growth * 100
+            result[
+                "revenue_growth"
+            ] = (
+                revenue_growth *
+                100
             )
 
+
         earnings_growth = safe_number(
-            info.get("earningsGrowth")
+            info.get(
+                "earningsGrowth"
+            )
         )
+
 
         if earnings_growth is not None:
 
-            result["eps_growth"] = (
-                earnings_growth * 100
+            result[
+                "eps_growth"
+            ] = (
+                earnings_growth *
+                100
             )
 
-            result["profit_growth"] = (
-                earnings_growth * 100
+            result[
+                "profit_growth"
+            ] = (
+                earnings_growth *
+                100
             )
+
 
         # ====================================================
         # FUNDAMENTAL SCORE
         # ====================================================
 
         score = 0
+
         factors = 0
 
-        # ----------------------------------------------------
-        # P/E
-        # ----------------------------------------------------
 
-        pe = result["pe_ratio"]
+        # -----------------------------
+        # PE
+        # -----------------------------
+
+        pe = result[
+            "pe_ratio"
+        ]
+
 
         if pe is not None and pe > 0:
 
@@ -263,11 +408,15 @@ def get_fundamentals(symbol):
 
                 score += 4
 
-        # ----------------------------------------------------
-        # ROE
-        # ----------------------------------------------------
 
-        roe = result["roe"]
+        # -----------------------------
+        # ROE
+        # -----------------------------
+
+        roe = result[
+            "roe"
+        ]
+
 
         if roe is not None:
 
@@ -285,11 +434,15 @@ def get_fundamentals(symbol):
 
                 score += 5
 
-        # ----------------------------------------------------
-        # ROCE
-        # ----------------------------------------------------
 
-        roce = result["roce"]
+        # -----------------------------
+        # ROCE
+        # -----------------------------
+
+        roce = result[
+            "roce"
+        ]
+
 
         if roce is not None:
 
@@ -307,55 +460,67 @@ def get_fundamentals(symbol):
 
                 score += 5
 
-        # ----------------------------------------------------
-        # DEBT / EQUITY
-        # ----------------------------------------------------
 
-        debt_equity = result["debt_to_equity"]
+        # -----------------------------
+        # DEBT
+        # -----------------------------
 
-        if debt_equity is not None:
+        debt = result[
+            "debt_to_equity"
+        ]
+
+
+        if debt is not None:
 
             factors += 1
 
-            if debt_equity <= 0.5:
+            if debt <= 0.5:
 
                 score += 10
 
-            elif debt_equity <= 1:
+            elif debt <= 1:
 
                 score += 7
 
-            elif debt_equity <= 2:
+            elif debt <= 2:
 
                 score += 4
 
-        # ----------------------------------------------------
+
+        # -----------------------------
         # CURRENT RATIO
-        # ----------------------------------------------------
+        # -----------------------------
 
-        current_ratio = result["current_ratio"]
+        current = result[
+            "current_ratio"
+        ]
 
-        if current_ratio is not None:
+
+        if current is not None:
 
             factors += 1
 
-            if current_ratio >= 2:
+            if current >= 2:
 
                 score += 10
 
-            elif current_ratio >= 1.5:
+            elif current >= 1.5:
 
                 score += 8
 
-            elif current_ratio >= 1:
+            elif current >= 1:
 
                 score += 5
 
-        # ----------------------------------------------------
-        # NET PROFIT MARGIN
-        # ----------------------------------------------------
 
-        margin = result["net_profit_margin"]
+        # -----------------------------
+        # NET MARGIN
+        # -----------------------------
+
+        margin = result[
+            "net_profit_margin"
+        ]
+
 
         if margin is not None:
 
@@ -373,11 +538,15 @@ def get_fundamentals(symbol):
 
                 score += 4
 
-        # ----------------------------------------------------
-        # REVENUE GROWTH
-        # ----------------------------------------------------
 
-        growth = result["revenue_growth"]
+        # -----------------------------
+        # REVENUE GROWTH
+        # -----------------------------
+
+        growth = result[
+            "revenue_growth"
+        ]
+
 
         if growth is not None:
 
@@ -395,11 +564,15 @@ def get_fundamentals(symbol):
 
                 score += 4
 
-        # ----------------------------------------------------
-        # EPS GROWTH
-        # ----------------------------------------------------
 
-        eps_growth = result["eps_growth"]
+        # -----------------------------
+        # EPS GROWTH
+        # -----------------------------
+
+        eps_growth = result[
+            "eps_growth"
+        ]
+
 
         if eps_growth is not None:
 
@@ -417,39 +590,47 @@ def get_fundamentals(symbol):
 
                 score += 4
 
-        # ----------------------------------------------------
-        # FINAL SCORE
-        # ----------------------------------------------------
+
+        # ====================================================
+        # FINAL FUNDAMENTAL SCORE
+        # ====================================================
 
         if factors > 0:
 
-            result["fundamental_score"] = round(
-                (score / (factors * 10)) * 100
+            result[
+                "fundamental_score"
+            ] = round(
+
+                (
+                    score /
+                    (
+                        factors *
+                        10
+                    )
+                ) *
+
+                100
+
             )
 
-        print(
-            f"✓ {symbol}: Fundamental Score = "
-            f"{result['fundamental_score']}"
+
+        return (
+            symbol,
+            result
         )
+
 
     except Exception as e:
 
         print(
-            f"⚠ {symbol}: fundamentals unavailable - {e}"
+            f"Fundamentals unavailable: "
+            f"{symbol} — {e}"
         )
 
-    return result
-
-
-# ============================================================
-# WORKER
-# ============================================================
-
-def fetch_one(index, symbol):
-
-    fundamentals = get_fundamentals(symbol)
-
-    return index, symbol, fundamentals
+        return (
+            symbol,
+            result
+        )
 
 
 # ============================================================
@@ -459,14 +640,17 @@ def fetch_one(index, symbol):
 def main():
 
     print("")
-    print("==============================================")
-    print(" NSE 200 DMA — FUNDAMENTAL ENRICHMENT")
-    print("==============================================")
+    print(
+        "=================================================="
+    )
+    print(
+        " CARJ.IN — FULL FUNDAMENTAL ENRICHMENT"
+    )
+    print(
+        "=================================================="
+    )
     print("")
 
-    # --------------------------------------------------------
-    # Check CSV
-    # --------------------------------------------------------
 
     if not CSV_FILE.exists():
 
@@ -474,52 +658,58 @@ def main():
             f"{CSV_FILE} does not exist."
         )
 
-    # --------------------------------------------------------
-    # Load scanner output
-    # --------------------------------------------------------
 
-    df = pd.read_csv(CSV_FILE)
+    df = pd.read_csv(
+        CSV_FILE
+    )
+
 
     if df.empty:
 
-        print("No scanner results found.")
-
-        return
-
-    # --------------------------------------------------------
-    # Validate symbol column
-    # --------------------------------------------------------
-
-    if "symbol" not in df.columns:
-
         raise RuntimeError(
-            "Scanner CSV does not contain a 'symbol' column."
+            "Scanner output is empty."
         )
 
-    df = df.reset_index(drop=True)
 
-    target_count = len(df)
-
-    print(
-        f"Scanner candidates found: {target_count}"
+    df = df.reset_index(
+        drop=True
     )
 
-    print(
-        f"Fetching fundamentals for ALL "
-        f"{target_count} stocks..."
+
+    symbols = (
+
+        df[
+            "symbol"
+        ]
+
+        .astype(str)
+
+        .str.strip()
+
+        .tolist()
+
     )
 
+
+    symbols = [
+        s for s in symbols
+        if s
+        and
+        s.lower() != "nan"
+    ]
+
+
     print(
-        f"Parallel workers: {MAX_WORKERS}"
+        f"Stocks requiring fundamentals: "
+        f"{len(symbols)}"
     )
 
-    print("")
 
-    # --------------------------------------------------------
-    # Fundamental columns
-    # --------------------------------------------------------
+    # ========================================================
+    # COLUMNS
+    # ========================================================
 
-    fundamental_columns = [
+    columns = [
 
         "pe_ratio",
         "pb_ratio",
@@ -541,52 +731,29 @@ def main():
         "eps_growth",
         "profit_growth",
 
-        "fundamental_score",
+        "fundamental_score"
 
     ]
 
-    # --------------------------------------------------------
-    # Create columns if missing
-    # --------------------------------------------------------
 
-    for column in fundamental_columns:
+    for column in columns:
 
         if column not in df.columns:
 
-            df[column] = None
+            df[column] = np.nan
 
-    # --------------------------------------------------------
-    # Build jobs
-    # --------------------------------------------------------
 
-    jobs = []
+    # ========================================================
+    # PARALLEL FUNDAMENTALS
+    # ========================================================
 
-    for index in range(target_count):
+    results = {}
 
-        symbol = str(
-            df.loc[index, "symbol"]
-        ).strip()
-
-        if symbol and symbol.lower() != "nan":
-
-            jobs.append(
-                (
-                    index,
-                    symbol
-                )
-            )
-
-    print(
-        f"Valid stocks to enrich: {len(jobs)}"
-    )
-
-    print("")
-
-    # --------------------------------------------------------
-    # Parallel Yahoo Finance requests
-    # --------------------------------------------------------
 
     completed = 0
+
+    total = len(symbols)
+
 
     with ThreadPoolExecutor(
         max_workers=MAX_WORKERS
@@ -595,56 +762,252 @@ def main():
         futures = {
 
             executor.submit(
-                fetch_one,
-                index,
+                get_fundamentals,
                 symbol
-            ): (
-                index,
-                symbol
-            )
+            ):
+            symbol
 
-            for index, symbol in jobs
+            for symbol in symbols
 
         }
 
-        for future in as_completed(futures):
 
-            index, symbol = futures[future]
+        for future in as_completed(
+            futures
+        ):
+
+            symbol = futures[
+                future
+            ]
+
 
             try:
 
-                (
-                    result_index,
-                    result_symbol,
-                    fundamentals
-                ) = future.result()
-
-                # --------------------------------------------
-                # Write fundamentals into dataframe
-                # --------------------------------------------
-
-                for column, value in fundamentals.items():
-
-                    df.loc[
-                        result_index,
-                        column
-                    ] = value
-
-                completed += 1
-
-                print(
-                    f"[{completed}/{len(jobs)}] "
-                    f"✓ {result_symbol}"
+                _, result = (
+                    future.result()
                 )
+
+                results[
+                    symbol
+                ] = result
+
 
             except Exception as e:
 
-                completed += 1
+                print(
+                    f"Worker error "
+                    f"{symbol}: {e}"
+                )
+
+                results[
+                    symbol
+                ] = {}
+
+
+            completed += 1
+
+
+            if (
+
+                completed % 50 == 0
+
+                or
+
+                completed == total
+
+            ):
 
                 print(
-                    f"[{completed}/{len(jobs)}] "
-                    f"⚠ {symbol}: worker failed - {e}"
+                    f"Fundamentals progress: "
+                    f"{completed}/{total}"
                 )
+
+
+    # ========================================================
+    # UPDATE DATAFRAME
+    # ========================================================
+
+    for index in df.index:
+
+        symbol = str(
+            df.loc[
+                index,
+                "symbol"
+            ]
+        ).strip()
+
+
+        values = results.get(
+            symbol,
+            {}
+        )
+
+
+        for column in columns:
+
+            value = values.get(
+                column
+            )
+
+
+            if value is not None:
+
+                df.loc[
+                    index,
+                    column
+                ] = value
+
+
+    # ========================================================
+    # FINAL PORTFOLIO SCORE
+    #
+    # Technical 60%
+    # Fundamentals 40%
+    # ========================================================
+
+    def calculate_overall(row):
+
+        technical = safe_number(
+            row.get(
+                "portfolio_technical_score"
+            )
+        )
+
+
+        fundamental = safe_number(
+            row.get(
+                "fundamental_score"
+            )
+        )
+
+
+        if (
+            technical is None
+            and
+            fundamental is None
+        ):
+
+            return np.nan
+
+
+        if technical is None:
+
+            return round(
+                fundamental,
+                2
+            )
+
+
+        if fundamental is None:
+
+            return round(
+                technical,
+                2
+            )
+
+
+        return round(
+
+            (
+                technical *
+                0.60
+            )
+
+            +
+
+            (
+                fundamental *
+                0.40
+            ),
+
+            2
+
+        )
+
+
+    df[
+        "overall_portfolio_score"
+    ] = df.apply(
+        calculate_overall,
+        axis=1
+    )
+
+
+    # ========================================================
+    # FINAL PORTFOLIO ELIGIBILITY
+    #
+    # Technical + Fundamental
+    # ========================================================
+
+    def portfolio_final(row):
+
+        if str(
+            row.get(
+                "portfolio_eligible"
+            )
+        ).lower() != "true":
+
+            return False
+
+
+        score = safe_number(
+            row.get(
+                "overall_portfolio_score"
+            )
+        )
+
+
+        if score is None:
+
+            return False
+
+
+        return score >= 55
+
+
+    df[
+        "portfolio_final_eligible"
+    ] = df.apply(
+        portfolio_final,
+        axis=1
+    )
+
+
+    # ========================================================
+    # SORT
+    # ========================================================
+
+    df = (
+
+        df
+
+        .sort_values(
+
+            [
+                "portfolio_final_eligible",
+                "overall_portfolio_score",
+                "portfolio_technical_score",
+                "fundamental_score"
+
+            ],
+
+            ascending=[
+
+                False,
+                False,
+                False,
+                False
+
+            ]
+
+        )
+
+        .reset_index(
+            drop=True
+        )
+
+    )
+
 
     # ========================================================
     # SAVE CSV
@@ -655,6 +1018,7 @@ def main():
         index=False
     )
 
+
     # ========================================================
     # SAVE EXCEL
     # ========================================================
@@ -664,62 +1028,71 @@ def main():
         index=False
     )
 
+
     # ========================================================
     # SUMMARY
     # ========================================================
 
-    available_scores = (
-        df["fundamental_score"]
-        .notna()
+    eligible = int(
+
+        df[
+            "portfolio_final_eligible"
+        ]
+
+        .astype(bool)
+
         .sum()
+
     )
+
 
     print("")
-    print("==============================================")
-    print(" FUNDAMENTALS UPDATED")
-    print("==============================================")
-    print("")
-
     print(
-        f"Scanner candidates : {target_count}"
+        "=================================================="
+    )
+    print(
+        " FUNDAMENTALS COMPLETE"
+    )
+    print(
+        "=================================================="
     )
 
-    print(
-        f"Stocks processed   : {completed}"
-    )
 
     print(
-        f"Scores available   : {available_scores}"
+        f"Stocks processed: "
+        f"{len(df)}"
     )
+
 
     print(
-        f"Scores unavailable : "
-        f"{target_count - available_scores}"
+        f"Portfolio eligible: "
+        f"{eligible}"
     )
 
-    print("")
 
     print(
-        f"CSV saved : {CSV_FILE}"
+        f"CSV: {CSV_FILE}"
     )
+
 
     print(
-        f"Excel saved : {XLSX_FILE}"
+        f"Excel: {XLSX_FILE}"
     )
 
-    print("")
 
-    print("Fundamental enrichment completed.")
-
-    print("")
+    print(
+        "=================================================="
+    )
 
 
 # ============================================================
-# ENTRY POINT
+# ENTRY
 # ============================================================
 
 if __name__ == "__main__":
 
-    warnings.filterwarnings("ignore")
+    warnings.filterwarnings(
+        "ignore"
+    )
 
     main()
