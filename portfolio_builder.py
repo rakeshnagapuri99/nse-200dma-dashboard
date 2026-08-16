@@ -3,20 +3,24 @@
 """
 NSE SMART PORTFOLIO BUILDER
 
-Purpose:
-- Read the complete NSE scanner output
-- Identify stocks near their 52-week high
-- Require price to be above 200 DMA
-- Combine technical + fundamental scores
-- Rank eligible stocks
-- Build an equal-allocation portfolio
-- Calculate entry price
-- Calculate 10% stop loss
-- Estimate trend-based target
-- Calculate expected gain and maximum loss
+Builds a research portfolio from the NSE scanner output.
 
-Research / screening tool only.
-Not investment advice.
+Main logic:
+1. Stock must be above 200 DMA.
+2. Stock must be near / above its 52-week high.
+3. Technical score is calculated.
+4. Fundamental score is calculated.
+5. Combined score = 60% Technical + 40% Fundamental.
+6. Stocks are ranked.
+7. Default portfolio = 10 stocks.
+8. Default portfolio amount = ₹10,00,000.
+9. Equal allocation by default.
+10. Entry price = current price.
+11. Stop loss = 10% below entry.
+12. Trend-based target is estimated.
+13. Expected gain and maximum loss are calculated.
+
+This is a research/screening model and not investment advice.
 """
 
 from pathlib import Path
@@ -31,20 +35,11 @@ import numpy as np
 
 OUTPUT_DIR = Path("output")
 
-INPUT_FILE = (
-    OUTPUT_DIR /
-    "NSE_200DMA_Recovery_Scanner.csv"
-)
+INPUT_FILE = OUTPUT_DIR / "NSE_200DMA_Recovery_Scanner.csv"
 
-PORTFOLIO_FILE = (
-    OUTPUT_DIR /
-    "NSE_Portfolio_Recommendations.csv"
-)
+PORTFOLIO_FILE = OUTPUT_DIR / "NSE_Portfolio_Recommendations.csv"
 
-PORTFOLIO_XLSX = (
-    OUTPUT_DIR /
-    "NSE_Portfolio_Recommendations.xlsx"
-)
+PORTFOLIO_XLSX = OUTPUT_DIR / "NSE_Portfolio_Recommendations.xlsx"
 
 
 # =========================================================
@@ -84,67 +79,34 @@ def safe_number(value):
 
 
 # =========================================================
-# NORMALIZE SCORE
-# =========================================================
-
-def score_value(value):
-
-    value = safe_number(value)
-
-    if value is None:
-        return 0.0
-
-    return max(
-        0.0,
-        min(
-            100.0,
-            value
-        )
-    )
-
-
-# =========================================================
 # TECHNICAL SCORE
 # =========================================================
 
 def calculate_technical_score(row):
 
     score = 0.0
-
     factors = 0
 
     # -----------------------------------------------------
     # Existing scanner technical score
     # -----------------------------------------------------
 
-    technical = safe_number(
-        row.get("score")
-    )
+    technical = safe_number(row.get("score"))
 
     if technical is not None:
 
         score += technical
-
         factors += 1
 
-
     # -----------------------------------------------------
-    # Distance from 52-week / prior high
+    # Distance from 52-week high
     # -----------------------------------------------------
 
     high_gap = safe_number(
-        row.get(
-            "distance_to_prior_high_pct"
-        )
+        row.get("distance_to_prior_high_pct")
     )
 
     if high_gap is not None:
-
-        # Ideal zone:
-        # 0% to 5% below high
-        #
-        # Also allow stocks already above
-        # the previous high.
 
         if high_gap >= 0:
 
@@ -170,11 +132,8 @@ def calculate_technical_score(row):
 
             high_score = 40
 
-
         score += high_score
-
         factors += 1
-
 
     # -----------------------------------------------------
     # RSI
@@ -206,11 +165,8 @@ def calculate_technical_score(row):
 
             rsi_score = 45
 
-
         score += rsi_score
-
         factors += 1
-
 
     # -----------------------------------------------------
     # Volume
@@ -242,16 +198,12 @@ def calculate_technical_score(row):
 
             volume_score = 45
 
-
         score += volume_score
-
         factors += 1
-
 
     if factors == 0:
 
         return 0.0
-
 
     return round(
         score / factors,
@@ -266,23 +218,24 @@ def calculate_technical_score(row):
 def calculate_fundamental_score(row):
 
     existing = safe_number(
-        row.get(
-            "fundamental_score"
-        )
+        row.get("fundamental_score")
     )
 
     if existing is not None:
 
         return round(
-            score_value(existing),
+            max(
+                0.0,
+                min(
+                    100.0,
+                    existing
+                )
+            ),
             2
         )
 
-
     score = 0.0
-
     factors = 0
-
 
     # -----------------------------------------------------
     # ROE
@@ -311,7 +264,6 @@ def calculate_fundamental_score(row):
         else:
             score += 20
 
-
     # -----------------------------------------------------
     # ROCE
     # -----------------------------------------------------
@@ -339,7 +291,6 @@ def calculate_fundamental_score(row):
         else:
             score += 20
 
-
     # -----------------------------------------------------
     # Debt / Equity
     # -----------------------------------------------------
@@ -363,7 +314,6 @@ def calculate_fundamental_score(row):
 
         else:
             score += 30
-
 
     # -----------------------------------------------------
     # Revenue Growth
@@ -389,11 +339,9 @@ def calculate_fundamental_score(row):
         else:
             score += 30
 
-
     if factors == 0:
 
         return 0.0
-
 
     return round(
         score / factors,
@@ -402,7 +350,7 @@ def calculate_fundamental_score(row):
 
 
 # =========================================================
-# ELIGIBILITY
+# STOCK ELIGIBILITY
 # =========================================================
 
 def is_eligible(row):
@@ -416,57 +364,36 @@ def is_eligible(row):
     )
 
     high_gap = safe_number(
-        row.get(
-            "distance_to_prior_high_pct"
-        )
+        row.get("distance_to_prior_high_pct")
     )
 
-
     # -----------------------------------------------------
-    # Must have valid price and 200 DMA
+    # Required data
     # -----------------------------------------------------
 
     if close is None:
-
         return False
-
 
     if dma_200 is None:
-
         return False
 
+    if high_gap is None:
+        return False
 
     # -----------------------------------------------------
-    # Current price must be above 200 DMA
+    # Must be ABOVE 200 DMA
     # -----------------------------------------------------
 
     if close <= dma_200:
-
         return False
 
-
     # -----------------------------------------------------
-    # Must be near or above prior high
-    #
-    # Example:
-    #
-    # Prior high = 530
-    # Current price = 520
-    #
-    # Gap = -1.89%
-    #
-    # Eligible.
+    # Must be within 5% of 52-week high
+    # OR above the high
     # -----------------------------------------------------
-
-    if high_gap is None:
-
-        return False
-
 
     if high_gap < -NEAR_HIGH_PERCENT:
-
         return False
-
 
     return True
 
@@ -482,9 +409,7 @@ def calculate_trend_target(row):
     )
 
     if close is None or close <= 0:
-
         return None
-
 
     dma_200 = safe_number(
         row.get("dma_200")
@@ -506,83 +431,72 @@ def calculate_trend_target(row):
         row.get("fundamental_score")
     )
 
-
     # -----------------------------------------------------
-    # Base trend potential
-    #
-    # This is deliberately conservative.
+    # Base expected trend
     # -----------------------------------------------------
 
     expected_return = 8.0
 
-
+    # -----------------------------------------------------
     # Technical strength
+    # -----------------------------------------------------
 
     if technical is not None:
 
         if technical >= 80:
-
             expected_return += 7
 
         elif technical >= 65:
-
             expected_return += 5
 
         elif technical >= 55:
-
             expected_return += 3
 
-
+    # -----------------------------------------------------
     # Fundamental strength
+    # -----------------------------------------------------
 
     if fundamental is not None:
 
         if fundamental >= 80:
-
             expected_return += 5
 
         elif fundamental >= 65:
-
             expected_return += 3
 
-
-    # RSI confirmation
+    # -----------------------------------------------------
+    # RSI
+    # -----------------------------------------------------
 
     if rsi is not None:
 
         if 55 <= rsi <= 70:
-
             expected_return += 3
 
         elif rsi > 75:
-
             expected_return -= 2
 
-
-    # Volume confirmation
+    # -----------------------------------------------------
+    # Volume
+    # -----------------------------------------------------
 
     if volume is not None:
 
         if volume >= 1.5:
-
             expected_return += 3
 
         elif volume >= 1.2:
-
             expected_return += 1
 
+    # -----------------------------------------------------
+    # Distance above 200 DMA
+    # -----------------------------------------------------
 
-    # Strong distance above 200 DMA
-    # gives additional trend confirmation.
-
-    if dma_200 is not None:
+    if dma_200 is not None and dma_200 > 0:
 
         dma_gap = (
-            close /
-            dma_200
-            - 1
+            (close / dma_200) - 1
         ) * 100
-
 
         if dma_gap >= 20:
 
@@ -592,8 +506,9 @@ def calculate_trend_target(row):
 
             expected_return += 1
 
-
-    # Limit model target
+    # -----------------------------------------------------
+    # Limit target expectation
+    # -----------------------------------------------------
 
     expected_return = max(
         5.0,
@@ -603,17 +518,9 @@ def calculate_trend_target(row):
         )
     )
 
-
-    target = (
-
-        close *
-        (
-            1 +
-            expected_return / 100
-        )
-
+    target = close * (
+        1 + expected_return / 100
     )
-
 
     return round(
         target,
@@ -637,7 +544,6 @@ def risk_classification(
 
         return "HIGH CONVICTION"
 
-
     if (
         combined_score >= 65
         and expected_return >= 10
@@ -645,11 +551,9 @@ def risk_classification(
 
         return "MODERATE CONVICTION"
 
-
     if combined_score >= 50:
 
         return "WATCH"
-
 
     return "HIGH RISK"
 
@@ -665,18 +569,9 @@ def build_portfolio(
 ):
 
     print("")
-    print(
-        "================================================="
-    )
-
-    print(
-        " NSE SMART PORTFOLIO BUILDER"
-    )
-
-    print(
-        "================================================="
-    )
-
+    print("=================================================")
+    print(" NSE SMART PORTFOLIO BUILDER")
+    print("=================================================")
     print("")
 
     print(
@@ -688,7 +583,7 @@ def build_portfolio(
     )
 
     print(
-        f"Near high range  : {NEAR_HIGH_PERCENT}%"
+        f"Near 52W high    : {NEAR_HIGH_PERCENT}%"
     )
 
     print(
@@ -697,29 +592,23 @@ def build_portfolio(
 
     print("")
 
-
     # -----------------------------------------------------
-    # Eligibility
+    # Find eligible stocks
     # -----------------------------------------------------
 
-    eligible = [
+    eligible_rows = []
 
-        row
+    for _, row in df.iterrows():
 
-        for _, row
-        in df.iterrows()
+        if is_eligible(row):
 
-        if is_eligible(row)
-
-    ]
-
+            eligible_rows.append(row)
 
     print(
-        f"Eligible stocks: {len(eligible)}"
+        f"Eligible stocks: {len(eligible_rows)}"
     )
 
-
-    if not eligible:
+    if not eligible_rows:
 
         print(
             "No eligible stocks found."
@@ -727,13 +616,12 @@ def build_portfolio(
 
         return pd.DataFrame()
 
-
-    eligible_df =
-        pd.DataFrame(eligible)
-
+    eligible_df = pd.DataFrame(
+        eligible_rows
+    )
 
     # -----------------------------------------------------
-    # Scores
+    # Technical score
     # -----------------------------------------------------
 
     eligible_df[
@@ -743,6 +631,9 @@ def build_portfolio(
         axis=1
     )
 
+    # -----------------------------------------------------
+    # Fundamental score
+    # -----------------------------------------------------
 
     eligible_df[
         "calculated_fundamental_score"
@@ -751,82 +642,67 @@ def build_portfolio(
         axis=1
     )
 
+    # -----------------------------------------------------
+    # Combined score
+    #
+    # 60% Technical
+    # 40% Fundamental
+    # -----------------------------------------------------
 
     eligible_df[
         "combined_score"
     ] = (
-
         eligible_df[
             "calculated_technical_score"
-        ]
-
-        * 0.60
-
+        ] * 0.60
         +
-
         eligible_df[
             "calculated_fundamental_score"
-        ]
-
-        * 0.40
-
+        ] * 0.40
     ).round(2)
-
 
     # -----------------------------------------------------
     # Rank
     # -----------------------------------------------------
 
-    eligible_df = (
-
-        eligible_df
-
-        .sort_values(
-            [
-                "combined_score",
-                "calculated_technical_score",
-                "calculated_fundamental_score"
-            ],
-
-            ascending=False
-        )
-
-        .reset_index(drop=True)
-
+    eligible_df = eligible_df.sort_values(
+        [
+            "combined_score",
+            "calculated_technical_score",
+            "calculated_fundamental_score"
+        ],
+        ascending=False
+    ).reset_index(
+        drop=True
     )
 
-
     # -----------------------------------------------------
-    # Select stocks
+    # Select requested number
     # -----------------------------------------------------
 
-    selected = (
+    selected = eligible_df.head(
+        stock_count
+    ).copy()
 
-        eligible_df
+    if selected.empty:
 
-        .head(stock_count)
-
-        .copy()
-
-    )
-
+        return pd.DataFrame()
 
     # -----------------------------------------------------
     # Equal allocation
     # -----------------------------------------------------
 
     allocation = (
-
         portfolio_amount /
         len(selected)
-
     )
-
 
     selected[
         "allocation_amount"
-    ] = allocation
-
+    ] = round(
+        allocation,
+        2
+    )
 
     # -----------------------------------------------------
     # Entry price
@@ -840,29 +716,26 @@ def build_portfolio(
         safe_number
     )
 
-
     # -----------------------------------------------------
     # Quantity
     # -----------------------------------------------------
 
     selected[
         "quantity"
-    ] = (
-
-        selected[
-            "allocation_amount"
-        ]
-
-        /
-
-        selected[
-            "entry_price"
-        ]
-
-    ).apply(
-        math.floor
+    ] = selected.apply(
+        lambda row:
+        math.floor(
+            row["allocation_amount"]
+            /
+            row["entry_price"]
+        )
+        if (
+            row["entry_price"] is not None
+            and row["entry_price"] > 0
+        )
+        else 0,
+        axis=1
     )
-
 
     # -----------------------------------------------------
     # Actual investment
@@ -871,19 +744,10 @@ def build_portfolio(
     selected[
         "actual_investment"
     ] = (
-
-        selected[
-            "quantity"
-        ]
-
+        selected["quantity"]
         *
-
-        selected[
-            "entry_price"
-        ]
-
+        selected["entry_price"]
     ).round(2)
-
 
     # -----------------------------------------------------
     # Stop loss
@@ -892,20 +756,13 @@ def build_portfolio(
     selected[
         "stop_loss"
     ] = (
-
-        selected[
-            "entry_price"
-        ]
-
+        selected["entry_price"]
         *
-
         (
             1 -
             STOP_LOSS_PERCENT / 100
         )
-
     ).round(2)
-
 
     # -----------------------------------------------------
     # Maximum position loss
@@ -914,19 +771,12 @@ def build_portfolio(
     selected[
         "maximum_loss"
     ] = (
-
-        selected[
-            "actual_investment"
-        ]
-
+        selected["actual_investment"]
         *
-
         STOP_LOSS_PERCENT
         /
         100
-
     ).round(2)
-
 
     # -----------------------------------------------------
     # Trend target
@@ -939,37 +789,26 @@ def build_portfolio(
         axis=1
     )
 
-
     # -----------------------------------------------------
-    # Expected return
+    # Expected gain %
     # -----------------------------------------------------
 
     selected[
         "expected_gain_percent"
     ] = (
-
         (
-
-            selected[
-                "trend_target"
-            ]
-
+            selected["trend_target"]
             /
-
-            selected[
-                "entry_price"
-            ]
-
-            - 1
-
+            selected["entry_price"]
         )
+        - 1
+    ) * 100
 
-        *
-
-        100
-
-    ).round(2)
-
+    selected[
+        "expected_gain_percent"
+    ] = selected[
+        "expected_gain_percent"
+    ].round(2)
 
     # -----------------------------------------------------
     # Expected gain amount
@@ -978,23 +817,12 @@ def build_portfolio(
     selected[
         "expected_gain_amount"
     ] = (
-
-        selected[
-            "actual_investment"
-        ]
-
+        selected["actual_investment"]
         *
-
-        selected[
-            "expected_gain_percent"
-        ]
-
+        selected["expected_gain_percent"]
         /
-
         100
-
     ).round(2)
-
 
     # -----------------------------------------------------
     # Risk classification
@@ -1003,28 +831,16 @@ def build_portfolio(
     selected[
         "risk_classification"
     ] = selected.apply(
-
-        lambda r:
-
+        lambda row:
         risk_classification(
-
-            r[
-                "combined_score"
-            ],
-
-            r[
-                "expected_gain_percent"
-            ]
-
+            row["combined_score"],
+            row["expected_gain_percent"]
         ),
-
         axis=1
-
     )
 
-
     # -----------------------------------------------------
-    # Rank
+    # Portfolio rank
     # -----------------------------------------------------
 
     selected.insert(
@@ -1036,32 +852,22 @@ def build_portfolio(
         )
     )
 
-
     # -----------------------------------------------------
-    # Position weight
+    # Portfolio weight
     # -----------------------------------------------------
 
     selected[
         "portfolio_weight_percent"
     ] = (
-
-        selected[
-            "actual_investment"
-        ]
-
+        selected["actual_investment"]
         /
-
         portfolio_amount
-
         *
-
         100
-
     ).round(2)
 
-
     # -----------------------------------------------------
-    # Clean output
+    # Output columns
     # -----------------------------------------------------
 
     output_columns = [
@@ -1115,54 +921,42 @@ def build_portfolio(
         "risk_classification",
 
         "setup"
-
     ]
 
+    # Only retain columns that actually exist.
 
     output_columns = [
-
-        c
-
-        for c in output_columns
-
-        if c in selected.columns
-
+        column
+        for column in output_columns
+        if column in selected.columns
     ]
 
-
-    result =
-        selected[
-            output_columns
-        ].copy()
-
+    result = selected[
+        output_columns
+    ].copy()
 
     return result
 
 
 # =========================================================
-# SAVE
+# SAVE OUTPUT
 # =========================================================
 
-def save_output(
-    portfolio
-):
+def save_output(portfolio):
 
     if portfolio.empty:
 
         return
-
 
     portfolio.to_csv(
         PORTFOLIO_FILE,
         index=False
     )
 
-
     portfolio.to_excel(
         PORTFOLIO_XLSX,
         index=False
     )
-
 
     print("")
 
@@ -1171,16 +965,16 @@ def save_output(
     )
 
     print(
-        PORTFOLIO_FILE
+        f"CSV  : {PORTFOLIO_FILE}"
     )
 
     print(
-        PORTFOLIO_XLSX
+        f"Excel: {PORTFOLIO_XLSX}"
     )
 
 
 # =========================================================
-# SUMMARY
+# PORTFOLIO SUMMARY
 # =========================================================
 
 def print_summary(
@@ -1192,103 +986,82 @@ def print_summary(
 
         return
 
+    total_invested = portfolio[
+        "actual_investment"
+    ].sum()
 
-    total_invested =
-        portfolio[
-            "actual_investment"
-        ].sum()
+    total_expected_gain = portfolio[
+        "expected_gain_amount"
+    ].sum()
 
+    total_maximum_loss = portfolio[
+        "maximum_loss"
+    ].sum()
 
-    total_expected_gain =
-        portfolio[
-            "expected_gain_amount"
-        ].sum()
+    if total_invested > 0:
 
+        expected_return = (
+            total_expected_gain
+            /
+            total_invested
+            *
+            100
+        )
 
-    total_maximum_loss =
-        portfolio[
-            "maximum_loss"
-        ].sum()
+        maximum_loss_percent = (
+            total_maximum_loss
+            /
+            total_invested
+            *
+            100
+        )
 
+    else:
 
-    expected_return = (
+        expected_return = 0
 
-        total_expected_gain
-        /
-
-        total_invested
-
-        *
-
-        100
-
-    )
-
-
-    maximum_loss_percent = (
-
-        total_maximum_loss
-        /
-
-        total_invested
-
-        *
-
-        100
-
-    )
-
+        maximum_loss_percent = 0
 
     print("")
 
-    print(
-        "================================================="
-    )
-
-    print(
-        " PORTFOLIO SUMMARY"
-    )
-
-    print(
-        "================================================="
-    )
-
+    print("=================================================")
+    print(" PORTFOLIO SUMMARY")
+    print("=================================================")
     print("")
 
     print(
-        f"Stocks selected       : {len(portfolio)}"
+        f"Stocks selected    : {len(portfolio)}"
     )
 
     print(
-        f"Portfolio amount      : ₹{portfolio_amount:,.2f}"
+        f"Portfolio amount   : ₹{portfolio_amount:,.2f}"
     )
 
     print(
-        f"Actual investment     : ₹{total_invested:,.2f}"
+        f"Actual investment  : ₹{total_invested:,.2f}"
     )
 
     print(
-        f"Expected gain         : ₹{total_expected_gain:,.2f}"
+        f"Expected gain      : ₹{total_expected_gain:,.2f}"
     )
 
     print(
-        f"Expected return       : {expected_return:.2f}%"
+        f"Expected return    : {expected_return:.2f}%"
     )
 
     print(
-        f"Maximum loss          : ₹{total_maximum_loss:,.2f}"
+        f"Maximum loss       : ₹{total_maximum_loss:,.2f}"
     )
 
     print(
-        f"Maximum loss %        : {maximum_loss_percent:.2f}%"
+        f"Maximum loss %     : {maximum_loss_percent:.2f}%"
     )
 
     print("")
 
-    print(
-        "================================================="
-    )
-
+    print("=================================================")
+    print(" SELECTED STOCKS")
+    print("=================================================")
     print("")
 
     print(
@@ -1307,27 +1080,25 @@ def print_summary(
 def main():
 
     print("")
+    print("Loading scanner data...")
 
-    print(
-        "Loading scanner data..."
-    )
-
+    # -----------------------------------------------------
+    # Check input file
+    # -----------------------------------------------------
 
     if not INPUT_FILE.exists():
 
         raise FileNotFoundError(
-
-            f"Input file not found: "
-            f"{INPUT_FILE}"
-
+            f"Input file not found: {INPUT_FILE}"
         )
 
+    # -----------------------------------------------------
+    # Read scanner data
+    # -----------------------------------------------------
 
-    df =
-        pd.read_csv(
-            INPUT_FILE
-        )
-
+    df = pd.read_csv(
+        INPUT_FILE
+    )
 
     if df.empty:
 
@@ -1337,20 +1108,29 @@ def main():
 
         return
 
+    print(
+        f"Scanner rows loaded: {len(df)}"
+    )
 
-    portfolio =
-        build_portfolio(
+    # -----------------------------------------------------
+    # Build portfolio
+    # -----------------------------------------------------
 
-            df,
+    portfolio = build_portfolio(
 
-            portfolio_amount=
-                DEFAULT_PORTFOLIO_AMOUNT,
+        df=df,
 
-            stock_count=
-                DEFAULT_STOCK_COUNT
+        portfolio_amount=
+            DEFAULT_PORTFOLIO_AMOUNT,
 
-        )
+        stock_count=
+            DEFAULT_STOCK_COUNT
 
+    )
+
+    # -----------------------------------------------------
+    # No portfolio
+    # -----------------------------------------------------
 
     if portfolio.empty:
 
@@ -1360,11 +1140,17 @@ def main():
 
         return
 
+    # -----------------------------------------------------
+    # Save
+    # -----------------------------------------------------
 
     save_output(
         portfolio
     )
 
+    # -----------------------------------------------------
+    # Summary
+    # -----------------------------------------------------
 
     print_summary(
 
@@ -1373,6 +1159,10 @@ def main():
         DEFAULT_PORTFOLIO_AMOUNT
 
     )
+
+    print("")
+    print("Portfolio Builder completed successfully.")
+    print("")
 
 
 # =========================================================
