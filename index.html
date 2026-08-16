@@ -1779,6 +1779,23 @@ body{
 
 }
 
+
+/* =========================================================
+   SMART PORTFOLIO BUILDER
+   ========================================================= */
+.portfolio-builder-card{margin-top:20px;border:1px solid var(--line);background:linear-gradient(135deg,#fff,#f8fbff)}
+.portfolio-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}
+.portfolio-badge{background:linear-gradient(135deg,#0f766e,#059669);color:#fff;padding:9px 14px;border-radius:999px;font-size:11px;font-weight:900;white-space:nowrap}
+.portfolio-controls{display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:12px;padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:16px}
+.portfolio-input{display:flex;flex-direction:column;gap:6px}.portfolio-input label{font-size:10px;font-weight:900;text-transform:uppercase;color:#64748b;letter-spacing:.4px}
+.portfolio-input input,.portfolio-input select{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;background:#fff;color:#172033;font-size:14px;font-weight:700;outline:none}
+.portfolio-input input:focus,.portfolio-input select:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.portfolio-action{display:flex;align-items:flex-end}.portfolio-build-btn,.portfolio-export-btn{border:0;border-radius:10px;padding:12px 18px;color:#fff;font-size:12px;font-weight:900;cursor:pointer}.portfolio-build-btn{background:linear-gradient(135deg,#1d4ed8,#2563eb);box-shadow:0 7px 18px rgba(37,99,235,.22)}.portfolio-export-btn{background:linear-gradient(135deg,#047857,#16a34a);padding:10px 14px}
+.portfolio-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}.portfolio-summary-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px}.portfolio-summary-label{font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase}.portfolio-summary-value{font-size:20px;font-weight:950;margin-top:5px;color:#0f2742}.gain-card{border-left:4px solid #16a34a}.gain-card .portfolio-summary-value{color:#15803d}.loss-card{border-left:4px solid #dc2626}.loss-card .portfolio-summary-value{color:#dc2626}
+.portfolio-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.portfolio-note{font-size:11px;color:#64748b}.portfolio-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px}.portfolio-table th{position:sticky;top:0;z-index:2;background:#f1f5f9;color:#475569;padding:10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.35px;border-bottom:1px solid #dbe3ed;white-space:nowrap}.portfolio-table td{padding:11px 9px;border-bottom:1px solid #edf1f5;white-space:nowrap}.portfolio-table tbody tr:hover{background:#eff6ff}.portfolio-stock{font-weight:950;color:#0f2742}.portfolio-score{font-weight:900}.portfolio-good{color:#15803d;font-weight:900}.portfolio-warning{color:#b45309;font-weight:900}.portfolio-danger{color:#dc2626;font-weight:900}.portfolio-rating{display:inline-block;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:950}.rating-high{background:#dcfce7;color:#166534}.rating-medium{background:#fef3c7;color:#92400e}.rating-watch{background:#e2e8f0;color:#475569}.portfolio-disclaimer{margin-top:12px;padding:11px;border-radius:9px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:10px;line-height:1.5}
+@media(max-width:1100px){.portfolio-controls{grid-template-columns:repeat(2,1fr)}.portfolio-summary{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.portfolio-header{flex-direction:column;align-items:flex-start}.portfolio-controls{grid-template-columns:1fr}.portfolio-summary{grid-template-columns:repeat(2,1fr)}.portfolio-toolbar{flex-direction:column;align-items:flex-start}}
+
 </style>
 
 </head>
@@ -2165,6 +2182,50 @@ body{
     id="nearHighNote"
   ></div>
 
+</div>
+
+
+
+<!-- =======================================================
+     SMART PORTFOLIO BUILDER
+     ======================================================= -->
+<div class="card portfolio-builder-card">
+  <div class="portfolio-header">
+    <div>
+      <div class="section-title">📊 Smart Portfolio Builder</div>
+      <div class="section-description">Build a research portfolio from stocks trading above 200 DMA and close to their 52-week/prior high.</div>
+    </div>
+    <div class="portfolio-badge">60% Technical · 40% Fundamental</div>
+  </div>
+
+  <div class="portfolio-controls">
+    <div class="portfolio-input"><label>Portfolio Amount</label><input id="portfolioAmount" type="number" value="1000000" min="10000" step="10000"></div>
+    <div class="portfolio-input"><label>Number of Stocks</label><input id="portfolioStocks" type="number" value="10" min="1" max="50"></div>
+    <div class="portfolio-input"><label>Near 52-Week High</label><select id="portfolioHighFilter"><option value="5">Within 5%</option><option value="3">Within 3%</option><option value="2">Within 2%</option><option value="1">Within 1%</option><option value="0">At / Above High</option></select></div>
+    <div class="portfolio-action"><button class="portfolio-build-btn" onclick="buildSmartPortfolio()">🚀 Build Portfolio</button></div>
+  </div>
+
+  <div class="portfolio-summary">
+    <div class="portfolio-summary-card"><div class="portfolio-summary-label">Selected Stocks</div><div class="portfolio-summary-value" id="pSelected">—</div></div>
+    <div class="portfolio-summary-card"><div class="portfolio-summary-label">Investment</div><div class="portfolio-summary-value" id="pInvestment">—</div></div>
+    <div class="portfolio-summary-card gain-card"><div class="portfolio-summary-label">Expected Gain</div><div class="portfolio-summary-value" id="pGain">—</div></div>
+    <div class="portfolio-summary-card loss-card"><div class="portfolio-summary-label">Maximum Loss</div><div class="portfolio-summary-value" id="pLoss">—</div></div>
+    <div class="portfolio-summary-card"><div class="portfolio-summary-label">Expected Return</div><div class="portfolio-summary-value" id="pReturn">—</div></div>
+  </div>
+
+  <div class="portfolio-toolbar">
+    <div class="portfolio-note" id="portfolioNote">Enter portfolio amount and click Build Portfolio.</div>
+    <button class="portfolio-export-btn" onclick="exportSmartPortfolio()">📥 Export Portfolio to Excel</button>
+  </div>
+
+  <div class="tablewrap">
+    <table class="portfolio-table">
+      <thead><tr><th>Rank</th><th>Stock</th><th>CMP</th><th>52W High</th><th>Gap to High</th><th>200 DMA</th><th>Technical</th><th>Fundamental</th><th>Overall</th><th>Allocation</th><th>Qty</th><th>Entry</th><th>Stop Loss</th><th>Target</th><th>Expected Gain</th><th>Max Loss</th><th>Rating</th></tr></thead>
+      <tbody id="portfolioBody"><tr><td colspan="17" class="list-empty">Build a portfolio to see ranked recommendations.</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="portfolio-disclaimer">⚠️ Research/screening model only. Expected gain is a trend-based estimate, not a guaranteed return. The 10% stop-loss is a model risk-control level. Verify live prices, liquidity, company fundamentals and market conditions before investing.</div>
 </div>
 
 
@@ -5451,6 +5512,65 @@ async function load(){
 
   }
 
+}
+
+
+
+/* =========================================================
+   SMART PORTFOLIO BUILDER
+   ========================================================= */
+let smartPortfolioRows=[];
+
+function portfolioMoney(v){return "₹"+(Number(v)||0).toLocaleString("en-IN",{maximumFractionDigits:2});}
+function pNum(v){const x=parseFloat(v);return Number.isFinite(x)?x:null;}
+function pFundamentalScore(r){
+  const existing=pNum(r.fundamental_score); if(existing!==null)return Math.max(0,Math.min(100,existing));
+  const vals=[];
+  const roe=pNum(r.roe); if(roe!==null) vals.push(roe>=20?100:roe>=15?85:roe>=10?70:roe>0?50:20);
+  const roce=pNum(r.roce); if(roce!==null) vals.push(roce>=20?100:roce>=15?85:roce>=10?70:roce>0?50:20);
+  const de=pNum(r.debt_to_equity); if(de!==null) vals.push(de<=.5?100:de<=1?85:de<=2?65:30);
+  const growth=pNum(r.revenue_growth); if(growth!==null) vals.push(growth>=20?100:growth>=10?80:growth>0?60:30);
+  const npm=pNum(r.net_profit_margin); if(npm!==null) vals.push(npm>=20?100:npm>=10?80:npm>0?60:30);
+  return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+}
+function pTechnicalScore(r){
+  let vals=[];
+  const s=pNum(r.score); if(s!==null) vals.push(Math.min(100,Math.max(0,s)));
+  const gap=pNum(r.distance_to_prior_high_pct); if(gap!==null) vals.push(gap>=0?100:gap>=-1?95:gap>=-2?90:gap>=-3?80:65);
+  const rsi=pNum(r.rsi_14); if(rsi!==null) vals.push(rsi>=55&&rsi<=70?100:rsi>=50?85:rsi>70&&rsi<=75?80:rsi>=45?65:45);
+  const vol=pNum(r.volume_ratio); if(vol!==null) vals.push(vol>=2?100:vol>=1.5?90:vol>=1.2?80:vol>=1?65:45);
+  const dmaGap=pNum(r.distance_to_200dma_pct); if(dmaGap!==null) vals.push(dmaGap>=15?100:dmaGap>=8?90:dmaGap>=3?80:dmaGap>=0?70:30);
+  return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+}
+function pExpectedReturn(r,t,f){
+  let e=8;
+  if(t>=80)e+=7; else if(t>=65)e+=5; else if(t>=55)e+=3;
+  if(f>=80)e+=5; else if(f>=65)e+=3;
+  const rsi=pNum(r.rsi_14); if(rsi!==null){if(rsi>=55&&rsi<=70)e+=3;else if(rsi>75)e-=2;}
+  const vol=pNum(r.volume_ratio); if(vol!==null){if(vol>=1.5)e+=3;else if(vol>=1.2)e+=1;}
+  return Math.max(5,Math.min(30,e));
+}
+function buildSmartPortfolio(){
+  const amount=Number(document.getElementById("portfolioAmount").value); const count=Math.max(1,Math.min(50,Number(document.getElementById("portfolioStocks").value)||10)); const filter=Number(document.getElementById("portfolioHighFilter").value);
+  if(!amount||amount<=0){alert("Please enter a valid portfolio amount.");return;}
+  let eligible=rows.filter(r=>{const close=pNum(r.close),dma=pNum(r.dma_200),gap=pNum(r.distance_to_prior_high_pct);return close!==null&&dma!==null&&close>dma&&gap!==null&&gap>=-filter;});
+  if(!eligible.length){document.getElementById("portfolioBody").innerHTML='<tr><td colspan="17" class="list-empty">No stocks satisfy the selected 52-week-high + above-200-DMA conditions.</td></tr>';return;}
+  eligible=eligible.map(r=>{const t=pTechnicalScore(r),f=pFundamentalScore(r);return {...r,portfolioTechnical:t,portfolioFundamental:f,portfolioOverall:t*.6+f*.4,portfolioExpected:pExpectedReturn(r,t,f)};}).sort((a,b)=>b.portfolioOverall-a.portfolioOverall);
+  const selected=eligible.slice(0,count), allocation=amount/selected.length;
+  smartPortfolioRows=selected.map((r,i)=>{const entry=pNum(r.close)||0,stop=entry*.9,target=entry*(1+r.portfolioExpected/100),qty=Math.floor(allocation/entry),investment=qty*entry,gain=investment*r.portfolioExpected/100,loss=investment*.1;let rating="WATCH";if(r.portfolioOverall>=80&&r.portfolioExpected>=15)rating="HIGH CONVICTION";else if(r.portfolioOverall>=65)rating="MODERATE";return {rank:i+1,symbol:r.symbol,cmp:entry,high:pNum(r.prior_high_before_breakdown),highGap:pNum(r.distance_to_prior_high_pct),dma200:pNum(r.dma_200),technical:r.portfolioTechnical,fundamental:r.portfolioFundamental,overall:r.portfolioOverall,allocation,quantity:qty,investment,entry,stopLoss:stop,target,expectedPercent:r.portfolioExpected,expectedGain:gain,maxLoss:loss,rating};});
+  renderSmartPortfolio();
+}
+function renderSmartPortfolio(){
+  const body=document.getElementById("portfolioBody");
+  body.innerHTML=smartPortfolioRows.map(r=>{const cls=r.rating==="HIGH CONVICTION"?"rating-high":r.rating==="MODERATE"?"rating-medium":"rating-watch";return `<tr><td><b>${r.rank}</b></td><td class="portfolio-stock">${esc(r.symbol)}</td><td>${portfolioMoney(r.cmp)}</td><td>${r.high===null?"—":portfolioMoney(r.high)}</td><td class="${r.highGap!==null&&r.highGap>=0?"portfolio-good":"portfolio-warning"}">${r.highGap===null?"—":(r.highGap>=0?"+":"")+r.highGap.toFixed(2)+"%"}</td><td>${portfolioMoney(r.dma200)}</td><td class="portfolio-score">${r.technical.toFixed(1)}</td><td class="portfolio-score">${r.fundamental.toFixed(1)}</td><td class="portfolio-score"><b>${r.overall.toFixed(1)}</b></td><td>${portfolioMoney(r.allocation)}</td><td><b>${r.quantity}</b></td><td>${portfolioMoney(r.entry)}</td><td class="portfolio-danger">${portfolioMoney(r.stopLoss)}</td><td class="portfolio-good">${portfolioMoney(r.target)}</td><td class="portfolio-good">+${r.expectedPercent.toFixed(1)}%<br><small>${portfolioMoney(r.expectedGain)}</small></td><td class="portfolio-danger">${portfolioMoney(r.maxLoss)}</td><td><span class="portfolio-rating ${cls}">${r.rating}</span></td></tr>`;}).join("");
+  const investment=smartPortfolioRows.reduce((s,r)=>s+r.investment,0),gain=smartPortfolioRows.reduce((s,r)=>s+r.expectedGain,0),loss=smartPortfolioRows.reduce((s,r)=>s+r.maxLoss,0),ret=investment?gain/investment*100:0;
+  document.getElementById("pSelected").textContent=smartPortfolioRows.length; document.getElementById("pInvestment").textContent=portfolioMoney(investment); document.getElementById("pGain").textContent=portfolioMoney(gain); document.getElementById("pLoss").textContent=portfolioMoney(loss); document.getElementById("pReturn").textContent=ret.toFixed(2)+"%";
+  document.getElementById("portfolioNote").textContent=`Selected ${smartPortfolioRows.length} highest-ranked stocks from the current above-200-DMA and near-high universe.`;
+}
+function exportSmartPortfolio(){
+  if(!smartPortfolioRows.length){alert("Build the portfolio first.");return;} if(typeof XLSX==="undefined"){alert("Excel export library is not loaded.");return;}
+  const data=smartPortfolioRows.map(r=>({Rank:r.rank,Stock:r.symbol,CMP:r.cmp,"52 Week High":r.high,"Gap to High %":r.highGap,"200 DMA":r.dma200,"Technical Score":Number(r.technical.toFixed(2)),"Fundamental Score":Number(r.fundamental.toFixed(2)),"Combined Score":Number(r.overall.toFixed(2)),Allocation:r.allocation,Quantity:r.quantity,"Actual Investment":r.investment,"Entry Price":r.entry,"Stop Loss":r.stopLoss,"Trend Target":r.target,"Expected Gain %":Number(r.expectedPercent.toFixed(2)),"Expected Gain":r.expectedGain,"Maximum Loss":r.maxLoss,Rating:r.rating}));
+  const ws=XLSX.utils.json_to_sheet(data),wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Portfolio"); ws["!cols"]=[{wch:8},{wch:15},{wch:14},{wch:16},{wch:14},{wch:14},{wch:16},{wch:18},{wch:16},{wch:16},{wch:10},{wch:12},{wch:18},{wch:14},{wch:15},{wch:16},{wch:16},{wch:16},{wch:20}]; XLSX.writeFile(wb,`NSE_Smart_Portfolio_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
 
